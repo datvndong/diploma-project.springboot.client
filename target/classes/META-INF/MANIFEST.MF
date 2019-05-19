@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: dut.diploma-project.centralized-system
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: DatVNDong
+Implementation-Vendor-Id: dut.diploma-project.centralized-system
+Build-Jdk: 1.8.0_192
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/dut.diploma-project.centralized-system
+Created-By: Maven Integration for Eclipse
+
