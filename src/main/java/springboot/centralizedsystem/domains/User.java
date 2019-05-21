@@ -2,16 +2,16 @@ package springboot.centralizedsystem.domains;
 
 public class User {
 
-    private String username;
+    private String email;
     private String password;
     private String token;
     
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
     
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
     
     public String getPassword() {
@@ -34,9 +34,9 @@ public class User {
 
     }
     
-    public User(String username, String password, String token) {
+    public User(String email, String password, String token) {
         super();
-        this.username = username;
+        this.email = email;
         this.password = password;
         this.token = token;
     }

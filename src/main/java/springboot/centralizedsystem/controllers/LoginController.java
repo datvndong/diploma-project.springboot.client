@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,41 +22,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
 import springboot.centralizedsystem.resources.Errors;
+import springboot.centralizedsystem.resources.Messages;
+import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.utils.HttpUtils;
 
 @Controller
 public class LoginController {
 
-    private static final String URL_TEST = "http://localhost:3001/current";
-
-    @GetMapping(value = { "/test" })
-    public String test(ModelMap model) {
-        // HttpHeaders
-        HttpHeaders headers = HttpUtils.getHeader();
-        headers.set("x-jwt-token",
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjVjZGZiOWQ0M2U1MzRlMjVhODI1NWJmMiJ9LCJmb3JtIjp7Il9pZCI6IjVjZGZiOWNjM2U1MzRlMjVhODI1NWJlOCJ9LCJpYXQiOjE1NTgyODAxMzcsImV4cCI6MTU1ODI5NDUzN30.DbIX7dwrnOMioCuIKPyutZUNjXXGF8v2tV1V1HCYTE0");
-
-        // HttpEntity<String>: To get result as String.
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        // RestTemplate
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Gửi yêu cầu với phương thức GET, và các thông tin Headers.
-        ResponseEntity<String> response = restTemplate.exchange(URL_TEST, HttpMethod.GET, entity, String.class);
-
-        HttpStatus statusCode = response.getStatusCode();
-        System.out.println("Response Satus Code: " + statusCode);
-        if (statusCode == HttpStatus.OK) {
-            String result = response.getBody();
-            System.out.println(result);
-        }
-        return "test";
-    }
-
-    @GetMapping(value = { "", "/", "/login" })
-    public String loginGET(Model model, @ModelAttribute(Errors.ERROR_401) String error) {
+    @GetMapping(value = { RequestsPath.NONE, RequestsPath.SLASH, RequestsPath.LOGIN })
+    public String loginGET(Model model, @ModelAttribute(Errors.LOGIN) String error) {
         model.addAttribute("title", "Login");
         model.addAttribute("user", new User("xtreme@admin.io", null, null));
         if (!error.equals("")) {
@@ -66,41 +40,36 @@ public class LoginController {
         return Views.LOGIN;
     }
 
-    @PostMapping("/login")
-    public String loginPOST(@Valid User user, Model model, BindingResult result, RedirectAttributes redirect,
-            HttpSession session) {
+    @PostMapping(RequestsPath.LOGIN)
+    public String loginPOST(@Valid User user, Model model, BindingResult result, HttpSession session,
+            RedirectAttributes redirect) {
         try {
             if (result.hasErrors()) {
                 return Views.LOGIN;
             }
 
-            String username = user.getUsername();
-            String reqJSON = "{\"data\":{\"email\":\"" + username + "\",\"password\":\""
+            String email = user.getEmail();
+            String reqJSON = "{\"data\":{\"email\":\"" + email + "\",\"password\":\""
                     + user.getPassword() + "\"}}";
 
-            // Attached data in request.
             HttpEntity<String> entity = new HttpEntity<>(reqJSON, HttpUtils.getHeader());
 
-            // Submit request with POST method.
             ResponseEntity<String> res = new RestTemplate().postForEntity(APIs.LOGIN_URL, entity,
                     String.class);
 
-            // Code = 200.
             if (res.getStatusCode() == HttpStatus.OK) {
-                String body = res.getBody();
-                System.out.println("-> " + body);
                 session.setAttribute("user",
-                        new User(username, null, res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
-                return "redirect:/index";
+                        new User(email.split("@")[0], null, res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
+                return "redirect:" + RequestsPath.DASHBOARD;
             }
 
             return Views.ERROR_404;
         } catch (HttpClientErrorException e) {
             // 401 Unauthorized
             // 400 Bad Request
-            if (e.getMessage().equals(Errors.ERROR_401)) {
-                redirect.addFlashAttribute(Errors.ERROR_401, Errors.INVALID_ACCOUNT);
-                return "redirect:/" + Views.LOGIN;
+            if (e.getMessage().equals(HttpStatus.UNAUTHORIZED.toString())) {
+                redirect.addFlashAttribute(Errors.LOGIN, Messages.INVALID_ACCOUNT_MESSAGE);
+                return "redirect:" + RequestsPath.LOGIN;
             }
             return Views.ERROR_404;
         } catch (ResourceAccessException e) {
@@ -112,16 +81,16 @@ public class LoginController {
         }
     }
 
-    @GetMapping("/logout")
+    @GetMapping(RequestsPath.LOGOUT)
     public String logoutGET() {
-        HttpHeaders headers = HttpUtils.getHeader();
+        HttpHeaders header = HttpUtils.getHeader();
 
         // HttpEntity<String>: To get result as String.
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpEntity<String> entity = new HttpEntity<>(header);
 
         ResponseEntity<String> response = new RestTemplate().exchange(APIs.LOGOUT_URL, HttpMethod.GET, entity,
                 String.class);
 
-        return response.getStatusCode() == HttpStatus.OK ? "redirect:/" + Views.LOGIN : Views.ERROR_404;
+        return response.getStatusCode() == HttpStatus.OK ? "redirect:" + RequestsPath.LOGIN : Views.ERROR_404;
     }
 }
