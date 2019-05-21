@@ -1,6 +1,6 @@
 package springboot.centralizedsystem.resources;
 
-public class Pages {
+public class Views {
 
     public static final String ERROR_404 = "error-404";
     public static final String INDEX = "index";
