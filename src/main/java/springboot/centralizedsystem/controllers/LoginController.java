@@ -67,7 +67,7 @@ public class LoginController {
         } catch (HttpClientErrorException e) {
             // 401 Unauthorized
             // 400 Bad Request
-            if (e.getMessage().equals(HttpStatus.UNAUTHORIZED.toString())) {
+            if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
                 redirect.addFlashAttribute(Errors.LOGIN, Messages.INVALID_ACCOUNT_MESSAGE);
                 return "redirect:" + RequestsPath.LOGIN;
             }
