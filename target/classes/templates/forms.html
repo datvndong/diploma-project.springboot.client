@@ -37,11 +37,11 @@
                       		<td th:text="${obj.title}"></td>
                       		<td>
                               <div class="progress">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div th:id="'bar-' + ${iterStat.count}" th:class="'progress-bar bg-' + ${obj.typeProgressBar}" role="progressbar" style="width: 0%"></div>
                               </div>
                             </td>
                             <td th:text="${obj.amount}"></td>
-                            <td th:text="${obj.endDate}"></td>
+                            <td th:text="${obj.end}"></td>
                       	</tr>
                       </tbody>
                     </table>
@@ -61,6 +61,15 @@
     <!-- page-body-wrapper ends -->
   </div>
   <div th:include="fragments/plugins :: plugins"></div>
+  <script th:inline="javascript">
+  	/*<![CDATA[*/
+  	$(document).ready(function(){
+  		[[${list}]].forEach((obj, i) => {
+  			$("#bar-" + (i + 1)).css("width", obj.durationPercent + "%");
+  		});
+	});
+  	/*]]>*/
+  </script>
 </body>
 
 </html>
