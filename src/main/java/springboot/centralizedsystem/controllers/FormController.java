@@ -49,33 +49,24 @@ public class FormController {
             JSONArray jsonArray = new JSONArray(res.getBody());
             JSONObject jsonObject = null;
             List<Form> list = new ArrayList<>();
-//            for (int i = 0; i < jsonArray.length(); i++) {
-//                jsonObject = (JSONObject) jsonArray.get(i);
-//                if (jsonObject.get("type").equals("form")) {
-//                    String name = jsonObject.getString("name");
-//                    String title = jsonObject.getString("title");
-//                    String path = jsonObject.getString("path");
-//                    int amount = getAmount(entity, path);
-//                    list.add(new Form(name, title, path, amount, "", ""));
-//                }
-//            }
-            list.add(
-                    new Form("a", "a", "a", 1, null, null,
-                            getDurationPercent("05/18/2019 00:01:00", "05/30/2019 05:15:00"),
-                            getTypeProgressBar(getDurationPercent("05/18/2019 00:01:00", "05/30/2019 05:15:00"))));
-//            list.add(
-//                    new Form("b", "b", "b", 2, null, null, getDurationPercent("05/22/2019 01:01", "05/26/2019 05:15"),
-//                            getTypeProgressBar(getDurationPercent("05/22/2019 01:01", "05/26/2019 05:15"))));
-//            list.add(
-//                    new Form("c", "c", "c", 3, null, null, getDurationPercent("05/21/2019 00:01", "05/24/2019 05:15"),
-//                            getTypeProgressBar(getDurationPercent("05/21/2019 00:01", "05/24/2019 05:15"))));
-//            list.add(
-//                    new Form("d", "d", "d", 4, null, null, getDurationPercent("05/19/2019 00:01", "05/26/2019 05:15"),
-//                            getTypeProgressBar(getDurationPercent("05/19/2019 14:01", "05/26/2019 05:15"))));
-            list.add(new Form("e", "e", "e", 5, null, null,
-                    getDurationPercent("05/18/2019 00:01:00", "05/24/2019 05:15:00"),
-                    getTypeProgressBar(getDurationPercent("05/18/2019 00:01:00", "05/24/2019 05:15:00"))));
-
+            for (int i = 0; i < jsonArray.length(); i++) {
+                jsonObject = (JSONObject) jsonArray.get(i);
+                if (jsonObject.get("type").equals("form")) {
+                    String name = jsonObject.getString("name");
+                    String title = jsonObject.getString("title");
+                    String path = jsonObject.getString("path");
+                    int amount = getAmount(entity, path);
+                    String start = "05/18/2019 00:01:00";
+                    String end = "05/30/2019 05:15:00";
+                    List<String> tags = new ArrayList<>();
+                    for (Object object : jsonObject.getJSONArray("tags")) {
+                        tags.add(object.toString());
+                    }
+                    int durationPercent = getDurationPercent(start, end);
+                    String typeProgressBar = getTypeProgressBar(durationPercent);
+                    list.add(new Form(name, title, path, amount, start, end, tags, durationPercent, typeProgressBar));
+                }
+            }
             model.addAttribute("list", list);
 
             model.addAttribute("title", "Forms management");

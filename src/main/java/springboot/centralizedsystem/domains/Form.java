@@ -1,5 +1,7 @@
 package springboot.centralizedsystem.domains;
 
+import java.util.List;
+
 public class Form {
 
     private String name;
@@ -8,6 +10,7 @@ public class Form {
     private int amount;
     private String start;
     private String end;
+    private List<String> tags;
     private int durationPercent;
     private String typeProgressBar;
 
@@ -70,13 +73,13 @@ public class Form {
     public String getTypeProgressBar() {
         return typeProgressBar;
     }
-    
+
     public void setTypeProgressBar(String typeProgressBar) {
         this.typeProgressBar = typeProgressBar;
     }
-    
-    public Form(String name, String title, String path, int amount, String start, String end, int durationPercent,
-            String typeProgressBar) {
+
+    public Form(String name, String title, String path, int amount, String start, String end, List<String> tags,
+            int durationPercent, String typeProgressBar) {
         super();
         this.name = name;
         this.title = title;
@@ -84,11 +87,20 @@ public class Form {
         this.amount = amount;
         this.start = start;
         this.end = end;
+        this.tags = tags;
         this.durationPercent = durationPercent;
         this.typeProgressBar = typeProgressBar;
     }
 
     public Form() {
         super();
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

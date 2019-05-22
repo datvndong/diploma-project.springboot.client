@@ -28,6 +28,7 @@
                           <th>Title</th>
                           <th>Progress</th>
                           <th>Amount</th>
+                          <th>Tags</th>
                           <th>Deadline</th>
                         </tr>
                       </thead>
@@ -41,6 +42,11 @@
                               </div>
                             </td>
                             <td th:text="${obj.amount}"></td>
+                            <td>
+                            	<th:block th:each="tag: ${obj.tags}">
+                            		<label th:text="${tag} + ', '"></label>
+                            	</th:block>
+                            </td>
                             <td th:text="${obj.end}"></td>
                       	</tr>
                       </tbody>
