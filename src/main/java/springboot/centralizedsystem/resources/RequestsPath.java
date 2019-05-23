@@ -12,4 +12,5 @@ public class RequestsPath {
     public static final String FORMS = "/forms";
     public static final String DATAS = "/datas";
     public static final String FORM = "/form";
+    public static final String FORM_BUILDER = "/builder";
 }

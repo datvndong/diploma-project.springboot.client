@@ -111,6 +111,12 @@ public class FormController {
         }
     }
 
+    @GetMapping(RequestsPath.FORM_BUILDER)
+    public String formBulderGET(ModelMap model) {
+        model.addAttribute("title", "Form Builder");
+        return Views.FORM_BUILDER;
+    }
+
     private int getAmount(HttpEntity<String> entity, String path)
             throws HttpClientErrorException, UnknownHttpStatusCodeException {
         ResponseEntity<String> res = new RestTemplate().exchange(APIs.getListSubmissionsURL(path), HttpMethod.GET,
