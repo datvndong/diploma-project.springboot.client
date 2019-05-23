@@ -12,4 +12,8 @@ public class APIs {
     public static String getListSubmissionsURL(String path) {
         return SERVER_URL + "/" + path + "/submission";
     }
+
+    public static String getFormByAlias(String path) {
+        return SERVER_URL + "/" + path;
+    }
 }

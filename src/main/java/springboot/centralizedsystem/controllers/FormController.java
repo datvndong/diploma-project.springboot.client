@@ -13,10 +13,12 @@ import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
@@ -76,6 +78,36 @@ public class FormController {
             return "redirect:" + RequestsPath.LOGIN;
         } catch (ParseException e) {
             return Views.ERROR_404;
+        }
+    }
+
+    @GetMapping(RequestsPath.DATAS)
+    public ResponseEntity<String> datasGET(@RequestParam("path") String path, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            HttpHeaders header = HttpUtils.getHeader();
+            header.set(APIs.TOKEN_KEY, user.getToken());
+
+            HttpEntity<String> entity = new HttpEntity<>(header);
+
+            return new RestTemplate().exchange(APIs.getListSubmissionsURL(path), HttpMethod.GET, entity, String.class);
+        } catch (NullPointerException | HttpClientErrorException | UnknownHttpStatusCodeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(RequestsPath.FORM)
+    public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            HttpHeaders header = HttpUtils.getHeader();
+            header.set(APIs.TOKEN_KEY, user.getToken());
+
+            HttpEntity<String> entity = new HttpEntity<>(header);
+
+            return new RestTemplate().exchange(APIs.getFormByAlias(path), HttpMethod.GET, entity, String.class);
+        } catch (NullPointerException | HttpClientErrorException | UnknownHttpStatusCodeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 

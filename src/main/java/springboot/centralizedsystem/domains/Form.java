@@ -78,8 +78,8 @@ public class Form {
         this.typeProgressBar = typeProgressBar;
     }
 
-    public Form(String name, String title, String path, int amount, String start, String end, List<String> tags,
-            int durationPercent, String typeProgressBar) {
+    public Form(String name, String title, String path, int amount, String start, String end,
+            List<String> tags, int durationPercent, String typeProgressBar) {
         super();
         this.name = name;
         this.title = title;
