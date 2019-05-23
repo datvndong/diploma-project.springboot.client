@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns= "http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+	
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/formiojs@latest/dist/formio.full.min.css" />
+    <script src='https://unpkg.com/formiojs@latest/dist/formio.full.min.js'></script>
+</head>
+
+<body>
+    <div id="builder"></div>
+    <script th:inline="javascript">
+	  	let builder = new Formio.FormBuilder(document.getElementById('builder'), {
+	  		display: 'form',
+	  		type: 'form',
+	  		tags: [],
+	  		owner: null,
+	  		title: null,
+	  		path: null,
+	  	  	components: [],
+	  	  	created: null,
+	  	});
+	  	
+	  	const setDisplay = function(display) {
+	  	  builder.setDisplay(display).then(function(instance) {     
+	  	     instance.on('change', function(form) {
+	  	       if (form.components) {
+	  	    	  alert(JSON.stringify(form));
+	  	       }
+	  	     });
+	  	   });
+	  	};
+	  	
+	  	setDisplay('form');
+	</script>
+</body>
+
+</html>

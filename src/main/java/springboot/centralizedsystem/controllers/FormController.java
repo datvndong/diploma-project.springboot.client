@@ -111,10 +111,15 @@ public class FormController {
         }
     }
 
-    @GetMapping(RequestsPath.FORM_BUILDER)
-    public String formBulderGET(ModelMap model) {
+    @GetMapping(RequestsPath.CREATE_FORM)
+    public String createFormGET(ModelMap model) {
         model.addAttribute("title", "Form Builder");
-        return Views.FORM_BUILDER;
+        return Views.CREATE_FORM;
+    }
+
+    @GetMapping(RequestsPath.BUILDER)
+    public String buildGET() {
+        return Views.BUILDER;
     }
 
     private int getAmount(HttpEntity<String> entity, String path)
