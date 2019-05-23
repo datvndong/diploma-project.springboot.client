@@ -82,7 +82,7 @@ public class LoginController {
     }
 
     @GetMapping(RequestsPath.LOGOUT)
-    public String logoutGET() {
+    public String logoutGET(HttpSession session) {
         HttpHeaders header = HttpUtils.getHeader();
 
         // HttpEntity<String>: To get result as String.
@@ -90,6 +90,7 @@ public class LoginController {
 
         ResponseEntity<String> response = new RestTemplate().exchange(APIs.LOGOUT_URL, HttpMethod.GET, entity,
                 String.class);
+        session.invalidate();
 
         return response.getStatusCode() == HttpStatus.OK ? "redirect:" + RequestsPath.LOGIN : Views.ERROR_404;
     }
