@@ -114,7 +114,7 @@
   			const index = parseInt($(this).find('.nr').text()) - 1;
   			const path = list[index].path;
   			$.ajax({
-  				url: 'http://localhost:8080/datas',
+  				url: 'http://localhost:8080/submissions',
   				method: 'GET',
   				dataType: 'json',
   				data: {
@@ -166,10 +166,9 @@
   							console.log('failed get form info');
   						}
   					});
-  	  				// alert(JSON.stringify(submissions[0].data));
   	  			}, 
-  	  			error: () => {
-  	  				console.log('failed get submissions');
+  	  			error: mess => {
+  	  				alert(JSON.stringify(mess));
   	  			}
   			});
   	    });

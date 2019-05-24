@@ -3,6 +3,7 @@ package springboot.centralizedsystem.controllers;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -33,7 +34,7 @@ public class LoginController {
     @GetMapping(value = { RequestsPath.NONE, RequestsPath.SLASH, RequestsPath.LOGIN })
     public String loginGET(Model model, @ModelAttribute(Errors.LOGIN) String error) {
         model.addAttribute("title", "Login");
-        model.addAttribute("user", new User("xtreme@admin.io", null, null));
+        model.addAttribute("user", new User(null, "xtreme@admin.io", null, null));
         if (!error.equals("")) {
             model.addAttribute("error", error);
         }
@@ -58,8 +59,10 @@ public class LoginController {
                     String.class);
 
             if (res.getStatusCode() == HttpStatus.OK) {
+                JSONObject body = new JSONObject(res.getBody());
                 session.setAttribute("user",
-                        new User(email.split("@")[0], null, res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
+                        new User(body.getString("_id"), email.split("@")[0], null,
+                                res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
                 return "redirect:" + RequestsPath.DASHBOARD;
             }
 

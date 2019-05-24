@@ -5,23 +5,26 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="https://unpkg.com/formiojs@latest/dist/formio.full.min.css" />
-	<script src='https://unpkg.com/formiojs@latest/dist/formio.full.min.js'></script>
+	<link rel="stylesheet" href="css/bootstrap.min.css" />
+	<link rel="stylesheet" href="css/formio.full.min.css" />
+	<script src="js/formio.full.min.js"></script>
+	<script src="js/jquery.min.js"></script>
 </head>
 
 <body>
 	<div id="result-message"></div>
+	
+	<form>
 	<div class="form-group">
 		<label for="exampleInputEmail1">Title</label>
-		<input type="text" class="form-control" id="title" placeholder="Enter the form title" />
+		<input type="text" class="form-control" id="title" placeholder="Enter the form title" required="required" />
 	</div>
 	<div class="row">
 		<div class="col-md-6">
 			<div class="form-group row">
 				<label class="col-sm-1 col-form-label">Path</label>
 				<div class="col-sm-11">
-					<input type="text" class="form-control" id="path" placeholder="example" style="text-transform: lsowercase" />
+					<input type="text" class="form-control" id="path" placeholder="example" style="text-transform: lsowercase" required="required" />
 				</div>
 			</div>
 		</div>
@@ -39,7 +42,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			<div class="form-group row">
 				<label class="col-sm-2 col-form-label">Expired date</label>
 				<div class="col-sm-10">
-					<input type="date" class="form-control" id="expired-date" />
+					<input type="date" class="form-control" id="expired-date" required="required" />
 				</div>
 			</div>
 		</div>
@@ -47,41 +50,70 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			<div class="form-group row">
 				<label class="col-sm-2 col-form-label">Expired time</label>
 				<div class="col-sm-10">
-					<input type="time" class="form-control" id="expired-time" />
+					<input type="time" class="form-control" id="expired-time" required="required" />
 				</div>
 			</div>
 		</div>
 	</div>
+	
+	<div class="row">
+		<div class="col-md-2">
+			<div class="form-group row">
+				<label class="col-sm-3 col-form-label">Access</label>
+				<div class="col-sm-9">
+					<select class="form-control" id="access">
+						<option th:each="role : ${listRoles}" th:value="${role._id}" th:text="${role.title}"></option>
+						<option>Group</option>					
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-10">
+			<div class="form-group row">
+				<label class="col-sm-1 col-form-label">Details</label>
+				<div class="col-sm-11">
+					<select class="form-control" id="details" disabled="disabled">
+						<option>Test</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+	</form>
+	
 	<div id="builder"></div>
-	<button type="submit" class="btn btn-info mr-2" id="create" disabled="disabled">Create</button>
+	<button type="button" class="btn btn-info mr-2" id="create" disabled="disabled">Create</button>
     <button class="btn btn-warning">Cancel</button>
     
 	<script th:inline="javascript">
+		const form = document.querySelector('form');
+		const title = $('#title');
+		const path = $('#path');
+		const expiredDate = $('#expired-date');
+		const expiredTime = $('#expired-time');
+		const access = $('#access');
+		const details = $('#details');
+		const createBtn = $('#create');
+		
 		let builder = new Formio.FormBuilder(document.getElementById('builder'), {
 			display: 'form',
 			type: 'form',
 			tags: [],
-			owner: null,
+			owner: [[${session.user._id}]],
 			title: null,
 			path: null,
+			name: null,
 			components: [],
-			created: null,
+			access: access.value,
 			expiredDate: null,
 			expiredTime: null
 		});
-		
-		const title = document.getElementById('title');
-		const path = document.getElementById('path');
-		const expiredDate = document.getElementById('expired-date');
-		const expiredTime = document.getElementById('expired-time');
-		const createBtn = document.getElementById('create');
-		
+
 		const setDisplay = function(display) {
 			builder.setDisplay(display).then(function(instance) {     
 				instance.on('change', function(form) {
 					if (form.components) {
-						form.components.length !== 0 ? createBtn.removeAttribute('disabled') : createBtn.setAttribute('disabled', 'disabled');		
-						// alert(document.getElementById('expired-time').value);
+						form.components.length !== 0 ? createBtn.removeAttr('disabled') : createBtn.attr('disabled', 'disabled');		
 					}
 				});
 			});
@@ -89,20 +121,52 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		setDisplay('form');
 		
-		title.addEventListener('change', function () {
-			builder.form.title = title.value;
+		title.change(function () {
+			builder.form.title = title.val();
 		});
 		
-		path.addEventListener('change', function () {
-			builder.form.path = path.value;
+		path.change(function () {
+			builder.form.path = path.val();
+			builder.form.name = builder.form.path;
 		});
 		
-		expiredDate.addEventListener('change', function () {
-			builder.form.expiredDate = expiredDate.value;
+		expiredDate.change(function () {
+			builder.form.expiredDate = expiredDate.val();
 		});
 		
-		expiredTime.addEventListener('change', function () {
-			builder.form.expiredTime = expiredTime.value;
+		expiredTime.change(function () {
+			builder.form.expiredTime = expiredTime.val() + ":00";
+		});
+		
+		access.change(function () {
+			const value = access.val();
+			if (value == 'Group') {
+				details.removeAttr('disabled');
+			} else {
+				details.attr('disabled', 'disabled');
+				builder.form.access = value;
+			}
+		});
+		
+		createBtn.click(function () {
+			if (form.checkValidity()){
+				$.ajax({
+					url: 'http://localhost:8080/create-form',
+					method: 'POST',
+	  				dataType: 'json',
+	  				data: {
+	  					formJSON: JSON.stringify(builder.form)
+	  				},
+	  				success: () => {
+	  					$('#result-message').html('Successfully created form!');
+	  				},
+	  				error: mess => {
+	  					$('#result-message').html(mess.responseText);
+					}
+				});
+			} else {
+				form.reportValidity();
+			}
 		});
 	</script>
 </body>
