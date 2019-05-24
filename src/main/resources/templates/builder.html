@@ -5,19 +5,24 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
+	<!--  
 	<link rel="stylesheet" href="css/bootstrap.min.css" />
 	<link rel="stylesheet" href="css/formio.full.min.css" />
 	<script src="js/formio.full.min.js"></script>
+	-->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/formiojs@latest/dist/formio.full.min.css" />
+    <script src="https://unpkg.com/formiojs@latest/dist/formio.full.min.js"></script>
 	<script src="js/jquery.min.js"></script>
 </head>
 
 <body>
-	<div id="result-message"></div>
+	<div id="result-message" style="padding-left: 30px; font-size: 15px; border-radius: 4px"></div>
 	
 	<form>
 	<div class="form-group">
 		<label for="exampleInputEmail1">Title</label>
-		<input type="text" class="form-control" id="title" placeholder="Enter the form title" required="required" />
+		<input type="text" class="form-control" id="title" placeholder="Enter the form title"  />
 	</div>
 	<div class="row">
 		<div class="col-md-6">
@@ -94,12 +99,13 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		const access = $('#access');
 		const details = $('#details');
 		const createBtn = $('#create');
+		const resultMess = $('#result-message');
 		
 		let builder = new Formio.FormBuilder(document.getElementById('builder'), {
 			display: 'form',
 			type: 'form',
 			tags: [],
-			owner: [[${session.user._id}]],
+			owner: [[${session.user.email}]],
 			title: null,
 			path: null,
 			name: null,
@@ -150,6 +156,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		createBtn.click(function () {
 			if (form.checkValidity()){
+				resultMess.removeClass();
 				$.ajax({
 					url: 'http://localhost:8080/create-form',
 					method: 'POST',
@@ -158,10 +165,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  					formJSON: JSON.stringify(builder.form)
 	  				},
 	  				success: () => {
-	  					$('#result-message').html('Successfully created form!');
+	  					resultMess.addClass('alert-success');
+	  					resultMess.html('Successfully created form!');
 	  				},
 	  				error: mess => {
-	  					$('#result-message').html(mess.responseText);
+	  					resultMess.addClass('alert-danger');
+	  					resultMess.html('Could not connect to API server(' + mess.responseText + ')');
 					}
 				});
 			} else {

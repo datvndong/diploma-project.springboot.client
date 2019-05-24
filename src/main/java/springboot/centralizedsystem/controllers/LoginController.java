@@ -3,7 +3,6 @@ package springboot.centralizedsystem.controllers;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -45,10 +44,8 @@ public class LoginController {
 
             ResponseEntity<String> res = new RestTemplate().postForEntity(APIs.LOGIN_URL, entity, String.class);
 
-            JSONObject body = new JSONObject(res.getBody());
-
-            session.setAttribute("user", new User(body.getString("_id"), email.split("@")[0], null,
-                    res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
+            session.setAttribute("user",
+                    new User(email.split("@")[0], email, null, res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
 
             return "redirect:" + RequestsPath.DASHBOARD;
         } catch (ResourceAccessException e) {

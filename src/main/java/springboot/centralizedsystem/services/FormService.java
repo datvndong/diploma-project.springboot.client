@@ -9,7 +9,7 @@ import springboot.centralizedsystem.domains.Form;
 
 public interface FormService {
 
-    List<Form> findAllForms(String token, String _id) throws ParseException;
+    List<Form> findAllForms(String token, String email) throws ParseException;
 
     ResponseEntity<String> findAllSubmissions(String token, String path);
 

@@ -17,7 +17,9 @@ public class DashboardController extends BaseController {
     @GetMapping(RequestsPath.DASHBOARD)
     public String dashboardGET(Model model, HttpSession session, RedirectAttributes redirect) {
         User user = (User) session.getAttribute("user");
-        user.getToken();
+        if (user == null) {
+            return unauthorized(redirect);
+        }
 
         model.addAttribute("title", "Dashboard");
         return Views.DASHBOARD;

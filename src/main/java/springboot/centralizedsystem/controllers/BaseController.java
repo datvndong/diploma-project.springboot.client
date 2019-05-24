@@ -14,11 +14,10 @@ import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 
 public class BaseController {
-    
+
     @ExceptionHandler(NullPointerException.class)
     public String handlerNullEx(RedirectAttributes redirect) {
-        redirect.addFlashAttribute(Errors.LOGIN, Messages.TOKEN_EXPIRED_MESSAGE);
-        return "redirect:" + RequestsPath.LOGIN;
+        return unauthorized(redirect);
     }
 
     @ExceptionHandler(HttpClientErrorException.class)
@@ -36,5 +35,10 @@ public class BaseController {
     @ExceptionHandler(UnknownHttpStatusCodeException.class)
     public String handlerUnknowHttpStatusCodeEx() {
         return Views.ERROR_UNKNOWN;
+    }
+
+    public String unauthorized(RedirectAttributes redirect) {
+        redirect.addFlashAttribute(Errors.LOGIN, Messages.TOKEN_EXPIRED_MESSAGE);
+        return "redirect:" + RequestsPath.LOGIN;
     }
 }

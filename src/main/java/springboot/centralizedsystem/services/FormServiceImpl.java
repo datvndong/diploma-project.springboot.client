@@ -63,13 +63,14 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public List<Form> findAllForms(String token, String _id) throws ParseException {
+    public List<Form> findAllForms(String token, String email) throws ParseException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        ResponseEntity<String> res = new RestTemplate().exchange(APIs.FORM_URL, HttpMethod.GET, entity,
+        ResponseEntity<String> res = new RestTemplate().exchange(
+                APIs.FORM_URL + "?type=form&sort=created&owner=" + email + "&limit=10&skip=0", HttpMethod.GET, entity,
                 String.class);
 
         JSONArray jsonArray = new JSONArray(res.getBody());
@@ -77,10 +78,6 @@ public class FormServiceImpl implements FormService {
         List<Form> list = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             jsonObject = (JSONObject) jsonArray.get(i);
-            if (jsonObject.isNull("owner") || !jsonObject.getString("owner").equals(_id)
-                    || !jsonObject.getString("type").equals("form")) {
-                continue;
-            }
             String name = jsonObject.getString("name");
             String title = jsonObject.getString("title");
             String path = jsonObject.getString("path");

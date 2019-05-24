@@ -4,7 +4,9 @@ import java.text.ParseException;
 
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -19,6 +21,7 @@ import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.services.FormService;
 import springboot.centralizedsystem.services.RoleService;
 import springboot.centralizedsystem.utils.SessionUtils;
+import springboot.centralizedsystem.utils.ValidateUtils;
 
 @Controller
 public class FormController extends BaseController {
@@ -34,7 +37,7 @@ public class FormController extends BaseController {
         try {
             User user = SessionUtils.getUser(session);
 
-            model.addAttribute("list", formService.findAllForms(user.getToken(), user.get_id()));
+            model.addAttribute("list", formService.findAllForms(user.getToken(), user.getEmail()));
             model.addAttribute("title", "Forms management");
 
             return Views.FORMS;
@@ -60,8 +63,9 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.CREATE_FORM)
     public String createFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
         User user = SessionUtils.getUser(session);
-        // check token exception
-        user.getToken();
+        if (user == null) {
+            return unauthorized(redirect);
+        }
 
         model.addAttribute("title", "Form Builder");
         return Views.CREATE_FORM;
@@ -80,6 +84,15 @@ public class FormController extends BaseController {
     public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON, HttpSession session) {
         User user = SessionUtils.getUser(session);
 
-        return formService.createForm(user.getToken(), formJSON);
+        JSONObject jsonObject = new JSONObject(formJSON);
+        String[] fields = { "title", "path", "expiredDate", "expiredTime" };
+        for (String field : fields) {
+            if (ValidateUtils.isEmptyString(jsonObject, field)) {
+                return new ResponseEntity<>("Please fill out `" + field + "` field", HttpStatus.BAD_REQUEST);
+            }
+        }
+        ResponseEntity<String> a = formService.createForm(user.getToken(), formJSON);
+        System.err.println(a.getBody());
+        return a;
     }
 }
