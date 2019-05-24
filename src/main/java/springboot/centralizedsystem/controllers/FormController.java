@@ -4,27 +4,21 @@ import java.text.ParseException;
 
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import springboot.centralizedsystem.domains.User;
-import springboot.centralizedsystem.resources.Errors;
-import springboot.centralizedsystem.resources.Messages;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.services.FormService;
 import springboot.centralizedsystem.services.RoleService;
+import springboot.centralizedsystem.utils.SessionUtils;
 
 @Controller
 public class FormController extends BaseController {
@@ -38,7 +32,7 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
         try {
-            User user = (User) session.getAttribute("user");
+            User user = SessionUtils.getUser(session);
 
             model.addAttribute("list", formService.findAllForms(user.getToken(), user.get_id()));
             model.addAttribute("title", "Forms management");
@@ -51,37 +45,23 @@ public class FormController extends BaseController {
 
     @GetMapping(RequestsPath.SUBMISSIONS)
     public ResponseEntity<String> submissionsGET(@RequestParam("path") String path, HttpSession session) {
-        try {
-            User user = (User) session.getAttribute("user");
+        User user = SessionUtils.getUser(session);
 
-            return formService.findAllSubmissions(user.getToken(), path);
-        } catch (UnknownHttpStatusCodeException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        } catch (HttpClientErrorException | HttpServerErrorException httpException) {
-            String error = httpException.getResponseBodyAsString();
-            return new ResponseEntity<>(new JSONObject(error).getString("message"), httpException.getStatusCode());
-        }
+        return formService.findAllSubmissions(user.getToken(), path);
     }
 
     @GetMapping(RequestsPath.FORM)
     public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session) {
-        try {
-            User user = (User) session.getAttribute("user");
+        User user = SessionUtils.getUser(session);
 
-            return formService.findOneForm(user.getToken(), path);
-        } catch (NullPointerException | HttpClientErrorException | UnknownHttpStatusCodeException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return formService.findOneForm(user.getToken(), path);
     }
 
     @GetMapping(RequestsPath.CREATE_FORM)
     public String createFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            redirect.addFlashAttribute(Errors.LOGIN, Messages.TOKEN_EXPIRED_MESSAGE);
-            return "redirect:" + RequestsPath.LOGIN;
-        }
+        User user = SessionUtils.getUser(session);
+        // check token exception
+        user.getToken();
 
         model.addAttribute("title", "Form Builder");
         return Views.CREATE_FORM;
@@ -89,27 +69,17 @@ public class FormController extends BaseController {
 
     @GetMapping(RequestsPath.BUILDER)
     public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        try {
-            User user = (User) session.getAttribute("user");
+        User user = SessionUtils.getUser(session);
 
-            model.addAttribute("listRoles", roleService.findAll(user.getToken()));
+        model.addAttribute("listRoles", roleService.findAll(user.getToken()));
 
-            return Views.BUILDER;
-        } catch (UnknownHttpStatusCodeException e) {
-            redirect.addFlashAttribute(Errors.LOGIN, Messages.TOKEN_EXPIRED_MESSAGE);
-            return "redirect:" + RequestsPath.LOGIN;
-        }
+        return Views.BUILDER;
     }
 
     @PostMapping(RequestsPath.CREATE_FORM)
     public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON, HttpSession session) {
-        ResponseEntity<String> result = null;
-        try {
-            User user = (User) session.getAttribute("user");
-            result = formService.createForm(user.getToken(), formJSON);
-            return result;
-        } catch (UnknownHttpStatusCodeException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        User user = SessionUtils.getUser(session);
+
+        return formService.createForm(user.getToken(), formJSON);
     }
 }

@@ -5,17 +5,12 @@ import javax.validation.Valid;
 
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -23,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
 import springboot.centralizedsystem.resources.Errors;
-import springboot.centralizedsystem.resources.Messages;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.utils.HttpUtils;
@@ -42,39 +36,21 @@ public class LoginController {
     }
 
     @PostMapping(RequestsPath.LOGIN)
-    public String loginPOST(@Valid User user, Model model, BindingResult result, HttpSession session,
-            RedirectAttributes redirect) {
+    public String loginPOST(@Valid User user, Model model, HttpSession session, RedirectAttributes redirect) {
         try {
-            if (result.hasErrors()) {
-                return Views.LOGIN;
-            }
-
             String email = user.getEmail();
-            String reqJSON = "{\"data\":{\"email\":\"" + email + "\",\"password\":\""
-                    + user.getPassword() + "\"}}";
+            String reqJSON = "{\"data\":{\"email\":\"" + email + "\",\"password\":\"" + user.getPassword() + "\"}}";
 
             HttpEntity<String> entity = new HttpEntity<>(reqJSON, HttpUtils.getHeader());
 
-            ResponseEntity<String> res = new RestTemplate().postForEntity(APIs.LOGIN_URL, entity,
-                    String.class);
+            ResponseEntity<String> res = new RestTemplate().postForEntity(APIs.LOGIN_URL, entity, String.class);
 
-            if (res.getStatusCode() == HttpStatus.OK) {
-                JSONObject body = new JSONObject(res.getBody());
-                session.setAttribute("user",
-                        new User(body.getString("_id"), email.split("@")[0], null,
-                                res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
-                return "redirect:" + RequestsPath.DASHBOARD;
-            }
+            JSONObject body = new JSONObject(res.getBody());
 
-            return Views.ERROR_404;
-        } catch (HttpClientErrorException e) {
-            // 401 Unauthorized
-            // 400 Bad Request
-            if (e.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()) {
-                redirect.addFlashAttribute(Errors.LOGIN, Messages.INVALID_ACCOUNT_MESSAGE);
-                return "redirect:" + RequestsPath.LOGIN;
-            }
-            return Views.ERROR_404;
+            session.setAttribute("user", new User(body.getString("_id"), email.split("@")[0], null,
+                    res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
+
+            return "redirect:" + RequestsPath.DASHBOARD;
         } catch (ResourceAccessException e) {
             // I/O error on POST request for "http://localhost:3001/user/login": Connection
             // refused: connect; nested exception is java.net.ConnectException: Connection
@@ -86,15 +62,8 @@ public class LoginController {
 
     @GetMapping(RequestsPath.LOGOUT)
     public String logoutGET(HttpSession session) {
-        HttpHeaders header = HttpUtils.getHeader();
-
-        // HttpEntity<String>: To get result as String.
-        HttpEntity<String> entity = new HttpEntity<>(header);
-
-        ResponseEntity<String> response = new RestTemplate().exchange(APIs.LOGOUT_URL, HttpMethod.GET, entity,
-                String.class);
         session.invalidate();
 
-        return response.getStatusCode() == HttpStatus.OK ? "redirect:" + RequestsPath.LOGIN : Views.ERROR_404;
+        return "redirect:" + RequestsPath.LOGIN;
     }
 }

@@ -14,7 +14,7 @@ import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 
 public class BaseController {
-
+    
     @ExceptionHandler(NullPointerException.class)
     public String handlerNullEx(RedirectAttributes redirect) {
         redirect.addFlashAttribute(Errors.LOGIN, Messages.TOKEN_EXPIRED_MESSAGE);
