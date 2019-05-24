@@ -85,14 +85,18 @@ public class FormController extends BaseController {
         User user = SessionUtils.getUser(session);
 
         JSONObject jsonObject = new JSONObject(formJSON);
-        String[] fields = { "title", "path", "expiredDate", "expiredTime" };
+        String[] fields = { "title", "path", "name", "expiredDate", "expiredTime" };
         for (String field : fields) {
             if (ValidateUtils.isEmptyString(jsonObject, field)) {
                 return new ResponseEntity<>("Please fill out `" + field + "` field", HttpStatus.BAD_REQUEST);
             }
+            if (field == "name" && !ValidateUtils.isValidName(jsonObject.getString("name"))) {
+                return new ResponseEntity<>(
+                        "form validation failed: name: The Name may only contain letters, numbers, hyphens, and forward slashes (but cannot start or end with a hyphen or forward slash)",
+                        HttpStatus.BAD_REQUEST);
+            }
         }
-        ResponseEntity<String> a = formService.createForm(user.getToken(), formJSON);
-        System.err.println(a.getBody());
-        return a;
+        
+        return formService.createForm(user.getToken(), formJSON);
     }
 }

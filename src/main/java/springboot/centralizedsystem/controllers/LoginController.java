@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
 import springboot.centralizedsystem.resources.Errors;
+import springboot.centralizedsystem.resources.Messages;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.utils.HttpUtils;
@@ -48,11 +50,14 @@ public class LoginController {
                     new User(email.split("@")[0], email, null, res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
 
             return "redirect:" + RequestsPath.DASHBOARD;
-        } catch (ResourceAccessException e) {
+        } catch (HttpClientErrorException httpException) {
+            redirect.addFlashAttribute(Errors.LOGIN, Messages.INVALID_ACCOUNT_MESSAGE);
+            return "redirect:" + RequestsPath.LOGIN;
+        } catch (ResourceAccessException resourceException) {
             // I/O error on POST request for "http://localhost:3001/user/login": Connection
             // refused: connect; nested exception is java.net.ConnectException: Connection
             // refused: connect
-            System.err.println(e);
+            System.err.println(resourceException);
             return Views.ERROR_404;
         }
     }

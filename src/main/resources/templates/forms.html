@@ -29,6 +29,7 @@
                         <tr>
                           <th>#</th>
                           <th>Title</th>
+                          <th>Name</th>
                           <th>Progress</th>
                           <th>Amount</th>
                           <th>Tags</th>
@@ -40,6 +41,7 @@
                       	<tr th:each="obj : ${list}">
                       		<td class="nr" th:text="${objStat.count}"></td>
                       		<td th:text="${obj.title}"></td>
+                      		<td th:text="${obj.name}"></td>
                       		<td>
                               <div class="progress">
                                 <div th:id="'bar-' + ${objStat.count}" th:class="'progress-bar bg-' + ${obj.typeProgressBar}" role="progressbar" style="width: 0%"></div>
