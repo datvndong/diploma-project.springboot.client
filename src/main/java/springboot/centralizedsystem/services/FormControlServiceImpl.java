@@ -12,17 +12,17 @@ import springboot.centralizedsystem.repository.FormControlRepository;
 public class FormControlServiceImpl implements FormControlService {
 
     @Autowired
-    private FormControlRepository formRepository;
+    private FormControlRepository formControlRepository;
 
     @Override
     public List<FormControl> findAll() {
-        return this.formRepository.findAll();
+        return this.formControlRepository.findAll();
     }
 
     @Override
     public boolean insert(FormControl formControl) {
         try {
-            this.formRepository.insert(formControl);
+            this.formControlRepository.insert(formControl);
             return true;
         } catch (Exception e) {
             return false;
@@ -32,7 +32,7 @@ public class FormControlServiceImpl implements FormControlService {
     @Override
     public boolean deleteAll() {
         try {
-            this.formRepository.deleteAll();
+            this.formControlRepository.deleteAll();
             return true;
         } catch (Exception e) {
             return false;
@@ -40,7 +40,18 @@ public class FormControlServiceImpl implements FormControlService {
     }
 
     @Override
-    public FormControl findOneByPath(String pathForm) {
-        return this.formRepository.findByPathForm(pathForm);
+    public FormControl findByPathForm(String pathForm) {
+        return this.formControlRepository.findByPathForm(pathForm);
+    }
+
+    @Override
+    public boolean deleteByPathForm(String pathForm) {
+        try {
+            FormControl formControl = formControlRepository.findByPathForm(pathForm);
+            this.formControlRepository.delete(formControl);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

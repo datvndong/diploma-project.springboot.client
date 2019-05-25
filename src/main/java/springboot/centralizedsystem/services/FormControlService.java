@@ -12,5 +12,7 @@ public interface FormControlService {
 
     boolean deleteAll();
 
-    FormControl findOneByPath(String pathForm);
+    FormControl findByPathForm(String pathForm);
+
+    boolean deleteByPathForm(String pathForm);
 }

@@ -1,11 +1,15 @@
 package springboot.centralizedsystem.domains;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "formscontrol")
 public class FormControl {
+
+    @Id
+    private String id;
 
     @Indexed(unique = true)
     @Field(value = "pathForm")
@@ -14,11 +18,11 @@ public class FormControl {
     @Field(value = "assign")
     private String assign;
 
-    @Field(value = "expiredDate")
-    private String expiredDate;
+    @Field(value = "start")
+    private String start;
 
-    @Field(value = "expiredTime")
-    private String expiredTime;
+    @Field(value = "expired")
+    private String expired;
 
     public String getPathForm() {
         return pathForm;
@@ -36,28 +40,28 @@ public class FormControl {
         this.assign = assign;
     }
 
-    public String getExpiredDate() {
-        return expiredDate;
+    public String getStart() {
+        return start;
     }
 
-    public void setExpiredDate(String expiredDate) {
-        this.expiredDate = expiredDate;
+    public void setStart(String start) {
+        this.start = start;
     }
 
-    public String getExpiredTime() {
-        return expiredTime;
+    public String getExpired() {
+        return expired;
     }
 
-    public void setExpiredTime(String expiredTime) {
-        this.expiredTime = expiredTime;
+    public void setExpired(String expired) {
+        this.expired = expired;
     }
 
-    public FormControl(String pathForm, String assign, String expiredDate, String expiredTime) {
+    public FormControl(String pathForm, String assign, String start, String expired) {
         super();
         this.pathForm = pathForm;
         this.assign = assign;
-        this.expiredDate = expiredDate;
-        this.expiredTime = expiredTime;
+        this.start = start;
+        this.expired = expired;
     }
 
     public FormControl() {

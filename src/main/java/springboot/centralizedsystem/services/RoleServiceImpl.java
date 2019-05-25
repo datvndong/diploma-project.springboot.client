@@ -47,4 +47,20 @@ public class RoleServiceImpl implements RoleService {
 
         return list;
     }
+
+    @Override
+    public Role findOne(String token, String _id) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        ResponseEntity<String> res = new RestTemplate().exchange(APIs.ROLE_URL + "?_id=" + _id, HttpMethod.GET, entity,
+                String.class);
+
+        JSONObject jsonObject = new JSONObject(res.getBody());
+        String title = jsonObject.getString("title");
+
+        return new Role(_id, title, null, null);
+    }
 }

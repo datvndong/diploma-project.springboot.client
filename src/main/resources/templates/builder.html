@@ -20,7 +20,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 </head>
 
 <body>
-	<div id="result-message" style="padding-left: 30px; font-size: 15px; border-radius: 4px"></div>
+	<div id="result-message" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
 	
 	<form>
 	<div class="form-group">
@@ -50,18 +50,34 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-3">
 			<div class="form-group row">
-				<label class="col-sm-2 col-form-label">Expired date</label>
-				<div class="col-sm-10">
+				<label class="col-sm-4 col-form-label">Start date</label>
+				<div class="col-sm-8">
+					<input type="date" class="form-control" id="start-date" required="required" />
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label">Start time</label>
+				<div class="col-sm-8">
+					<input type="time" class="form-control" id="start-time" required="required" />
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label">Expired date</label>
+				<div class="col-sm-8">
 					<input type="date" class="form-control" id="expired-date" required="required" />
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-3">
 			<div class="form-group row">
-				<label class="col-sm-2 col-form-label">Expired time</label>
-				<div class="col-sm-10">
+				<label class="col-sm-4 col-form-label">Expired time</label>
+				<div class="col-sm-8">
 					<input type="time" class="form-control" id="expired-time" required="required" />
 				</div>
 			</div>
@@ -102,6 +118,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		const title = $('#title');
 		const name = $('#name');
 		const path = $('#path');
+		const startDate = $('#start-date');
+		const startTime = $('#start-time');
 		const expiredDate = $('#expired-date');
 		const expiredTime = $('#expired-time');
 		const assign = $('#assign');
@@ -119,6 +137,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			name: null,
 			components: [],
 			assign: assign.val(),
+			startDate: null,
+			startTime: null,
 			expiredDate: null,
 			expiredTime: null
 		});
@@ -153,6 +173,14 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		path.change(function () {
 			builder.form.path = path.val();
+		});
+		
+		startDate.change(function () {
+			builder.form.startDate = startDate.val();
+		});
+		
+		startTime.change(function () {
+			builder.form.startTime = startTime.val() + ":00";
 		});
 		
 		expiredDate.change(function () {

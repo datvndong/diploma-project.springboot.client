@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,11 +20,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
 
 import springboot.centralizedsystem.domains.Form;
+import springboot.centralizedsystem.domains.FormControl;
 import springboot.centralizedsystem.resources.APIs;
+import springboot.centralizedsystem.resources.Configs;
 import springboot.centralizedsystem.utils.HttpUtils;
 
 @Service
 public class FormServiceImpl implements FormService {
+
+    @Autowired
+    private FormControlService formControlService;
 
     private int getAmount(HttpEntity<String> entity, String path)
             throws HttpClientErrorException, UnknownHttpStatusCodeException {
@@ -32,16 +38,16 @@ public class FormServiceImpl implements FormService {
         return new JSONArray(res.getBody()).length();
     }
 
-    private int getDurationPercent(String start, String end) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private int getDurationPercent(String start, String expired) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat(Configs.DATETIME_FORMAT);
         Date dateStart = format.parse(start);
-        Date dateEnd = format.parse(end);
+        Date dateExpired = format.parse(expired);
 
         // in milliseconds
-        long diffStartEnd = dateEnd.getTime() - dateStart.getTime();
+        long diffStartExpired = dateExpired.getTime() - dateStart.getTime();
         long diffStartNow = new Date().getTime() - dateStart.getTime();
 
-        int result = (int) Math.round((double) diffStartNow / diffStartEnd * 100);
+        int result = (int) Math.round((double) diffStartNow / diffStartExpired * 100);
         if (result > 100) {
             result = 100;
         }
@@ -57,9 +63,9 @@ public class FormServiceImpl implements FormService {
         } else if (percent < 75) {
             return "warning";
         } else if (percent < 100) {
-            return "danger";
+            return "info";
         }
-        return "info";
+        return "danger";
     }
 
     @Override
@@ -82,15 +88,19 @@ public class FormServiceImpl implements FormService {
             String title = jsonObject.getString("title");
             String path = jsonObject.getString("path");
             int amount = getAmount(entity, path);
-            String start = "2019-05-18 00:01:00";
-            String end = "2019-05-30 05:15:00";
+
+            // handle: exeption when formControl == null
+            FormControl formControl = formControlService.findByPathForm(path);
+            String start = formControl.getStart();
+            String expired = formControl.getExpired();
+
             List<String> tags = new ArrayList<>();
             for (Object object : jsonObject.getJSONArray("tags")) {
                 tags.add(object.toString());
             }
-            int durationPercent = getDurationPercent(start, end);
+            int durationPercent = getDurationPercent(start, expired);
             String typeProgressBar = getTypeProgressBar(durationPercent);
-            list.add(new Form(name, title, path, amount, start, end, tags, durationPercent, typeProgressBar));
+            list.add(new Form(name, title, path, amount, start, expired, tags, durationPercent, typeProgressBar));
         }
 
         return list;
@@ -127,5 +137,21 @@ public class FormServiceImpl implements FormService {
         HttpEntity<String> entity = new HttpEntity<>(formJSON, header);
 
         return new RestTemplate().postForEntity(APIs.FORM_URL, entity, String.class);
+    }
+
+    @Override
+    public boolean deleteForm(String token, String path) {
+        try {
+            HttpHeaders header = HttpUtils.getHeader();
+            header.set(APIs.TOKEN_KEY, token);
+
+            HttpEntity<String> entity = new HttpEntity<>(header);
+
+            new RestTemplate().exchange(APIs.deleteForm(path), HttpMethod.DELETE, entity, String.class);
+
+            return true;
+        } catch (HttpClientErrorException | HttpServerErrorException | UnknownHttpStatusCodeException e) {
+            return false;
+        }
     }
 }

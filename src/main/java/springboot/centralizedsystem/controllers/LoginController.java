@@ -17,7 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
-import springboot.centralizedsystem.resources.Errors;
+import springboot.centralizedsystem.resources.Keys;
 import springboot.centralizedsystem.resources.Messages;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
@@ -27,7 +27,7 @@ import springboot.centralizedsystem.utils.HttpUtils;
 public class LoginController {
 
     @GetMapping(value = { RequestsPath.NONE, RequestsPath.SLASH, RequestsPath.LOGIN })
-    public String loginGET(Model model, @ModelAttribute(Errors.LOGIN) String error) {
+    public String loginGET(Model model, @ModelAttribute(Keys.LOGIN) String error) {
         model.addAttribute("title", "Login");
         model.addAttribute("user", new User(null, "xtreme@admin.io", null, null));
         if (!error.equals("")) {
@@ -51,7 +51,7 @@ public class LoginController {
 
             return "redirect:" + RequestsPath.DASHBOARD;
         } catch (HttpClientErrorException httpException) {
-            redirect.addFlashAttribute(Errors.LOGIN, Messages.INVALID_ACCOUNT_MESSAGE);
+            redirect.addFlashAttribute(Keys.LOGIN, Messages.INVALID_ACCOUNT_ERROR);
             return "redirect:" + RequestsPath.LOGIN;
         } catch (ResourceAccessException resourceException) {
             // I/O error on POST request for "http://localhost:3001/user/login": Connection

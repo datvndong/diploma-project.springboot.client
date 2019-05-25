@@ -8,7 +8,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import springboot.centralizedsystem.resources.Errors;
+import springboot.centralizedsystem.resources.Keys;
 import springboot.centralizedsystem.resources.Messages;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
@@ -38,7 +38,7 @@ public class BaseController {
     }
 
     public String unauthorized(RedirectAttributes redirect) {
-        redirect.addFlashAttribute(Errors.LOGIN, Messages.TOKEN_EXPIRED_MESSAGE);
+        redirect.addFlashAttribute(Keys.LOGIN, Messages.TOKEN_EXPIRED_ERROR);
         return "redirect:" + RequestsPath.LOGIN;
     }
 }

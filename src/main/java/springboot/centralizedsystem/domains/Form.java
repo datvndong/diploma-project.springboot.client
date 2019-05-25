@@ -9,7 +9,7 @@ public class Form {
     private String path;
     private int amount;
     private String start;
-    private String end;
+    private String expired;
     private List<String> tags;
     private int durationPercent;
     private String typeProgressBar;
@@ -54,12 +54,12 @@ public class Form {
         this.start = start;
     }
 
-    public String getEnd() {
-        return end;
+    public String getExpired() {
+        return expired;
     }
 
-    public void setEnd(String end) {
-        this.end = end;
+    public void setExpired(String expired) {
+        this.expired = expired;
     }
 
     public int getDurationPercent() {
@@ -78,7 +78,7 @@ public class Form {
         this.typeProgressBar = typeProgressBar;
     }
 
-    public Form(String name, String title, String path, int amount, String start, String end,
+    public Form(String name, String title, String path, int amount, String start, String expired,
             List<String> tags, int durationPercent, String typeProgressBar) {
         super();
         this.name = name;
@@ -86,7 +86,7 @@ public class Form {
         this.path = path;
         this.amount = amount;
         this.start = start;
-        this.end = end;
+        this.expired = expired;
         this.tags = tags;
         this.durationPercent = durationPercent;
         this.typeProgressBar = typeProgressBar;

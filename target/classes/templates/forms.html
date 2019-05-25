@@ -19,6 +19,10 @@
             <div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
+                  <th:block th:if="${deleteMess}">
+              		<div th:if="${deleteStatus}" th:text="${deleteMess}" class="alert-success" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
+              		<div th:unless="${deleteStatus}" th:text="${deleteMess}" class="alert-danger" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
+              	  </th:block>
                   <h4 class="card-title">Forms Table</h4>
                   <p class="card-description">
                   	Note: <code style="font-size: 100%">click row to show submissions of form</code>
@@ -33,7 +37,7 @@
                           <th>Progress</th>
                           <th>Amount</th>
                           <th>Tags</th>
-                          <th>Deadline</th>
+                          <th>Schedule</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -54,13 +58,19 @@
                             		<label th:unless="${tagStat.last}" th:text="${tag} + ', '"></label>
                             	</th:block>
                             </td>
-                            <td th:text="${obj.end}"></td>
+                            <td th:inline="text">
+                            	From:&ensp;[[${obj.start}]] 
+                            	<br />
+                            	--------------------------
+                            	<br />
+                            	To:&ensp;&ensp;&emsp;[[${obj.expired}]]
+                            </td>
                             <td>
 								<a th:href="@{/edit}" class="btn btn-primary" title="Edit">
-									<span class="fa fa-edit"></span> Edit
+									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
-								<a th:href="@{/delete}" title="Delete" onclick="return confirm('Are you sure you want to delete this record?');" class="btn btn-danger"> 
-									<span class="fa fa-trash-o"></span> Delete
+								<a th:href="@{/delete-form/{path}(path=${obj.path})}" title="Delete" onclick="return confirm('Are you sure you want to delete this record?');" class="btn btn-danger"> 
+									<span class="mdi mdi-delete"></span>
 								</a>
 							</td>
                       	</tr>

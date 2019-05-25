@@ -7,4 +7,6 @@ import springboot.centralizedsystem.domains.FormControl;
 public interface FormControlRepository extends MongoRepository<FormControl, String> {
 
     FormControl findByPathForm(String pathForm);
+
+    boolean deleteByPathForm(String pathForm);
 }

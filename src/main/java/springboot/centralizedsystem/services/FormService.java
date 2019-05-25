@@ -16,4 +16,6 @@ public interface FormService {
     ResponseEntity<String> findOneForm(String token, String path);
 
     ResponseEntity<String> createForm(String token, String formJSON);
+
+    boolean deleteForm(String token, String path);
 }
