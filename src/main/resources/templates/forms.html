@@ -66,10 +66,10 @@
                             	To:&ensp;&ensp;&emsp;[[${obj.expired}]]
                             </td>
                             <td>
-								<a th:href="@{/edit}" class="btn btn-primary" title="Edit">
+								<a id="'edit-' + ${objStat.count}" th:href="@{/edit-form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
 									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
-								<a th:href="@{/delete-form/{path}(path=${obj.path})}" title="Delete" onclick="return confirm('Are you sure you want to delete this record?');" class="btn btn-danger"> 
+								<a id="'delete-' + ${objStat.count}" th:href="@{/delete-form/{path}(path=${obj.path})}" class="btn btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this record?');"> 
 									<span class="mdi mdi-delete"></span>
 								</a>
 							</td>
@@ -107,6 +107,13 @@
   <div th:include="fragments/plugins :: plugins"></div>
   <script th:inline="javascript">
   	/*<![CDATA[*/
+  		
+  	// Prevent send ajax when click edit or delete button in row (if don't prvent will cause exception 404 /
+  	// after delete form)
+  	function stopEvent(ev) {
+		ev.stopPropagation();
+	}
+  	
   	function buildResultSelectBoxes(boxes) {
   		let resultStr = '';
   		for (item in boxes) {
@@ -121,6 +128,12 @@
 		const list = [[${list}]];
 		list.forEach((obj, i) => {
   			$('#bar-' + (i + 1)).css('width', obj.durationPercent + '%');
+  			
+  			// Execute prevent send ajax
+  			const deleteBtn = document.getElementById('#delete-' + (i + 1));
+  			deleteBtn.addEventListener("click", stopEvent, false);
+  			const editBtn = document.getElementById('#edit-' + (i + 1));
+  			editBtn.addEventListener("click", stopEvent, false);
   		});
   		$('#forms-table').delegate('tr', 'click', function() {
   			const index = parseInt($(this).find('.nr').text()) - 1;
