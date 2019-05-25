@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import springboot.centralizedsystem.domains.FormControl;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
+import springboot.centralizedsystem.services.FormControlService;
 import springboot.centralizedsystem.services.FormService;
 import springboot.centralizedsystem.services.RoleService;
 import springboot.centralizedsystem.utils.SessionUtils;
@@ -31,6 +33,9 @@ public class FormController extends BaseController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private FormControlService formControlService;
 
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
@@ -90,6 +95,14 @@ public class FormController extends BaseController {
             if (ValidateUtils.isEmptyString(jsonObject, field)) {
                 return new ResponseEntity<>("Please fill out `" + field + "` field", HttpStatus.BAD_REQUEST);
             }
+        }
+
+        String pathForm = jsonObject.getString("path");
+        String assign = jsonObject.getString("assign");
+        String expiredDate = jsonObject.getString("expiredDate");
+        String expiredTime = jsonObject.getString("expiredTime");
+        if (!formControlService.insert(new FormControl(pathForm, assign, expiredDate, expiredTime))) {
+            return new ResponseEntity<>("Database error", HttpStatus.BAD_REQUEST);
         }
 
         return formService.createForm(user.getToken(), formJSON);

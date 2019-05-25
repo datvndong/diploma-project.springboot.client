@@ -71,9 +71,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<div class="row">
 		<div class="col-md-2">
 			<div class="form-group row">
-				<label class="col-sm-3 col-form-label">Access</label>
+				<label class="col-sm-3 col-form-label">Assign</label>
 				<div class="col-sm-9">
-					<select class="form-control" id="access">
+					<select class="form-control" id="assign">
 						<option th:each="role : ${listRoles}" th:value="${role._id}" th:text="${role.title}"></option>
 						<option>Group</option>					
 					</select>
@@ -104,7 +104,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		const path = $('#path');
 		const expiredDate = $('#expired-date');
 		const expiredTime = $('#expired-time');
-		const access = $('#access');
+		const assign = $('#assign');
 		const details = $('#details');
 		const createBtn = $('#create');
 		const resultMess = $('#result-message');
@@ -118,7 +118,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			path: null,
 			name: null,
 			components: [],
-			access: access.value,
+			assign: assign.val(),
 			expiredDate: null,
 			expiredTime: null
 		});
@@ -163,13 +163,13 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			builder.form.expiredTime = expiredTime.val() + ":00";
 		});
 		
-		access.change(function () {
-			const value = access.val();
+		assign.change(function () {
+			const value = assign.val();
 			if (value == 'Group') {
 				details.removeAttr('disabled');
 			} else {
 				details.attr('disabled', 'disabled');
-				builder.form.access = value;
+				builder.form.assign = value;
 			}
 		});
 		
