@@ -66,10 +66,10 @@
                             	To:&ensp;&ensp;&emsp;[[${obj.expired}]]
                             </td>
                             <td>
-								<a id="'edit-' + ${objStat.count}" th:href="@{/edit-form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
+								<a id="'edit-' + ${objStat.count}" th:href="@{/build/form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
 									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
-								<a id="'delete-' + ${objStat.count}" th:href="@{/delete-form/{path}(path=${obj.path})}" class="btn btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this record?');"> 
+								<a id="'delete-' + ${objStat.count}" th:href="@{/delete/form/{path}(path=${obj.path})}" class="btn btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this record?');"> 
 									<span class="mdi mdi-delete"></span>
 								</a>
 							</td>

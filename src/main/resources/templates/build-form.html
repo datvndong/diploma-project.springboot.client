@@ -17,7 +17,7 @@
         <div class="content-wrapper">        	  
           <div class="card">
           	<div class="card-body">
-        	  <iframe src="builder/save" width="100%" height="1020" frameborder="0"></iframe>
+        	  <iframe th:src="@{/builder?path={path}(path=${pathForm})}" width="100%" height="1020" frameborder="0"></iframe>
         	</div>
           </div>
         </div>

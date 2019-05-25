@@ -2,6 +2,7 @@ package springboot.centralizedsystem.controllers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.http.HttpSession;
@@ -85,15 +86,55 @@ public class FormController extends BaseController {
         }
 
         model.addAttribute("title", "Form Builder");
-        return Views.CREATE_FORM;
+        return Views.BUILD_FORM;
+    }
+
+    @GetMapping(RequestsPath.EDIT_FORM)
+    public String editFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
+            @PathVariable String path) {
+        User user = SessionUtils.getUser(session);
+        if (user == null) {
+            return unauthorized(redirect);
+        }
+
+        model.addAttribute("pathForm", path);
+        model.addAttribute("title", "Form Builder");
+
+        return Views.BUILD_FORM;
     }
 
     @GetMapping(RequestsPath.BUILDER)
     public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
-            @PathVariable String type) {
+            @RequestParam("path") String path) {
         User user = SessionUtils.getUser(session);
+        String token = user.getToken();
 
-        model.addAttribute("listRoles", roleService.findAll(user.getToken()));
+        model.addAttribute("listRoles", roleService.findAll(token));
+
+        JSONObject jsonObject = null;
+        if (path.equals("")) {
+            // Create form
+            jsonObject = new JSONObject();
+            jsonObject.put("title", "");
+            jsonObject.put("path", "");
+            jsonObject.put("name", "");
+            jsonObject.put("startDate", "");
+            jsonObject.put("startTime", "");
+            jsonObject.put("expiredDate", "");
+            jsonObject.put("expiredTime", "");
+            jsonObject.put("tags", new ArrayList<String>());
+            jsonObject.put("components", new ArrayList<String>());
+        } else {
+            // Edit form
+            ResponseEntity<String> res = formService.findOneForm(token, path);
+            jsonObject = new JSONObject(res.getBody());
+            jsonObject.put("startDate", "2019-05-26");
+            jsonObject.put("startTime", "10:05:00");
+            jsonObject.put("expiredDate", "2019-05-27");
+            jsonObject.put("expiredTime", "11:05:00");
+            // Missing Assign
+        }
+        model.addAttribute("obj", jsonObject.toString());
 
         return Views.BUILDER;
     }
@@ -140,7 +181,7 @@ public class FormController extends BaseController {
     }
 
     @GetMapping(RequestsPath.DELETE_FORM)
-    public String deleteFormDELETE(HttpSession session, @PathVariable String path, RedirectAttributes redirect) {
+    public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path) {
         User user = SessionUtils.getUser(session);
 
         boolean isDeleteFormControlSuccess = formControlService.deleteByPathForm(path);
@@ -154,16 +195,4 @@ public class FormController extends BaseController {
 
         return "redirect:" + RequestsPath.FORMS;
     }
-
-//    @GetMapping(RequestsPath.EDIT_FORM)
-//    public String editFormDELETE(ModelMap model, HttpSession session, @PathVariable String path,
-//            RedirectAttributes redirect) {
-//        User user = SessionUtils.getUser(session);
-//        if (user == null) {
-//            return unauthorized(redirect);
-//        }
-//
-//        model.addAttribute("title", "Form Builder");
-//        return Views.CREATE_FORM;
-//    }
 }

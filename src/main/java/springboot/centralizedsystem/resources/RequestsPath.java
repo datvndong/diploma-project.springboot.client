@@ -12,8 +12,8 @@ public class RequestsPath {
     public static final String FORMS = "/forms";
     public static final String SUBMISSIONS = "/submissions";
     public static final String FORM = "/form";
-    public static final String CREATE_FORM = "/create-form";
-    public static final String BUILDER = "/builder/{type}";
-    public static final String DELETE_FORM = "/delete-form/{path}";
-    public static final String EDIT_FORM = "/edit-form/{path}";
+    public static final String CREATE_FORM = "/build/form";
+    public static final String EDIT_FORM = "/build/form/{path}";
+    public static final String BUILDER = "/builder";
+    public static final String DELETE_FORM = "/delete/form/{path}";
 }

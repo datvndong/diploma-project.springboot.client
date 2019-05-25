@@ -8,6 +8,6 @@ public class Views {
     public static final String REGISTER = "register";
     public static final String DASHBOARD = "dashboard";
     public static final String FORMS = "forms";
-    public static final String CREATE_FORM = "create-form";
+    public static final String BUILD_FORM = "build-form";
     public static final String BUILDER = "builder";
 }

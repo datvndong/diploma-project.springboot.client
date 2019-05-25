@@ -114,6 +114,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <button class="btn btn-warning">Cancel</button>
     
 	<script th:inline="javascript">
+		const obj = JSON.parse([[${obj}]]);
+			
 		const form = document.querySelector('form');
 		const title = $('#title');
 		const name = $('#name');
@@ -130,17 +132,17 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		let builder = new Formio.FormBuilder(document.getElementById('builder'), {
 			display: 'form',
 			type: 'form',
-			tags: [],
+			tags: obj.tags,
 			owner: [[${session.user.email}]],
-			title: null,
-			path: null,
-			name: null,
-			components: [],
+			title: obj.title,
+			path: obj.path,
+			name: obj.name,
+			components: obj.components,
 			assign: assign.val(),
-			startDate: null,
-			startTime: null,
-			expiredDate: null,
-			expiredTime: null
+			startDate: obj.startDate,
+			startTime: obj.startTime,
+			expiredDate: obj.expiredDate,
+			expiredTime: obj.expiredTime
 		});
 
 		const setDisplay = function(display) {
@@ -154,6 +156,17 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		};
 		
 		setDisplay('form');
+		
+		// Set default value
+		title.val(obj.title);
+		name.val(obj.name);
+		path.val(obj.path);
+		//tags.val(obj.tags);
+		startDate.val(obj.startDate);
+		startTime.val(obj.startTime);
+		expiredDate.val(obj.expiredDate);
+		expiredTime.val(obj.expiredTime);
+		assign.val(obj.assign);
 		
 		title.keyup(function () {
 			const titleValue = title.val();
@@ -205,7 +218,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			if (form.checkValidity()){
 				resultMess.removeClass();
 				$.ajax({
-					url: 'http://localhost:8080/create-form',
+					url: 'http://localhost:8080/build/form',
 					method: 'POST',
 	  				dataType: 'json',
 	  				data: {
