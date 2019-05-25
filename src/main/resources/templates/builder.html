@@ -5,22 +5,22 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
 xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-	<link rel="stylesheet" href="css/formio.full.min.css" />
-    <link rel="stylesheet" href="fonts/font-awesome.min.css" />
-    <link rel="stylesheet" href="fonts/fontawesome-webfont.ttf" />
-    <link rel="stylesheet" href="fonts/fontawesome-webfont.woff" />
-    <link rel="stylesheet" href="fonts/fontawesome-webfont.woff2" />
-    <link rel="stylesheet" href="fonts/glyphicons-halflings-regular.ttf" />
-    <link rel="stylesheet" href="fonts/glyphicons-halflings-regular.woff" />
-    <link rel="stylesheet" href="fonts/glyphicons-halflings-regular.woff2" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="/css/formio.full.min.css" />
+    <link rel="stylesheet" href="/fonts/font-awesome.min.css" />
+    <link rel="stylesheet" href="/fonts/fontawesome-webfont.ttf" />
+    <link rel="stylesheet" href="/fonts/fontawesome-webfont.woff" />
+    <link rel="stylesheet" href="/fonts/fontawesome-webfont.woff2" />
+    <link rel="stylesheet" href="/fonts/glyphicons-halflings-regular.ttf" />
+    <link rel="stylesheet" href="/fonts/glyphicons-halflings-regular.woff" />
+    <link rel="stylesheet" href="/fonts/glyphicons-halflings-regular.woff2" />
     
-    <script src="js/formio.full.min.js"></script>    
-	<script src="js/jquery.min.js"></script>
+    <script src="/js/formio.full.min.js"></script>    
+	<script src="/js/jquery.min.js"></script>
 </head>
 
 <body>
-	<div id="result-message" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
+	<div id="result-message" style="display: none; padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
 	
 	<form>
 	<div class="form-group">
@@ -220,6 +220,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  					resultMess.html('Could not connect to API server(' + mess.responseText + ')');
 					}
 				});
+				resultMess.show();
 			} else {
 				form.reportValidity();
 			}

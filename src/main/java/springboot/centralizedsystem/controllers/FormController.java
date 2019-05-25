@@ -89,7 +89,8 @@ public class FormController extends BaseController {
     }
 
     @GetMapping(RequestsPath.BUILDER)
-    public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
+    public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
+            @PathVariable String type) {
         User user = SessionUtils.getUser(session);
 
         model.addAttribute("listRoles", roleService.findAll(user.getToken()));
@@ -153,4 +154,16 @@ public class FormController extends BaseController {
 
         return "redirect:" + RequestsPath.FORMS;
     }
+
+//    @GetMapping(RequestsPath.EDIT_FORM)
+//    public String editFormDELETE(ModelMap model, HttpSession session, @PathVariable String path,
+//            RedirectAttributes redirect) {
+//        User user = SessionUtils.getUser(session);
+//        if (user == null) {
+//            return unauthorized(redirect);
+//        }
+//
+//        model.addAttribute("title", "Form Builder");
+//        return Views.CREATE_FORM;
+//    }
 }
