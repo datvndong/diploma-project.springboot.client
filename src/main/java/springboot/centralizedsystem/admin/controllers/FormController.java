@@ -63,13 +63,11 @@ public class FormController extends BaseController {
             model.addAttribute("title", "Forms management");
 
             return Views.FORMS;
-        } catch (ParseException e) {
-            return Views.ERROR_404;
         } catch (HttpClientErrorException e) {
             return Views.ERROR_404;
         } catch (HttpServerErrorException e) {
             return Views.ERROR_500;
-        } catch (UnknownHttpStatusCodeException | ResourceAccessException e) {
+        } catch (ParseException | UnknownHttpStatusCodeException | ResourceAccessException e) {
             return Views.ERROR_UNKNOWN;
         }
     }
@@ -145,6 +143,9 @@ public class FormController extends BaseController {
                 formJSON = new JSONObject(formRes.getBody());
 
                 FormControl formControl = formControlService.findByPathForm(path);
+                if (formControl == null) {
+                    return Views.ERROR_UNKNOWN;
+                }
                 String[] start = formControl.getStart().split(" ");
                 String[] expired = formControl.getExpired().split(" ");
                 formJSON.put("oldPath", formControl.getPathForm());
@@ -162,7 +163,7 @@ public class FormController extends BaseController {
             return Views.ERROR_404;
         } catch (HttpServerErrorException e) {
             return Views.ERROR_500;
-        } catch (UnknownHttpStatusCodeException e) {
+        } catch (UnknownHttpStatusCodeException | ResourceAccessException e) {
             return Views.ERROR_UNKNOWN;
         }
     }
@@ -209,7 +210,9 @@ public class FormController extends BaseController {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
             } else {
-                if (formControlService.update(new FormControl(pathForm, assign, start, expired), oldPath) == 0) {
+                int rowAffectedt = formControlService.update(new FormControl(pathForm, assign, start, expired),
+                        oldPath);
+                if (rowAffectedt < 1) {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
             }

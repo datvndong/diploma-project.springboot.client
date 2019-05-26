@@ -25,7 +25,12 @@ public class FormControlServiceImpl implements FormControlService {
 
     @Override
     public List<FormControl> findAll() {
-        return this.formControlRepository.findAll();
+        try {
+            return this.formControlRepository.findAll();
+        } catch (Exception e) {
+            System.err.println("[ERROR] Find list FormControl: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
@@ -34,6 +39,7 @@ public class FormControlServiceImpl implements FormControlService {
             this.formControlRepository.insert(formControl);
             return true;
         } catch (Exception e) {
+            System.err.println("[ERROR] Insert FormControl: " + e.getMessage());
             return false;
         }
     }
@@ -44,13 +50,19 @@ public class FormControlServiceImpl implements FormControlService {
             this.formControlRepository.deleteAll();
             return true;
         } catch (Exception e) {
+            System.err.println("[ERROR] Delete all FormControl: " + e.getMessage());
             return false;
         }
     }
 
     @Override
     public FormControl findByPathForm(String pathForm) {
-        return this.formControlRepository.findByPathForm(pathForm);
+        try {
+            return this.formControlRepository.findByPathForm(pathForm);
+        } catch (Exception e) {
+            System.err.println("[ERROR] Find one FormControl: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
@@ -60,21 +72,27 @@ public class FormControlServiceImpl implements FormControlService {
             this.formControlRepository.delete(formControl);
             return true;
         } catch (Exception e) {
+            System.err.println("[ERROR] Delete one FormControl: " + e.getMessage());
             return false;
         }
     }
 
     @Override
     public int update(FormControl formControl, String oldPath) {
-        Query query = new Query(Criteria.where("pathForm").is(oldPath));
+        try {
+            Query query = new Query(Criteria.where("pathForm").is(oldPath));
 
-        Update update = new Update();
-        update.set("pathForm", formControl.getPathForm());
-        update.set("assign", formControl.getAssign());
-        update.set("start", formControl.getStart());
-        update.set("expired", formControl.getExpired());
+            Update update = new Update();
+            update.set("pathForm", formControl.getPathForm());
+            update.set("assign", formControl.getAssign());
+            update.set("start", formControl.getStart());
+            update.set("expired", formControl.getExpired());
 
-        WriteResult result = this.mongoTemplate.updateFirst(query, update, FormControl.class);
-        return result.getN();
+            WriteResult result = this.mongoTemplate.updateFirst(query, update, FormControl.class);
+            return result.getN();
+        } catch (Exception e) {
+            System.err.println("[ERROR] Update one FormControl: " + e.getMessage());
+            return -1;
+        }
     }
 }

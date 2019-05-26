@@ -66,7 +66,7 @@
                             	To:&ensp;&ensp;&emsp;[[${obj.expired}]]
                             </td>
                             <td>
-								<a th:id="'edit-' + ${objStat.count}" th:href="@{/build/form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
+								<a th:if="${obj.amount == 0}" th:id="'edit-' + ${objStat.count}" th:href="@{/build/form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
 									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
 								<a th:id="'delete-' + ${objStat.count}" th:href="@{/delete/form/{path}(path=${obj.path})}" class="btn btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this record?');"> 
@@ -133,7 +133,9 @@
   			const deleteBtn = document.getElementById('delete-' + (i + 1));
   			deleteBtn.addEventListener("click", stopEvent, false);
   			const editBtn = document.getElementById('edit-' + (i + 1));
-  			editBtn.addEventListener("click", stopEvent, false);
+  			if (editBtn != null) {
+  	  			editBtn.addEventListener("click", stopEvent, false);
+  			}
   		});
   		$('#forms-table').delegate('tr', 'click', function() {
   			const index = parseInt($(this).find('.nr').text()) - 1;
