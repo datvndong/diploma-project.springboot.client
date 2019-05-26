@@ -155,7 +155,8 @@ public class FormController extends BaseController {
 
             Boolean isCreate = oldPath.equals("");
             JSONObject jsonObject = new JSONObject(formJSON);
-            String[] fields = { "title", "path", "name", "startDate", "startTime", "expiredDate", "expiredTime" };
+            String[] fields = { "title", "path", "name", "assign", "startDate", "startTime", "expiredDate",
+                    "expiredTime" };
             for (String field : fields) {
                 if (ValidateUtils.isEmptyString(jsonObject, field)) {
                     return new ResponseEntity<>("Please fill out `" + field + "` field", HttpStatus.BAD_REQUEST);
