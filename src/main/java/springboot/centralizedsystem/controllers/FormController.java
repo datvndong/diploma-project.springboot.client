@@ -18,10 +18,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import springboot.centralizedsystem.domains.Admin;
 import springboot.centralizedsystem.domains.FormControl;
-import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.Configs;
 import springboot.centralizedsystem.resources.Keys;
 import springboot.centralizedsystem.resources.Messages;
@@ -48,9 +52,9 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, @ModelAttribute(Keys.DELETE) String deleteMess) {
         try {
-            User user = SessionUtils.getUser(session);
+            Admin admin = SessionUtils.getAdmin(session);
 
-            model.addAttribute("list", formService.findAllForms(user.getToken(), user.getEmail()));
+            model.addAttribute("list", formService.findAllForms(admin.getToken(), admin.getEmail()));
             if (!deleteMess.equals("")) {
                 boolean isDeleteSuccess = Boolean.parseBoolean(deleteMess);
                 model.addAttribute("deleteMess", Messages.DELETE("form", isDeleteSuccess));
@@ -61,27 +65,35 @@ public class FormController extends BaseController {
             return Views.FORMS;
         } catch (ParseException e) {
             return Views.ERROR_404;
+        } catch (HttpClientErrorException e) {
+            return Views.ERROR_404;
+        } catch (HttpServerErrorException e) {
+            return Views.ERROR_500;
+        } catch (UnknownHttpStatusCodeException | ResourceAccessException e) {
+            return Views.ERROR_UNKNOWN;
         }
     }
 
     @GetMapping(RequestsPath.SUBMISSIONS)
-    public ResponseEntity<String> submissionsGET(@RequestParam("path") String path, HttpSession session) {
-        User user = SessionUtils.getUser(session);
+    public ResponseEntity<String> submissionsGET(@RequestParam("path") String path, HttpSession session)
+    {
+        Admin admin = SessionUtils.getAdmin(session);
 
-        return formService.findAllSubmissions(user.getToken(), path);
+        return formService.findAllSubmissions(admin.getToken(), path);
     }
 
     @GetMapping(RequestsPath.FORM)
-    public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session) {
-        User user = SessionUtils.getUser(session);
+    public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session)
+    {
+        Admin admin = SessionUtils.getAdmin(session);
 
-        return formService.findOneForm(user.getToken(), path);
+        return formService.findOneForm(admin.getToken(), path);
     }
 
     @GetMapping(RequestsPath.CREATE_FORM)
     public String createFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        User user = SessionUtils.getUser(session);
-        if (user == null) {
+        Admin admin = SessionUtils.getAdmin(session);
+        if (admin == null) {
             return unauthorized(redirect);
         }
 
@@ -92,8 +104,8 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.EDIT_FORM)
     public String editFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
-        User user = SessionUtils.getUser(session);
-        if (user == null) {
+        Admin admin = SessionUtils.getAdmin(session);
+        if (admin == null) {
             return unauthorized(redirect);
         }
 
@@ -106,52 +118,60 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.BUILDER)
     public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @RequestParam("path") String path) {
-        User user = SessionUtils.getUser(session);
-        String token = user.getToken();
+        try {
+            Admin admin = SessionUtils.getAdmin(session);
+            String token = admin.getToken();
 
-        model.addAttribute("listRoles", roleService.findAll(token));
+            model.addAttribute("listRoles", roleService.findAll(token));
 
-        JSONObject formJSON = null;
-        boolean isCreate = path.equals(""); // No path parametter
-        if (isCreate) {
-            // Create form
-            formJSON = new JSONObject();
-            formJSON.put("title", "");
-            formJSON.put("path", "");
-            formJSON.put("name", "");
-            formJSON.put("tags", new ArrayList<String>());
-            formJSON.put("components", new ArrayList<String>());
-            formJSON.put("oldPath", "");
-            formJSON.put("startDate", "");
-            formJSON.put("startTime", "");
-            formJSON.put("expiredDate", "");
-            formJSON.put("expiredTime", "");
-        } else {
-            // Edit form
-            ResponseEntity<String> formRes = formService.findOneForm(token, path);
-            formJSON = new JSONObject(formRes.getBody());
+            JSONObject formJSON = null;
+            boolean isCreate = path.equals(""); // No path parametter
+            if (isCreate) {
+                // Create form
+                formJSON = new JSONObject();
+                formJSON.put("title", "");
+                formJSON.put("path", "");
+                formJSON.put("name", "");
+                formJSON.put("tags", new ArrayList<String>());
+                formJSON.put("components", new ArrayList<String>());
+                formJSON.put("oldPath", "");
+                formJSON.put("startDate", "");
+                formJSON.put("startTime", "");
+                formJSON.put("expiredDate", "");
+                formJSON.put("expiredTime", "");
+            } else {
+                // Edit form
+                ResponseEntity<String> formRes = formService.findOneForm(token, path);
+                formJSON = new JSONObject(formRes.getBody());
 
-            FormControl formControl = formControlService.findByPathForm(path);
-            String[] start = formControl.getStart().split(" ");
-            String[] expired = formControl.getExpired().split(" ");
-            formJSON.put("oldPath", formControl.getPathForm());
-            formJSON.put("assign", formControl.getAssign());
-            formJSON.put("startDate", start[0]);
-            formJSON.put("startTime", start[1]);
-            formJSON.put("expiredDate", expired[0]);
-            formJSON.put("expiredTime", expired[1]);
+                FormControl formControl = formControlService.findByPathForm(path);
+                String[] start = formControl.getStart().split(" ");
+                String[] expired = formControl.getExpired().split(" ");
+                formJSON.put("oldPath", formControl.getPathForm());
+                formJSON.put("assign", formControl.getAssign());
+                formJSON.put("startDate", start[0]);
+                formJSON.put("startTime", start[1]);
+                formJSON.put("expiredDate", expired[0]);
+                formJSON.put("expiredTime", expired[1]);
+            }
+            model.addAttribute("isCreate", isCreate);
+            model.addAttribute("obj", formJSON.toString());
+
+            return Views.BUILDER;
+        } catch (HttpClientErrorException e) {
+            return Views.ERROR_404;
+        } catch (HttpServerErrorException e) {
+            return Views.ERROR_500;
+        } catch (UnknownHttpStatusCodeException e) {
+            return Views.ERROR_UNKNOWN;
         }
-        model.addAttribute("isCreate", isCreate);
-        model.addAttribute("obj", formJSON.toString());
-
-        return Views.BUILDER;
     }
 
     @PostMapping(RequestsPath.CREATE_FORM)
     public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON,
             @RequestParam("oldPath") String oldPath, HttpSession session) {
         try {
-            User user = SessionUtils.getUser(session);
+            Admin admin = SessionUtils.getAdmin(session);
 
             Boolean isCreate = oldPath.equals("");
             JSONObject jsonObject = new JSONObject(formJSON);
@@ -182,7 +202,7 @@ public class FormController extends BaseController {
             String expired = expiredDate + " " + jsonObject.getString("expiredTime");
 
             // Send to form.io server and save to database
-            ResponseEntity<String> res = formService.buildForm(user.getToken(), formJSON, isCreate ? "" : oldPath);
+            ResponseEntity<String> res = formService.buildForm(admin.getToken(), formJSON, isCreate ? "" : oldPath);
 
             if (isCreate) {
                 if (!formControlService.insert(new FormControl(pathForm, assign, start, expired))) {
@@ -201,8 +221,9 @@ public class FormController extends BaseController {
     }
 
     @GetMapping(RequestsPath.DELETE_FORM)
-    public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path) {
-        User user = SessionUtils.getUser(session);
+    public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path)
+    {
+        Admin admin = SessionUtils.getAdmin(session);
 
         boolean isDeleteFormControlSuccess = formControlService.deleteByPathForm(path);
         if (!isDeleteFormControlSuccess) {
@@ -210,7 +231,7 @@ public class FormController extends BaseController {
             return "redirect:" + RequestsPath.FORMS;
         }
 
-        boolean isDeleteFormSuccess = formService.deleteForm(user.getToken(), path);
+        boolean isDeleteFormSuccess = formService.deleteForm(admin.getToken(), path);
         redirect.addFlashAttribute(Keys.DELETE, Boolean.toString(isDeleteFormSuccess));
 
         return "redirect:" + RequestsPath.FORMS;

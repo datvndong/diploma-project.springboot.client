@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
 
@@ -32,7 +33,8 @@ public class FormServiceImpl implements FormService {
     private FormControlService formControlService;
 
     private int getAmount(HttpEntity<String> entity, String path)
-            throws HttpClientErrorException, UnknownHttpStatusCodeException {
+            throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
+            UnknownHttpStatusCodeException {
         ResponseEntity<String> res = new RestTemplate().exchange(APIs.getListSubmissionsURL(path), HttpMethod.GET,
                 entity, String.class);
         return new JSONArray(res.getBody()).length();
@@ -69,7 +71,8 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public List<Form> findAllForms(String token, String email) throws ParseException {
+    public List<Form> findAllForms(String token, String email) throws ParseException, ResourceAccessException,
+            HttpClientErrorException, HttpServerErrorException, UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
@@ -108,7 +111,8 @@ public class FormServiceImpl implements FormService {
 
     @Override
     public ResponseEntity<String> findAllSubmissions(String token, String path)
-            throws HttpClientErrorException, UnknownHttpStatusCodeException {
+            throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
+            UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
@@ -119,7 +123,8 @@ public class FormServiceImpl implements FormService {
 
     @Override
     public ResponseEntity<String> findOneForm(String token, String path)
-            throws HttpClientErrorException, UnknownHttpStatusCodeException {
+            throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
+            UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
@@ -129,8 +134,9 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public ResponseEntity<String> buildForm(String token, String formJSON, String path)
-            throws HttpClientErrorException, HttpServerErrorException, UnknownHttpStatusCodeException {
+    public ResponseEntity<String> buildForm(String token, String formJSON, String path) throws ResourceAccessException,
+            HttpClientErrorException, HttpServerErrorException,
+            UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
@@ -145,7 +151,8 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public boolean deleteForm(String token, String path) {
+    public boolean deleteForm(String token, String path) throws ResourceAccessException, HttpClientErrorException,
+            HttpServerErrorException, UnknownHttpStatusCodeException {
         try {
             HttpHeaders header = HttpUtils.getHeader();
             header.set(APIs.TOKEN_KEY, token);

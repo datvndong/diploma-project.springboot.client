@@ -1,5 +1,7 @@
 package springboot.centralizedsystem.controllers;
 
+import java.net.ConnectException;
+
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,7 +34,7 @@ public class BaseController {
         return new ResponseEntity<>(new JSONObject(error).getString("message"), httpException.getStatusCode());
     }
 
-    @ExceptionHandler(UnknownHttpStatusCodeException.class)
+    @ExceptionHandler({ UnknownHttpStatusCodeException.class, ConnectException.class })
     public String handlerUnknowHttpStatusCodeEx() {
         return Views.ERROR_UNKNOWN;
     }

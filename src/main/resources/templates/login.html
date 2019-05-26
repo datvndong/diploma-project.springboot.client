@@ -13,7 +13,7 @@
         <div class="row w-100">
           <div class="col-lg-4 mx-auto">
             <div class="auto-form-wrapper">
-              <form action="#" th:action="@{/login}" th:object="${user}" method="post">
+              <form action="#" th:action="@{/login}" th:object="${boss}" method="post">
               	<div class="form-group" th:if="${error}">
                   <label style="color: red" type="text" th:text="${error}"></label>
                 </div>

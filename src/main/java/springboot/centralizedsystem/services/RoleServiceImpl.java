@@ -11,6 +11,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
 
@@ -22,7 +24,8 @@ import springboot.centralizedsystem.utils.HttpUtils;
 public class RoleServiceImpl implements RoleService {
 
     @Override
-    public List<Role> findAll(String token) throws HttpClientErrorException, UnknownHttpStatusCodeException {
+    public List<Role> findAll(String token) throws ResourceAccessException, HttpClientErrorException,
+            HttpServerErrorException, UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
@@ -49,7 +52,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role findOne(String token, String _id) {
+    public Role findOne(String token, String _id) throws ResourceAccessException, HttpClientErrorException,
+            HttpServerErrorException, UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 

@@ -1,6 +1,6 @@
 package springboot.centralizedsystem.domains;
 
-public class User {
+public class Admin {
 
     private String name;
     private String email;
@@ -31,11 +31,11 @@ public class User {
         this.token = token;
     }
 
-    public User() {
+    public Admin() {
 
     }
 
-    public User(String name, String email, String password, String token) {
+    public Admin(String name, String email, String password, String token) {
         super();
         this.name = name;
         this.email = email;
