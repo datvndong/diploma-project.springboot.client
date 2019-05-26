@@ -129,14 +129,19 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public ResponseEntity<String> createForm(String token, String formJSON)
+    public ResponseEntity<String> buildForm(String token, String formJSON, String path)
             throws HttpClientErrorException, HttpServerErrorException, UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
         HttpEntity<String> entity = new HttpEntity<>(formJSON, header);
 
-        return new RestTemplate().postForEntity(APIs.FORM_URL, entity, String.class);
+        if (path.equals("")) {
+            // Create
+            return new RestTemplate().postForEntity(APIs.FORM_URL, entity, String.class);
+        }
+        // Edit
+        return new RestTemplate().exchange(APIs.modifiedForm(path), HttpMethod.PUT, entity, String.class);
     }
 
     @Override
@@ -147,7 +152,7 @@ public class FormServiceImpl implements FormService {
 
             HttpEntity<String> entity = new HttpEntity<>(header);
 
-            new RestTemplate().exchange(APIs.deleteForm(path), HttpMethod.DELETE, entity, String.class);
+            new RestTemplate().exchange(APIs.modifiedForm(path), HttpMethod.DELETE, entity, String.class);
 
             return true;
         } catch (HttpClientErrorException | HttpServerErrorException | UnknownHttpStatusCodeException e) {

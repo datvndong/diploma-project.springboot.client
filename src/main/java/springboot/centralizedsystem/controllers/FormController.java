@@ -111,39 +111,49 @@ public class FormController extends BaseController {
 
         model.addAttribute("listRoles", roleService.findAll(token));
 
-        JSONObject jsonObject = null;
-        if (path.equals("")) {
+        JSONObject formJSON = null;
+        boolean isCreate = path.equals(""); // No path parametter
+        if (isCreate) {
             // Create form
-            jsonObject = new JSONObject();
-            jsonObject.put("title", "");
-            jsonObject.put("path", "");
-            jsonObject.put("name", "");
-            jsonObject.put("startDate", "");
-            jsonObject.put("startTime", "");
-            jsonObject.put("expiredDate", "");
-            jsonObject.put("expiredTime", "");
-            jsonObject.put("tags", new ArrayList<String>());
-            jsonObject.put("components", new ArrayList<String>());
+            formJSON = new JSONObject();
+            formJSON.put("title", "");
+            formJSON.put("path", "");
+            formJSON.put("name", "");
+            formJSON.put("tags", new ArrayList<String>());
+            formJSON.put("components", new ArrayList<String>());
+            formJSON.put("oldPath", "");
+            formJSON.put("startDate", "");
+            formJSON.put("startTime", "");
+            formJSON.put("expiredDate", "");
+            formJSON.put("expiredTime", "");
         } else {
             // Edit form
-            ResponseEntity<String> res = formService.findOneForm(token, path);
-            jsonObject = new JSONObject(res.getBody());
-            jsonObject.put("startDate", "2019-05-26");
-            jsonObject.put("startTime", "10:05:00");
-            jsonObject.put("expiredDate", "2019-05-27");
-            jsonObject.put("expiredTime", "11:05:00");
-            // Missing Assign
+            ResponseEntity<String> formRes = formService.findOneForm(token, path);
+            formJSON = new JSONObject(formRes.getBody());
+
+            FormControl formControl = formControlService.findByPathForm(path);
+            String[] start = formControl.getStart().split(" ");
+            String[] expired = formControl.getExpired().split(" ");
+            formJSON.put("oldPath", formControl.getPathForm());
+            formJSON.put("assign", formControl.getAssign());
+            formJSON.put("startDate", start[0]);
+            formJSON.put("startTime", start[1]);
+            formJSON.put("expiredDate", expired[0]);
+            formJSON.put("expiredTime", expired[1]);
         }
-        model.addAttribute("obj", jsonObject.toString());
+        model.addAttribute("isCreate", isCreate);
+        model.addAttribute("obj", formJSON.toString());
 
         return Views.BUILDER;
     }
 
     @PostMapping(RequestsPath.CREATE_FORM)
-    public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON, HttpSession session) {
+    public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON,
+            @RequestParam("oldPath") String oldPath, HttpSession session) {
         try {
             User user = SessionUtils.getUser(session);
 
+            Boolean isCreate = oldPath.equals("");
             JSONObject jsonObject = new JSONObject(formJSON);
             String[] fields = { "title", "path", "name", "startDate", "startTime", "expiredDate", "expiredTime" };
             for (String field : fields) {
@@ -170,11 +180,20 @@ public class FormController extends BaseController {
             String start = startDate + " " + jsonObject.getString("startTime");
             String expired = expiredDate + " " + jsonObject.getString("expiredTime");
 
-            if (!formControlService.insert(new FormControl(pathForm, assign, start, expired))) {
-                return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
+            // Send to form.io server and save to database
+            ResponseEntity<String> res = formService.buildForm(user.getToken(), formJSON, isCreate ? "" : oldPath);
+
+            if (isCreate) {
+                if (!formControlService.insert(new FormControl(pathForm, assign, start, expired))) {
+                    return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                if (formControlService.update(new FormControl(pathForm, assign, start, expired), oldPath) == 0) {
+                    return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
+                }
             }
 
-            return formService.createForm(user.getToken(), formJSON);
+            return res;
         } catch (ParseException e) {
             return new ResponseEntity<>(Messages.FORMAT_DATE_ERROR, HttpStatus.BAD_REQUEST);
         }

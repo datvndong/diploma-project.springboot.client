@@ -15,4 +15,6 @@ public interface FormControlService {
     FormControl findByPathForm(String pathForm);
 
     boolean deleteByPathForm(String pathForm);
+    
+    int update(FormControl formControl, String oldPath);
 }

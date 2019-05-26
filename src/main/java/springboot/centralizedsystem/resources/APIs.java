@@ -19,7 +19,7 @@ public class APIs {
 
     public static final String ROLE_URL = SERVER_URL + "/role";
 
-    public static String deleteForm(String path) {
+    public static String modifiedForm(String path) {
         return SERVER_URL + "/" + path;
     }
 }

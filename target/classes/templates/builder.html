@@ -110,11 +110,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	</form>
 	
 	<div id="builder"></div>
-	<button type="button" class="btn btn-info mr-2" id="create" disabled="disabled">Create</button>
+	<button type="button" class="btn btn-info mr-2" id="save" disabled="disabled">Save</button>
     <button class="btn btn-warning">Cancel</button>
     
 	<script th:inline="javascript">
 		const obj = JSON.parse([[${obj}]]);
+		const isCreate = [[${isCreate}]] === true;
 			
 		const form = document.querySelector('form');
 		const title = $('#title');
@@ -126,7 +127,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		const expiredTime = $('#expired-time');
 		const assign = $('#assign');
 		const details = $('#details');
-		const createBtn = $('#create');
+		const saveBtn = $('#save');
 		const resultMess = $('#result-message');
 		
 		let builder = new Formio.FormBuilder(document.getElementById('builder'), {
@@ -144,12 +145,16 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			expiredDate: obj.expiredDate,
 			expiredTime: obj.expiredTime
 		});
-
+		
+		if (!isCreate) {
+			saveBtn.removeAttr('disabled');
+		}
+		
 		const setDisplay = function(display) {
 			builder.setDisplay(display).then(function(instance) {     
 				instance.on('change', function(form) {
 					if (form.components) {
-						form.components.length !== 0 ? createBtn.removeAttr('disabled') : createBtn.attr('disabled', 'disabled');		
+						form.components.length !== 0 ? saveBtn.removeAttr('disabled') : saveBtn.attr('disabled', 'disabled');		
 					}
 				});
 			});
@@ -161,12 +166,15 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		title.val(obj.title);
 		name.val(obj.name);
 		path.val(obj.path);
-		//tags.val(obj.tags);
+		// handle this error, tags 
+		// tags.val(obj.tags);
 		startDate.val(obj.startDate);
 		startTime.val(obj.startTime);
 		expiredDate.val(obj.expiredDate);
 		expiredTime.val(obj.expiredTime);
-		assign.val(obj.assign);
+		if (typeof obj.assign !== "undefined") {
+			assign.val(obj.assign);
+		}
 		
 		title.keyup(function () {
 			const titleValue = title.val();
@@ -214,7 +222,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			}
 		});
 		
-		createBtn.click(function () {
+		saveBtn.click(function () {
 			if (form.checkValidity()){
 				resultMess.removeClass();
 				$.ajax({
@@ -222,11 +230,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					method: 'POST',
 	  				dataType: 'json',
 	  				data: {
-	  					formJSON: JSON.stringify(builder.form)
+	  					formJSON: JSON.stringify(builder.form),
+	  					oldPath: obj.oldPath
 	  				},
 	  				success: () => {
 	  					resultMess.addClass('alert-success');
-	  					resultMess.html('Successfully created form!');
+	  					resultMess.html('Successfully ' + (isCreate ? 'created' : 'modified') + ' form!');
 	  				},
 	  				error: mess => {
 	  					resultMess.addClass('alert-danger');
