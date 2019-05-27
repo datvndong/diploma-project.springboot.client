@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns= "http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+	
+<head>
+	<link rel="stylesheet" th:href="@{/css/formio.full.min.css}" />
+	
+	<link rel="stylesheet" th:href="@{/vendors/iconfonts/mdi/css/materialdesignicons.min.css}" />
+  	<link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.base.css}" />
+  	<link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.addons.css}" />
+  	<link rel="stylesheet" th:href="@{/css/style.css}" />
+  	<link rel="shortcut icon" th:href="@{/images/favicon.png}" />
+	
+	<link rel="stylesheet" th:href="@{/css/material-kit.css}" />
+	
+	<link rel="stylesheet" th:href="@{/css/bootstrap-glyphicons.css}" />
+	
+    <script src="/js/formio.full.min.js"></script>    
+	<script src="/js/jquery.min.js"></script>
+	
+    <script th:inline="javascript">
+    	window.onload = function() {
+        	Formio.createForm(document.getElementById('formio'), [[${link}]]);
+      	};
+    </script>
+</head>
+  
+<body class="login-page sidebar-collapse">
+	<div class="page-header header-filter" style="background-image: url('/images/background/bg7.jpg'); background-size: cover; background-position: top center;">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 col-md-6 ml-auto mr-auto">
+		        	<div class="card card-login">
+		          		<div class="card-header card-header-primary text-center">
+		                	<h4 class="card-title" th:text="${title}"></h4>
+		              	</div>
+		          		<div class="card-body">
+							<div id="formio"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

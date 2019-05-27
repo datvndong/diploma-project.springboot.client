@@ -91,6 +91,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				<div class="col-sm-9">
 					<select class="form-control" id="assign">
 						<option th:each="role : ${listRoles}" th:value="${role._id}" th:text="${role.title}"></option>
+						<option>Group</option>
 					</select>
 				</div>
 			</div>

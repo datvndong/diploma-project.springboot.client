@@ -28,7 +28,7 @@
                   	Note: <code style="font-size: 100%">click row to show submissions of report</code>
                   </p>
                   <div class="table-responsive">
-                    <table id="forms-table" class="table table-hover">
+                    <table id="reports-table" class="table table-hover">
                       <thead>
                         <tr>
                           <th>#</th>
@@ -69,10 +69,10 @@
                             	<label th:if="${obj.durationPercent == 100}" class="badge badge-warning">Expired</label>
                             </td>
                             <td>
-                            	<a th:if="${!obj.isPending AND !obj.isSubmitted AND obj.durationPercent != 100}" th:id="'send-' + ${objStat.count}" th:href="@{/delete/form/{path}(path=${obj.path})}" class="btn btn-info" title="Send"> 
+                            	<a th:if="${!obj.isPending AND !obj.isSubmitted AND obj.durationPercent != 100}" th:id="'send-' + ${objStat.count}" th:href="@{/send/auth/report/{path}(path=${obj.path})}" class="btn btn-info" title="Send"> 
 									<span class="mdi mdi-send"></span>
 								</a>
-								<a th:if="${!obj.isPending AND obj.isSubmitted AND obj.durationPercent != 100}" th:id="'edit-' + ${objStat.count}" th:href="@{/build/form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
+								<a th:if="${!obj.isPending AND obj.isSubmitted AND obj.durationPercent != 100}" th:id="'edit-' + ${objStat.count}" th:href="@{/edit/report/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
 									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
 							</td>
@@ -109,9 +109,11 @@
   </div>
   <div th:include="fragments/plugins :: plugins"></div>
   <script th:inline="javascript">
+  	/*<![CDATA[*/
 	function stopEvent(ev) {
 		ev.stopPropagation();
 	}
+	
 	$(document).ready(() => {
 		const list = [[${list}]];
 		list.forEach((obj, i) => {
@@ -127,7 +129,70 @@
 	  	  		editBtn.addEventListener("click", stopEvent, false);
 	  		}
 	  	});
+		$('#reports-table').delegate('tr', 'click', function() {
+  			const index = parseInt($(this).find('.nr').text()) - 1;
+  			const path = list[index].path;
+  			$.ajax({
+  				url: 'http://localhost:8080/submissions',
+  				method: 'GET',
+  				dataType: 'json',
+  				data: {
+  					path
+  				},
+  				success: submissions => {
+  					$.ajax({
+  						url: 'http://localhost:8080/form',
+  						method: 'GET',
+  						dataType: 'json',
+  						data: {
+  							path
+  						},
+  						success: result => {
+  							$('#form-name').html(result.title);
+  							
+  							let str = '<thead><tr><th>#</th>';
+  							for (comp of result.components) {
+  								if (!(comp.inputType == "password") && comp.key != "submit"){
+  									str += `<th>${comp.label}</th>`;
+  								}
+  							}
+  							str += '</tr></thead><tbody>';
+  							let count = 1;
+  							for (submission of submissions) {
+  								str += `<tr><td>${count++}</td>`;
+  								const data = submission.data;
+  								
+  								for (comp of result.components) {
+  	  								if (!(comp.inputType === "password") && comp.key !== "submit"){
+  	  									let value = data[comp.key];
+  	  									if (typeof value === 'undefined') {
+  	  										value = '';
+  	  									} else if (comp.type === 'selectboxes') {
+  	  										value = buildResultSelectBoxes(value);
+  	  									} else if (typeof value === 'boolean') {
+  	  										value = value ? 'Yes' : 'No';
+  	  									}
+  	  									str += `<td>${value}</td>`;
+  	  								}
+  	  							}
+  								str += '</tr>'
+  							}
+  							str += '</tbody>';
+  							
+  							$('#submissions-table').html(str);
+  						},
+  						error: () => {
+  							console.log('failed get form info');
+  						}
+  					});
+  	  			}, 
+  	  			error: mess => {
+  	  				alert(JSON.stringify(mess));
+  	  			}
+  			});
+  	    });
 	});
+	/*]]>*/
   </script>
 </body>
 

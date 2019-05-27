@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import springboot.centralizedsystem.admin.domains.Form;
 import springboot.centralizedsystem.admin.domains.FormControl;
 import springboot.centralizedsystem.admin.domains.User;
+import springboot.centralizedsystem.admin.resources.APIs;
 import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.resources.RequestsPath;
 import springboot.centralizedsystem.admin.resources.Views;
@@ -96,6 +98,49 @@ public class ReportController extends BaseController {
             return Views.REPORTS;
         } catch (HttpClientErrorException e) {
             switch (e.getStatusCode()) {
+            case NOT_FOUND:
+                return Views.ERROR_404;
+            default:
+                return Views.ERROR_UNKNOWN;
+            }
+        } catch (HttpServerErrorException e) {
+            switch (e.getStatusCode()) {
+            case INTERNAL_SERVER_ERROR:
+                return Views.ERROR_500;
+            default:
+                return Views.ERROR_UNKNOWN;
+            }
+        }
+    }
+
+    @GetMapping(RequestsPath.SEND_REPORT_AUTHENTICATED)
+    public String sendReportGET(Model model, HttpSession session, RedirectAttributes redirect,
+            @PathVariable String path) {
+        try {
+            User user = SessionUtils.getUser(session);
+            if (user == null) {
+                return unauthorized(redirect);
+            }
+
+            FormControl formControl = formControlService.findByPathForm(path);
+            if (formControl == null) {
+                return Views.ERROR_404;
+            }
+            if (formControl.getAssign().equals(Keys.AUTHENTICATED)) {
+                ResponseEntity<String> res = formService.findOneForm(user.getToken(), path);
+                JSONObject resJSON = new JSONObject(res.getBody());
+
+                model.addAttribute("link", APIs.modifiedForm(path));
+                model.addAttribute("title", resJSON.getString("title"));
+
+                return Views.SEND_REPORT;
+            }
+
+            return Views.SEND_REPORT;
+        } catch (HttpClientErrorException e) {
+            switch (e.getStatusCode()) {
+            case UNAUTHORIZED:
+                return Views.ERROR_403;
             case NOT_FOUND:
                 return Views.ERROR_404;
             default:

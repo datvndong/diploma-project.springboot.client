@@ -17,4 +17,7 @@ public class RequestsPath {
     public static final String BUILDER = "/builder";
     public static final String DELETE_FORM = "/delete/form/{path}";
     public static final String REPORTS = "/reports";
+    public static final String SEND_REPORT_AUTHENTICATED = "/send/auth/report/{path}";
+    public static final String SEND_REPORT_ANONYMOUS = "/send/anon/report/{path}";
+    public static final String EDIT_REPORT = "/edit/report/{path}";
 }

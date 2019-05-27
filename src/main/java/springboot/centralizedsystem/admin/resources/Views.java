@@ -13,4 +13,5 @@ public class Views {
     public static final String BUILD_FORM = "build-form";
     public static final String BUILDER = "builder";
     public static final String REPORTS = "reports";
+    public static final String SEND_REPORT = "send-report";
 }
