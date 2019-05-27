@@ -23,6 +23,7 @@ import springboot.centralizedsystem.admin.domains.FormControl;
 import springboot.centralizedsystem.admin.domains.User;
 import springboot.centralizedsystem.admin.resources.APIs;
 import springboot.centralizedsystem.admin.resources.Keys;
+import springboot.centralizedsystem.admin.resources.Messages;
 import springboot.centralizedsystem.admin.resources.RequestsPath;
 import springboot.centralizedsystem.admin.resources.Views;
 import springboot.centralizedsystem.admin.services.FormControlService;
@@ -121,17 +122,21 @@ public class ReportController extends BaseController {
             if (user == null) {
                 return unauthorized(redirect);
             }
+            String token = user.getToken();
 
             FormControl formControl = formControlService.findByPathForm(path);
             if (formControl == null) {
                 return Views.ERROR_404;
             }
             if (formControl.getAssign().equals(Keys.AUTHENTICATED)) {
-                ResponseEntity<String> res = formService.findOneForm(user.getToken(), path);
-                JSONObject resJSON = new JSONObject(res.getBody());
+                ResponseEntity<String> res1 = formService.findOneForm(token, path);
+                JSONObject resJSON = new JSONObject(res1.getBody());
 
-                model.addAttribute("link", APIs.modifiedForm(path));
-                model.addAttribute("title", resJSON.getString("title"));
+                ResponseEntity<String> res2 = formService.findAllSubmissions(token, path);
+                boolean isNotSubmitted = new JSONArray(res2.getBody()).isEmpty();
+                model.addAttribute("link", isNotSubmitted ? APIs.modifiedForm(path) : "");
+                model.addAttribute("title",
+                        isNotSubmitted ? resJSON.getString("title") : Messages.HAS_SUBMITTED_MESSAGE);
 
                 return Views.SEND_REPORT;
             }

@@ -12,4 +12,6 @@ public class Messages {
     public static final String DATABASE_ERROR = "Database error.";
     public static final String FORMAT_DATE_ERROR = "Format date error.";
     public static final String DATE_PICK_ERROR = "Start date must be before expired date.";
+
+    public static final String HAS_SUBMITTED_MESSAGE = "Thank you, your submission has been received";
 }
