@@ -24,8 +24,8 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import springboot.centralizedsystem.admin.domains.Admin;
 import springboot.centralizedsystem.admin.domains.FormControl;
+import springboot.centralizedsystem.admin.domains.User;
 import springboot.centralizedsystem.admin.resources.Configs;
 import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.resources.Messages;
@@ -52,7 +52,7 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, @ModelAttribute(Keys.DELETE) String deleteMess) {
         try {
-            Admin admin = SessionUtils.getAdmin(session);
+            User admin = SessionUtils.getAdmin(session);
 
             model.addAttribute("list", formService.findAllForms(admin.getToken(), admin.getEmail()));
             if (!deleteMess.equals("")) {
@@ -67,7 +67,7 @@ public class FormController extends BaseController {
             return Views.ERROR_404;
         } catch (HttpServerErrorException e) {
             return Views.ERROR_500;
-        } catch (ParseException | UnknownHttpStatusCodeException | ResourceAccessException e) {
+        } catch (Exception e) {
             return Views.ERROR_UNKNOWN;
         }
     }
@@ -75,7 +75,7 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.SUBMISSIONS)
     public ResponseEntity<String> submissionsGET(@RequestParam("path") String path, HttpSession session)
     {
-        Admin admin = SessionUtils.getAdmin(session);
+        User admin = SessionUtils.getAdmin(session);
 
         return formService.findAllSubmissions(admin.getToken(), path);
     }
@@ -83,14 +83,14 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.FORM)
     public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session)
     {
-        Admin admin = SessionUtils.getAdmin(session);
+        User admin = SessionUtils.getAdmin(session);
 
         return formService.findOneForm(admin.getToken(), path);
     }
 
     @GetMapping(RequestsPath.CREATE_FORM)
     public String createFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        Admin admin = SessionUtils.getAdmin(session);
+        User admin = SessionUtils.getAdmin(session);
         if (admin == null) {
             return unauthorized(redirect);
         }
@@ -102,7 +102,7 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.EDIT_FORM)
     public String editFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
-        Admin admin = SessionUtils.getAdmin(session);
+        User admin = SessionUtils.getAdmin(session);
         if (admin == null) {
             return unauthorized(redirect);
         }
@@ -117,7 +117,7 @@ public class FormController extends BaseController {
     public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @RequestParam("path") String path) {
         try {
-            Admin admin = SessionUtils.getAdmin(session);
+            User admin = SessionUtils.getAdmin(session);
             String token = admin.getToken();
 
             model.addAttribute("listRoles", roleService.findAll(token));
@@ -172,7 +172,7 @@ public class FormController extends BaseController {
     public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON,
             @RequestParam("oldPath") String oldPath, HttpSession session) {
         try {
-            Admin admin = SessionUtils.getAdmin(session);
+            User admin = SessionUtils.getAdmin(session);
 
             Boolean isCreate = oldPath.equals("");
             JSONObject jsonObject = new JSONObject(formJSON);
@@ -226,7 +226,7 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.DELETE_FORM)
     public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path)
     {
-        Admin admin = SessionUtils.getAdmin(session);
+        User admin = SessionUtils.getAdmin(session);
 
         boolean isDeleteFormControlSuccess = formControlService.deleteByPathForm(path);
         if (!isDeleteFormControlSuccess) {

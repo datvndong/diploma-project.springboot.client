@@ -3,6 +3,7 @@ package springboot.centralizedsystem.admin.controllers;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,25 +12,29 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import springboot.centralizedsystem.admin.domains.Admin;
+import springboot.centralizedsystem.admin.domains.User;
 import springboot.centralizedsystem.admin.resources.APIs;
 import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.resources.Messages;
 import springboot.centralizedsystem.admin.resources.RequestsPath;
 import springboot.centralizedsystem.admin.resources.Views;
+import springboot.centralizedsystem.admin.services.RoleService;
 import springboot.centralizedsystem.admin.utils.HttpUtils;
 
 @Controller
 public class LoginController {
 
+    @Autowired
+    private RoleService roleService;
+
     @GetMapping(value = { RequestsPath.NONE, RequestsPath.SLASH, RequestsPath.LOGIN })
     public String loginGET(Model model, @ModelAttribute(Keys.LOGIN) String error) {
         model.addAttribute("title", "Login");
-        model.addAttribute("boss", new Admin(null, "xtreme@admin.io", null, null));
+        model.addAttribute(Keys.UNKNOWN_TYPE_USER, new User(null, "xtreme@admin.io", null, null));
         if (!error.equals("")) {
             model.addAttribute("error", error);
         }
@@ -37,27 +42,59 @@ public class LoginController {
     }
 
     @PostMapping(RequestsPath.LOGIN)
-    public String loginPOST(@Valid Admin boss, Model model, HttpSession session, RedirectAttributes redirect) {
+    public String loginPOST(@Valid User user, Model model, HttpSession session, RedirectAttributes redirect) {
         try {
-            String email = boss.getEmail();
-            String reqJSON = "{\"data\":{\"email\":\"" + email + "\",\"password\":\"" + boss.getPassword() + "\"}}";
+            String email = user.getEmail();
+            String reqJSON = "{\"data\":{\"email\":\"" + email + "\",\"password\":\"" + user.getPassword() + "\"}}";
 
             HttpEntity<String> entity = new HttpEntity<>(reqJSON, HttpUtils.getHeader());
 
-            ResponseEntity<String> res = new RestTemplate().postForEntity(APIs.LOGIN_URL, entity, String.class);
+            ResponseEntity<String> res = null;
+            // Login
+            try {
+                res = new RestTemplate().postForEntity(APIs.LOGIN_URL, entity, String.class);
+            } catch (HttpClientErrorException e) {
+                switch (e.getStatusCode()) {
+                case UNAUTHORIZED:
+                    redirect.addFlashAttribute(Keys.LOGIN, Messages.INVALID_ACCOUNT_ERROR);
+                    return "redirect:" + RequestsPath.LOGIN;
+                case NOT_FOUND:
+                    return Views.ERROR_404;
+                default:
+                    return Views.ERROR_UNKNOWN;
+                }
+            }
 
-            session.setAttribute(Keys.ADMIN,
-                    new Admin(email.split("@")[0], email, null, res.getHeaders().get(APIs.TOKEN_KEY).get(0)));
+            // Get token from response header
+            String token = res.getHeaders().get(APIs.TOKEN_KEY).get(0);
+
+            // Check is Administrator or User, if token is user will return 401 Unauthorized
+            try {
+                roleService.findAll(token);
+                session.setAttribute(Keys.IS_ADMIN, true);
+            } catch (HttpClientErrorException e) {
+                switch (e.getStatusCode()) {
+                case UNAUTHORIZED:
+                    session.setAttribute(Keys.IS_ADMIN, false);
+                case NOT_FOUND:
+                    return Views.ERROR_404;
+                default:
+                    return Views.ERROR_UNKNOWN;
+                }
+            }
+
+            session.setAttribute(Keys.USER, new User(email.split("@")[0], email, null, token));
 
             return "redirect:" + RequestsPath.DASHBOARD;
-        } catch (HttpClientErrorException httpException) {
-            redirect.addFlashAttribute(Keys.LOGIN, Messages.INVALID_ACCOUNT_ERROR);
-            return "redirect:" + RequestsPath.LOGIN;
-        } catch (ResourceAccessException resourceException) {
-            // I/O error on POST request for "http://localhost:3001/user/login": Connection
-            // refused: connect; nested exception is java.net.ConnectException: Connection
-            // refused: connect
-            return Views.ERROR_404;
+        } catch (HttpServerErrorException e) {
+            switch (e.getStatusCode()) {
+            case INTERNAL_SERVER_ERROR:
+                return Views.ERROR_500;
+            default:
+                return Views.ERROR_UNKNOWN;
+            }
+        } catch (Exception e) {
+            return Views.ERROR_UNKNOWN;
         }
     }
 

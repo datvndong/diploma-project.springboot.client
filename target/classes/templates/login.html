@@ -13,9 +13,9 @@
         <div class="row w-100">
           <div class="col-lg-4 mx-auto">
             <div class="auto-form-wrapper">
-              <form action="#" th:action="@{/login}" th:object="${boss}" method="post">
+              <form action="#" th:action="@{/login}" th:object="${unknown}" method="post">
               	<div class="form-group" th:if="${error}">
-                  <label style="color: red" type="text" th:text="${error}"></label>
+                  <label style="color: red" th:text="${error}"></label>
                 </div>
                 <div class="form-group">
                   <label class="label">Email</label>
