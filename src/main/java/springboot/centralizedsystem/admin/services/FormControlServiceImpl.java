@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import com.mongodb.WriteResult;
 
@@ -94,5 +96,10 @@ public class FormControlServiceImpl implements FormControlService {
             System.err.println("[ERROR] Update one FormControl: " + e.getMessage());
             return -1;
         }
+    }
+
+    @Override
+    public List<FormControl> findByAssign(String assign) throws HttpClientErrorException, HttpServerErrorException {
+        return this.formControlRepository.findByAssign(assign);
     }
 }

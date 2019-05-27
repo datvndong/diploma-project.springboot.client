@@ -131,6 +131,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		const saveBtn = $('#save');
 		const resultMess = $('#result-message');
 		
+		const defaultAssignValue = '5ce8b61ea347f14bc809c814'; // Authenticated
+		
 		let builder = new Formio.FormBuilder(document.getElementById('builder'), {
 			display: 'form',
 			type: 'form',
@@ -144,7 +146,49 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			startDate: obj.startDate,
 			startTime: obj.startTime,
 			expiredDate: obj.expiredDate,
-			expiredTime: obj.expiredTime
+			expiredTime: obj.expiredTime,
+			submissionAccess: [
+		        {
+		            roles: [],
+		            type: 'create_all'
+		        },
+		        {
+		            roles: [],
+		            type: 'read_all'
+		        },
+		        {
+		            roles: [],
+		            type: 'update_all'
+		        },
+		        {
+		            roles: [],
+		            type: 'delete_all'
+		        },
+		        {
+		            roles: [
+		            	assign.val()
+		            ],
+		            type: 'create_own'
+		        },
+		        {
+		            roles: [
+		            	assign.val()
+		            ],
+		            type: 'read_own'
+		        },
+		        {
+		            roles: [
+		            	assign.val()
+		            ],
+		            type: 'update_own'
+		        },
+		        {
+		            roles: [
+		            	assign.val()
+		            ],
+		            type: 'delete_own'
+		        }
+		    ]
 		});
 		
 		if (!isCreate) {
@@ -217,9 +261,15 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			const value = assign.val();
 			if (value == 'Group') {
 				details.removeAttr('disabled');
+				for (i = 4; i < 8; i++) {
+					builder.form.submissionAccess[i].roles[0] = defaultAssignValue;
+				}
 			} else {
 				details.attr('disabled', 'disabled');
 				builder.form.assign = value;
+				for (i = 4; i < 8; i++) {
+					builder.form.submissionAccess[i].roles[0] = value;
+				}
 			}
 		});
 		

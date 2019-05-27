@@ -1,9 +1,7 @@
 package springboot.centralizedsystem.admin.services;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -23,7 +21,7 @@ import org.springframework.web.client.UnknownHttpStatusCodeException;
 import springboot.centralizedsystem.admin.domains.Form;
 import springboot.centralizedsystem.admin.domains.FormControl;
 import springboot.centralizedsystem.admin.resources.APIs;
-import springboot.centralizedsystem.admin.resources.Configs;
+import springboot.centralizedsystem.admin.utils.CalculateUtils;
 import springboot.centralizedsystem.admin.utils.HttpUtils;
 
 @Service
@@ -31,44 +29,6 @@ public class FormServiceImpl implements FormService {
 
     @Autowired
     private FormControlService formControlService;
-
-    private int getAmount(HttpEntity<String> entity, String path)
-            throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
-            UnknownHttpStatusCodeException {
-        ResponseEntity<String> res = new RestTemplate().exchange(APIs.getListSubmissionsURL(path), HttpMethod.GET,
-                entity, String.class);
-        return new JSONArray(res.getBody()).length();
-    }
-
-    private int getDurationPercent(String start, String expired) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat(Configs.DATETIME_FORMAT);
-        Date dateStart = format.parse(start);
-        Date dateExpired = format.parse(expired);
-
-        // in milliseconds
-        long diffStartExpired = dateExpired.getTime() - dateStart.getTime();
-        long diffStartNow = new Date().getTime() - dateStart.getTime();
-
-        int result = (int) Math.round((double) diffStartNow / diffStartExpired * 100);
-        if (result > 100) {
-            result = 100;
-        }
-
-        return result;
-    }
-
-    private String getTypeProgressBar(int percent) {
-        if (percent < 25) {
-            return "success";
-        } else if (percent < 50) {
-            return "primary";
-        } else if (percent < 75) {
-            return "warning";
-        } else if (percent < 100) {
-            return "info";
-        }
-        return "danger";
-    }
 
     @Override
     public List<Form> findAllForms(String token, String email) throws ParseException, ResourceAccessException,
@@ -90,7 +50,7 @@ public class FormServiceImpl implements FormService {
             String name = jsonObject.getString("name");
             String title = jsonObject.getString("title");
             String path = jsonObject.getString("path");
-            int amount = getAmount(entity, path);
+            int amount = new JSONArray(findAllSubmissions(token, path).getBody()).length();
 
             // handle: exeption when formControl == null
             FormControl formControl = formControlService.findByPathForm(path);
@@ -101,8 +61,8 @@ public class FormServiceImpl implements FormService {
             for (Object object : jsonObject.getJSONArray("tags")) {
                 tags.add(object.toString());
             }
-            int durationPercent = getDurationPercent(start, expired);
-            String typeProgressBar = getTypeProgressBar(durationPercent);
+            int durationPercent = CalculateUtils.getDurationPercent(start, expired);
+            String typeProgressBar = CalculateUtils.getTypeProgressBar(durationPercent);
             list.add(new Form(name, title, path, amount, start, expired, tags, durationPercent, typeProgressBar));
         }
 

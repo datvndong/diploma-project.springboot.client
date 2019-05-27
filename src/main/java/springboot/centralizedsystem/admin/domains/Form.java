@@ -13,6 +13,8 @@ public class Form {
     private List<String> tags;
     private int durationPercent;
     private String typeProgressBar;
+    private boolean isSubmitted;
+    private boolean isPending;
 
     public String getName() {
         return name;
@@ -78,6 +80,30 @@ public class Form {
         this.typeProgressBar = typeProgressBar;
     }
 
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public boolean getIsSubmitted() {
+        return isSubmitted;
+    }
+
+    public void setIsSubmitted(boolean isSubmitted) {
+        this.isSubmitted = isSubmitted;
+    }
+
+    public boolean getIsPending() {
+        return isPending;
+    }
+
+    public void setIsPending(boolean isPending) {
+        this.isPending = isPending;
+    }
+
     public Form(String name, String title, String path, int amount, String start, String expired,
             List<String> tags, int durationPercent, String typeProgressBar) {
         super();
@@ -92,15 +118,21 @@ public class Form {
         this.typeProgressBar = typeProgressBar;
     }
 
+    public Form(String title, String path, String start, String expired, List<String> tags, int durationPercent,
+            String typeProgressBar, boolean isSubmitted, boolean isPending) {
+        super();
+        this.title = title;
+        this.path = path;
+        this.start = start;
+        this.expired = expired;
+        this.tags = tags;
+        this.durationPercent = durationPercent;
+        this.typeProgressBar = typeProgressBar;
+        this.isSubmitted = isSubmitted;
+        this.isPending = isPending;
+    }
+
     public Form() {
         super();
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
     }
 }

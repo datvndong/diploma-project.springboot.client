@@ -23,9 +23,9 @@
               		<div th:if="${deleteStatus}" th:text="${deleteMess}" class="alert-success" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
               		<div th:unless="${deleteStatus}" th:text="${deleteMess}" class="alert-danger" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
               	  </th:block>
-                  <h4 class="card-title">Forms Table</h4>
+                  <h4 class="card-title">Reports Table</h4>
                   <p class="card-description">
-                  	Note: <code style="font-size: 100%">click row to show submissions of form</code>
+                  	Note: <code style="font-size: 100%">click row to show submissions of report</code>
                   </p>
                   <div class="table-responsive">
                     <table id="forms-table" class="table table-hover">
@@ -33,16 +33,50 @@
                         <tr>
                           <th>#</th>
                           <th>Title</th>
-                          <th>Name</th>
-                          <th>Progress</th>
-                          <th>Submissions</th>
                           <th>Tags</th>
+                          <th>Progress</th>
                           <th>Schedule</th>
+                          <th>Status</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                      	
+                      	<tr th:each="obj : ${list}">
+                      		<td th:text="${objStat.count}"></td>
+                      		<td th:text="${obj.title}"></td>
+                      		<td>
+                            	<th:block th:each="tag : ${obj.tags}">
+                            		<label th:if="${tagStat.last}" th:text="${tag}"></label>
+                            		<label th:unless="${tagStat.last}" th:text="${tag} + ', '"></label>
+                            	</th:block>
+                            </td>
+                      		<td th:inline="text">
+                              <div class="progress">
+                                <div th:id="'bar-' + ${objStat.count}" th:class="'progress-bar bg-' + ${obj.typeProgressBar}" role="progressbar" style="width: 0%"></div>
+                              </div>
+                            </td>
+                            <td th:inline="text">
+                            	From:&ensp;[[${obj.start}]] 
+                            	<br />
+                            	--------------------------
+                            	<br />
+                            	To:&ensp;&ensp;&emsp;[[${obj.expired}]]
+                            </td>
+                            <td>
+                            	<label th:if="${obj.isPending}" class="badge badge-info">Pending</label>
+                            	<label th:if="${!obj.isPending AND obj.isSubmitted}" class="badge badge-success">Submitted</label>
+                            	<label th:if="${!obj.isPending AND !obj.isSubmitted}" class="badge badge-danger">Not submitted</label>
+                            	<label th:if="${obj.durationPercent == 100}" class="badge badge-warning">Expired</label>
+                            </td>
+                            <td>
+                            	<a th:if="${!obj.isPending AND !obj.isSubmitted AND obj.durationPercent != 100}" th:id="'send-' + ${objStat.count}" th:href="@{/delete/form/{path}(path=${obj.path})}" class="btn btn-info" title="Send"> 
+									<span class="mdi mdi-send"></span>
+								</a>
+								<a th:if="${!obj.isPending AND obj.isSubmitted AND obj.durationPercent != 100}" th:id="'edit-' + ${objStat.count}" th:href="@{/build/form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
+									<span class="mdi mdi-tooltip-edit"></span>
+								</a>
+							</td>
+                      	</tr>
                       </tbody>
                     </table>
                   </div>
@@ -54,7 +88,7 @@
                 <div class="card-body">
                   <h4 class="card-title">Submissions Table</h4>
                   <p class="card-description">
-                  	Form: <code style="font-size: 100%" id="form-name"></code>
+                  	Report: <code style="font-size: 100%" id="form-name"></code>
                   </p>
                   <div class="table-responsive">
                     <table id="submissions-table" class="table table-striped"></table>
@@ -75,7 +109,25 @@
   </div>
   <div th:include="fragments/plugins :: plugins"></div>
   <script th:inline="javascript">
-  	
+	function stopEvent(ev) {
+		ev.stopPropagation();
+	}
+	$(document).ready(() => {
+		const list = [[${list}]];
+		list.forEach((obj, i) => {
+	  		$('#bar-' + (i + 1)).css('width', obj.durationPercent + '%');
+	 	
+	  		// Execute prevent send ajax
+	  		const sendBtn = document.getElementById('send-' + (i + 1));
+	  		if (sendBtn != null) {
+		  		sendBtn.addEventListener("click", stopEvent, false);
+	  		}
+	  		const editBtn = document.getElementById('edit-' + (i + 1));
+	  		if (editBtn != null) {
+	  	  		editBtn.addEventListener("click", stopEvent, false);
+	  		}
+	  	});
+	});
   </script>
 </body>
 

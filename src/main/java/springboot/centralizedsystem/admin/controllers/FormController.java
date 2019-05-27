@@ -67,7 +67,7 @@ public class FormController extends BaseController {
             return Views.ERROR_404;
         } catch (HttpServerErrorException e) {
             return Views.ERROR_500;
-        } catch (Exception e) {
+        } catch (ParseException e) {
             return Views.ERROR_UNKNOWN;
         }
     }
