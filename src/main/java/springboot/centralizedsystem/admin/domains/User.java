@@ -2,10 +2,11 @@ package springboot.centralizedsystem.admin.domains;
 
 public class User {
 
-    private String name;
     private String email;
+    private String name;
     private String password;
     private String token;
+    private String idGroup;
 
     public String getEmail() {
         return email;
@@ -13,6 +14,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPassword() {
@@ -31,23 +40,35 @@ public class User {
         this.token = token;
     }
 
-    public User() {
-
+    public String getIdGroup() {
+        return idGroup;
     }
 
-    public User(String name, String email, String password, String token) {
+    public void setIdGroup(String idGroup) {
+        this.idGroup = idGroup;
+    }
+
+    public User(String email, String name, String token, String idGroup) {
         super();
-        this.name = name;
         this.email = email;
-        this.password = password;
+        this.name = name;
+        this.token = token;
+        this.idGroup = idGroup;
+    }
+
+    public User(String email, String name, String token) {
+        super();
+        this.email = email;
+        this.name = name;
         this.token = token;
     }
 
-    public String getName() {
-        return name;
+    public User(String email) {
+        super();
+        this.email = email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public User() {
+        super();
     }
 }

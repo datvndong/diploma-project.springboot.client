@@ -52,9 +52,9 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, @ModelAttribute(Keys.DELETE) String deleteMess) {
         try {
-            User admin = SessionUtils.getAdmin(session);
+            User user = SessionUtils.getUser(session);
 
-            model.addAttribute("list", formService.findAllForms(admin.getToken(), admin.getEmail()));
+            model.addAttribute("list", formService.findAllForms(user.getToken(), user.getEmail()));
             if (!deleteMess.equals("")) {
                 boolean isDeleteSuccess = Boolean.parseBoolean(deleteMess);
                 model.addAttribute("deleteMess", Messages.DELETE("form", isDeleteSuccess));
@@ -75,23 +75,23 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.SUBMISSIONS)
     public ResponseEntity<String> submissionsGET(@RequestParam("path") String path, HttpSession session)
     {
-        User admin = SessionUtils.getAdmin(session);
+        User user = SessionUtils.getUser(session);
 
-        return formService.findAllSubmissions(admin.getToken(), path);
+        return formService.findAllSubmissions(user.getToken(), path);
     }
 
     @GetMapping(RequestsPath.FORM)
     public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session)
     {
-        User admin = SessionUtils.getAdmin(session);
+        User user = SessionUtils.getUser(session);
 
-        return formService.findOneForm(admin.getToken(), path);
+        return formService.findOneForm(user.getToken(), path);
     }
 
     @GetMapping(RequestsPath.CREATE_FORM)
     public String createFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        User admin = SessionUtils.getAdmin(session);
-        if (admin == null) {
+        User user = SessionUtils.getUser(session);
+        if (user == null) {
             return unauthorized(redirect);
         }
 
@@ -102,8 +102,8 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.EDIT_FORM)
     public String editFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
-        User admin = SessionUtils.getAdmin(session);
-        if (admin == null) {
+        User user = SessionUtils.getUser(session);
+        if (user == null) {
             return unauthorized(redirect);
         }
 
@@ -117,8 +117,8 @@ public class FormController extends BaseController {
     public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @RequestParam("path") String path) {
         try {
-            User admin = SessionUtils.getAdmin(session);
-            String token = admin.getToken();
+            User user = SessionUtils.getUser(session);
+            String token = user.getToken();
 
             model.addAttribute("listRoles", roleService.findAll(token));
 
@@ -172,7 +172,7 @@ public class FormController extends BaseController {
     public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON,
             @RequestParam("oldPath") String oldPath, HttpSession session) {
         try {
-            User admin = SessionUtils.getAdmin(session);
+            User user = SessionUtils.getUser(session);
 
             Boolean isCreate = oldPath.equals("");
             JSONObject jsonObject = new JSONObject(formJSON);
@@ -203,7 +203,7 @@ public class FormController extends BaseController {
             String expired = expiredDate + " " + jsonObject.getString("expiredTime");
 
             // Send to form.io server and save to database
-            ResponseEntity<String> res = formService.buildForm(admin.getToken(), formJSON, isCreate ? "" : oldPath);
+            ResponseEntity<String> res = formService.buildForm(user.getToken(), formJSON, isCreate ? "" : oldPath);
 
             if (isCreate) {
                 if (!formControlService.insert(new FormControl(pathForm, assign, start, expired))) {
@@ -226,7 +226,7 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.DELETE_FORM)
     public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path)
     {
-        User admin = SessionUtils.getAdmin(session);
+        User user = SessionUtils.getUser(session);
 
         boolean isDeleteFormControlSuccess = formControlService.deleteByPathForm(path);
         if (!isDeleteFormControlSuccess) {
@@ -234,7 +234,7 @@ public class FormController extends BaseController {
             return "redirect:" + RequestsPath.FORMS;
         }
 
-        boolean isDeleteFormSuccess = formService.deleteForm(admin.getToken(), path);
+        boolean isDeleteFormSuccess = formService.deleteForm(user.getToken(), path);
         redirect.addFlashAttribute(Keys.DELETE, Boolean.toString(isDeleteFormSuccess));
 
         return "redirect:" + RequestsPath.FORMS;

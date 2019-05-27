@@ -3,7 +3,7 @@ package springboot.centralizedsystem.admin.controllers;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,19 +22,16 @@ import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.resources.Messages;
 import springboot.centralizedsystem.admin.resources.RequestsPath;
 import springboot.centralizedsystem.admin.resources.Views;
-import springboot.centralizedsystem.admin.services.RoleService;
 import springboot.centralizedsystem.admin.utils.HttpUtils;
+import springboot.centralizedsystem.admin.utils.ValidateUtils;
 
 @Controller
 public class LoginController {
 
-    @Autowired
-    private RoleService roleService;
-
     @GetMapping(value = { RequestsPath.NONE, RequestsPath.SLASH, RequestsPath.LOGIN })
     public String loginGET(Model model, @ModelAttribute(Keys.LOGIN) String error) {
         model.addAttribute("title", "Login");
-        model.addAttribute(Keys.UNKNOWN_TYPE_USER, new User(null, "xtreme@admin.io", null, null));
+        model.addAttribute(Keys.UNKNOWN_TYPE_USER, new User("vandatnguyen1896@gmail.com"));
         if (!error.equals("")) {
             model.addAttribute("error", error);
         }
@@ -67,25 +64,23 @@ public class LoginController {
 
             // Get token from response header
             String token = res.getHeaders().get(APIs.TOKEN_KEY).get(0);
+            JSONObject resJSON = new JSONObject(res.getBody());
+            JSONObject dataJSON = resJSON.getJSONObject("data");
 
-            // Check is Administrator or User, if token is user will return 401 Unauthorized
-            try {
-                roleService.findAll(token);
-                session.setAttribute(Keys.IS_ADMIN, true);
-            } catch (HttpClientErrorException e) {
-                switch (e.getStatusCode()) {
-                case UNAUTHORIZED:
-                    session.setAttribute(Keys.IS_ADMIN, false);
-                case NOT_FOUND:
-                    return Views.ERROR_404;
-                default:
-                    return Views.ERROR_UNKNOWN;
-                }
+            // Check is Administrator or User, if don't have field `permission` -> Admin
+            boolean isAdmin = false;
+            if (ValidateUtils.isEmptyString(dataJSON, "permission")) {
+                isAdmin = true;
             }
 
-            session.setAttribute(Keys.USER, new User(email.split("@")[0], email, null, token));
-
-            return "redirect:" + RequestsPath.DASHBOARD;
+            session.setAttribute(Keys.IS_ADMIN, isAdmin);
+            if (isAdmin) {
+                session.setAttribute(Keys.USER, new User(email, dataJSON.getString("name"), token));
+                return "redirect:" + RequestsPath.DASHBOARD;
+            }
+            session.setAttribute(Keys.USER,
+                    new User(email, dataJSON.getString("name"), token, dataJSON.getString("idGroup")));
+            return "redirect:" + RequestsPath.REPORTS;
         } catch (HttpServerErrorException e) {
             switch (e.getStatusCode()) {
             case INTERNAL_SERVER_ERROR:

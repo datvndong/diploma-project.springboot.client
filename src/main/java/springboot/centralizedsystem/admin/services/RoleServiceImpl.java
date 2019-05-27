@@ -3,7 +3,6 @@ package springboot.centralizedsystem.admin.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +17,7 @@ import org.springframework.web.client.UnknownHttpStatusCodeException;
 
 import springboot.centralizedsystem.admin.domains.Role;
 import springboot.centralizedsystem.admin.resources.APIs;
+import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.utils.HttpUtils;
 
 @Service
@@ -31,22 +31,14 @@ public class RoleServiceImpl implements RoleService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        ResponseEntity<String> res = new RestTemplate().exchange(APIs.ROLE_URL, HttpMethod.GET, entity,
-                String.class);
-
-        JSONArray jsonArray = new JSONArray(res.getBody());
-        JSONObject jsonObject = null;
+        // Call API to known if account is administrator or user
+        new RestTemplate().exchange(APIs.ROLE_URL, HttpMethod.GET, entity, String.class);
+        
+        // Because user account cannot access to list role resources => Add manual
         List<Role> list = new ArrayList<>();
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            jsonObject = (JSONObject) jsonArray.get(i);
-            if (jsonObject.getBoolean("admin")) {
-                continue;
-            }
-            String _id = jsonObject.getString("_id");
-            String title = jsonObject.getString("title");
-            list.add(new Role(_id, title, null, null));
-        }
+        list.add(new Role(Keys.ANONYMOUS, Keys.ANONYMOUS, null, null));
+        list.add(new Role(Keys.AUTHENTICATED, Keys.AUTHENTICATED, null, null));
+        list.add(new Role(Keys.GROUP, Keys.GROUP, null, null));
 
         return list;
     }

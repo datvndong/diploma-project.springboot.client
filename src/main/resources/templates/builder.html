@@ -91,7 +91,6 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				<div class="col-sm-9">
 					<select class="form-control" id="assign">
 						<option th:each="role : ${listRoles}" th:value="${role._id}" th:text="${role.title}"></option>
-						<option>Group</option>					
 					</select>
 				</div>
 			</div>
@@ -101,7 +100,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				<label class="col-sm-1 col-form-label">Details</label>
 				<div class="col-sm-11">
 					<select class="form-control" id="details" disabled="disabled">
-						<option>Test</option>
+						<option value="D2505000">Trường Đại học Ngoại ngữ</option>
+						<option value="D2505010">Ban Giám hiệu Trường ĐHNN</option>
+						<option value="D2505020">Phòng Tổ chức - Hành chính Trường ĐHNN</option>
 					</select>
 				</div>
 			</div>
@@ -134,7 +135,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			display: 'form',
 			type: 'form',
 			tags: obj.tags,
-			owner: [[${session.boss.email}]],
+			owner: [[${session.user.email}]],
 			title: obj.title,
 			path: obj.path,
 			name: obj.name,

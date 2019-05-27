@@ -13,19 +13,19 @@ import springboot.centralizedsystem.admin.resources.Views;
 import springboot.centralizedsystem.admin.utils.SessionUtils;
 
 @Controller
-public class DashboardController extends BaseController {
+public class ReportController extends BaseController {
 
-    @GetMapping(RequestsPath.DASHBOARD)
-    public String dashboardGET(Model model, HttpSession session, RedirectAttributes redirect) {
+    @GetMapping(RequestsPath.REPORTS)
+    public String reportsGET(Model model, HttpSession session, RedirectAttributes redirect) {
         User user = SessionUtils.getUser(session);
-        if (!SessionUtils.isAdmin(session)) {
+        if (SessionUtils.isAdmin(session)) {
             return roleForbidden(redirect);
         }
         if (user == null) {
             return unauthorized(redirect);
         }
 
-        model.addAttribute("title", "Dashboard");
-        return Views.DASHBOARD;
+        model.addAttribute("title", "Reports");
+        return Views.REPORTS;
     }
 }

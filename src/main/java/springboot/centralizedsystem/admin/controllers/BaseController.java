@@ -42,4 +42,8 @@ public class BaseController {
         redirect.addFlashAttribute(Keys.LOGIN, Messages.TOKEN_EXPIRED_ERROR);
         return "redirect:" + RequestsPath.LOGIN;
     }
+
+    public String roleForbidden(RedirectAttributes redirect) {
+        return Views.ERROR_403;
+    }
 }
