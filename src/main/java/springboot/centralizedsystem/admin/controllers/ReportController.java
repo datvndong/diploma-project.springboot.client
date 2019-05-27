@@ -87,8 +87,8 @@ public class ReportController extends BaseController {
             List<FormControl> listFormsAuth = formControlService.findByAssign(Keys.AUTHENTICATED);
             addFormToList(token, listForm, listFormsAuth);
 
-            List<FormControl> listFormsAnon = formControlService.findByAssign(Keys.ANONYMOUS);
-            addFormToList(token, listForm, listFormsAnon);
+//            List<FormControl> listFormsAnon = formControlService.findByAssign(Keys.ANONYMOUS);
+//            addFormToList(token, listForm, listFormsAnon);
 
             model.addAttribute("list", listForm);
             model.addAttribute("title", "Reports");

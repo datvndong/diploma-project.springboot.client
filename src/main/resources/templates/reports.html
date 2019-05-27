@@ -42,7 +42,7 @@
                       </thead>
                       <tbody>
                       	<tr th:each="obj : ${list}">
-                      		<td th:text="${objStat.count}"></td>
+                      		<td class="nr" th:text="${objStat.count}"></td>
                       		<td th:text="${obj.title}"></td>
                       		<td>
                             	<th:block th:each="tag : ${obj.tags}">

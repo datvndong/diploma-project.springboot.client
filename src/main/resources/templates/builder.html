@@ -115,6 +115,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <button class="btn btn-warning">Cancel</button>
     
 	<script th:inline="javascript">
+		/*<![CDATA[*/
 		const obj = JSON.parse([[${obj}]]);
 		const isCreate = [[${isCreate}]] === true;
 			
@@ -266,7 +267,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				}
 			} else {
 				details.attr('disabled', 'disabled');
-				builder.form.assign = value;
+				builder.form.assign = value;			
 				for (i = 4; i < 8; i++) {
 					builder.form.submissionAccess[i].roles[0] = value;
 				}
@@ -298,6 +299,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				form.reportValidity();
 			}
 		});
+		/*]]>*/
 	</script>
 </body>
 
