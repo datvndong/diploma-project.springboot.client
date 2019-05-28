@@ -82,7 +82,7 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public ResponseEntity<String> findOneForm(String token, String path)
+    public ResponseEntity<String> findOneFormWithToken(String token, String path)
             throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
             UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
@@ -125,5 +125,11 @@ public class FormServiceImpl implements FormService {
         } catch (HttpClientErrorException | HttpServerErrorException | UnknownHttpStatusCodeException e) {
             return false;
         }
+    }
+
+    @Override
+    public String findOneFormWithNoToken(String path) {
+        // User to get form with Anonymous assign
+        return new RestTemplate().getForObject(APIs.getFormByAlias(path), String.class);
     }
 }

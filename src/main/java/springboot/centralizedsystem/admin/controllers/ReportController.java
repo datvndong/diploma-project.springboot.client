@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -56,7 +55,7 @@ public class ReportController extends BaseController {
             int durationPercent = CalculateUtils.getDurationPercent(start, expired);
             String typeProgressBar = CalculateUtils.getTypeProgressBar(durationPercent);
 
-            ResponseEntity<String> formRes = formService.findOneForm(token, path);
+            ResponseEntity<String> formRes = formService.findOneFormWithToken(token, path);
             JSONObject formResJSON = new JSONObject(formRes.getBody());
             String title = formResJSON.getString("title");
             List<String> tags = new ArrayList<>();
@@ -173,7 +172,7 @@ public class ReportController extends BaseController {
             }
 
             if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(assign, user.getIdGroup())) {
-                ResponseEntity<String> res1 = formService.findOneForm(token, path);
+                ResponseEntity<String> res1 = formService.findOneFormWithToken(token, path);
                 JSONObject resJSON = new JSONObject(res1.getBody());
 
                 ResponseEntity<String> res2 = formService.findAllSubmissions(token, path);
@@ -209,9 +208,15 @@ public class ReportController extends BaseController {
 
     @GetMapping(RequestsPath.SEND_REPORT_ANONYMOUS)
     public String sendReportAnonGET(Model model, HttpSession session, RedirectAttributes redirect,
-            @PathVariable String path, @RequestParam("title") String title) {
+            @PathVariable String path) {
+        JSONObject formJSON = new JSONObject(formService.findOneFormWithNoToken(path));
+        JSONArray submissionAccessJSON = formJSON.getJSONArray("submissionAccess");
+        if (!submissionAccessJSON.getJSONObject(4).getJSONArray("roles").get(0).equals(Keys.ANONYMOUS)) {
+            return Views.ERROR_404;
+        }
+
+        model.addAttribute("title", formJSON.getString("title"));
         model.addAttribute("link", APIs.modifiedForm(path));
-        model.addAttribute("title", title);
 
         return Views.SEND_REPORT;
     }

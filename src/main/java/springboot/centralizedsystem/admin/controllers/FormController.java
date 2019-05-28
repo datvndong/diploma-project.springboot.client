@@ -88,7 +88,7 @@ public class FormController extends BaseController {
     {
         User user = SessionUtils.getUser(session);
 
-        return formService.findOneForm(user.getToken(), path);
+        return formService.findOneFormWithToken(user.getToken(), path);
     }
 
     @GetMapping(RequestsPath.CREATE_FORM)
@@ -142,7 +142,7 @@ public class FormController extends BaseController {
                 formJSON.put("expiredTime", "");
             } else {
                 // Edit form
-                ResponseEntity<String> formRes = formService.findOneForm(token, path);
+                ResponseEntity<String> formRes = formService.findOneFormWithToken(token, path);
                 formJSON = new JSONObject(formRes.getBody());
 
                 FormControl formControl = formControlService.findByPathForm(path);

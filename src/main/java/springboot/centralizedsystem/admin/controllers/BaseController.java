@@ -21,18 +21,21 @@ public class BaseController {
 
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<String> handlerHttpClientEx(HttpClientErrorException httpException) {
+        System.err.println("[ERROR] HttpClientErrorException: " + httpException.getMessage());
         String error = httpException.getResponseBodyAsString();
         return new ResponseEntity<>(new JSONObject(error).getString("message"), httpException.getStatusCode());
     }
 
     @ExceptionHandler(HttpServerErrorException.class)
     public ResponseEntity<String> handlerHttpEx(HttpServerErrorException httpException) {
+        System.err.println("[ERROR] HttpServerErrorException: " + httpException.getMessage());
         String error = httpException.getResponseBodyAsString();
         return new ResponseEntity<>(new JSONObject(error).getString("message"), httpException.getStatusCode());
     }
 
     @ExceptionHandler({ Exception.class })
-    public String handlerEx() {
+    public String handlerEx(Exception e) {
+        System.err.println("[ERROR]: " + e.getMessage());
         return Views.ERROR_UNKNOWN;
     }
 
