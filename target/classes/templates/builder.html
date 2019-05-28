@@ -266,6 +266,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				for (i = 4; i < 8; i++) {
 					builder.form.submissionAccess[i].roles[0] = defaultAssignValue;
 				}
+				builder.form.assign = details.val();
 			} else {
 				details.attr('disabled', 'disabled');
 				builder.form.assign = value;			
@@ -273,6 +274,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 					builder.form.submissionAccess[i].roles[0] = value;
 				}
 			}
+		});
+		
+		details.change(function () {
+			builder.form.assign = details.val();
 		});
 		
 		saveBtn.click(function () {

@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,8 +49,8 @@ public class FormController extends BaseController {
     @Autowired
     private FormControlService formControlService;
 
-    @Autowired
-    private JavaMailSender mailSender;
+//    @Autowired
+//    private JavaMailSender mailSender;
 
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, @ModelAttribute(Keys.DELETE) String deleteMess) {
@@ -214,9 +213,9 @@ public class FormController extends BaseController {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
             } else {
-                int rowAffectedt = formControlService.update(new FormControl(pathForm, assign, start, expired),
+                int rowAffected = formControlService.update(new FormControl(pathForm, assign, start, expired),
                         oldPath);
-                if (rowAffectedt < 1) {
+                if (rowAffected < 1) {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
             }

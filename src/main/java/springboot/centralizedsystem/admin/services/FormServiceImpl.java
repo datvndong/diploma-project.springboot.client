@@ -39,7 +39,7 @@ public class FormServiceImpl implements FormService {
         HttpEntity<String> entity = new HttpEntity<>(header);
 
         ResponseEntity<String> res = new RestTemplate().exchange(
-                APIs.FORM_URL + "?type=form&sort=created&owner=" + email + "&limit=5&skip=0", HttpMethod.GET, entity,
+                APIs.FORM_URL + "?type=form&sort=created&owner=" + email + "&limit=10&skip=0", HttpMethod.GET, entity,
                 String.class);
 
         JSONArray jsonArray = new JSONArray(res.getBody());

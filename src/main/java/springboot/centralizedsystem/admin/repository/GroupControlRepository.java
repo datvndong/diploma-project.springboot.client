@@ -6,4 +6,5 @@ import springboot.centralizedsystem.admin.domains.GroupControl;
 
 public interface GroupControlRepository extends MongoRepository<GroupControl, String> {
 
+    GroupControl findByIdGroup(String id);
 }

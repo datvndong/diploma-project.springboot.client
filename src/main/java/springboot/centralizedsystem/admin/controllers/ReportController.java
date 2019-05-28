@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import springboot.centralizedsystem.admin.domains.Form;
 import springboot.centralizedsystem.admin.domains.FormControl;
+import springboot.centralizedsystem.admin.domains.GroupControl;
 import springboot.centralizedsystem.admin.domains.User;
 import springboot.centralizedsystem.admin.resources.APIs;
 import springboot.centralizedsystem.admin.resources.Keys;
@@ -28,6 +29,7 @@ import springboot.centralizedsystem.admin.resources.RequestsPath;
 import springboot.centralizedsystem.admin.resources.Views;
 import springboot.centralizedsystem.admin.services.FormControlService;
 import springboot.centralizedsystem.admin.services.FormService;
+import springboot.centralizedsystem.admin.services.GroupControlService;
 import springboot.centralizedsystem.admin.utils.CalculateUtils;
 import springboot.centralizedsystem.admin.utils.SessionUtils;
 
@@ -39,6 +41,9 @@ public class ReportController extends BaseController {
 
     @Autowired
     private FormControlService formControlService;
+
+    @Autowired
+    private GroupControlService groupControlService;
 
     private void addFormToList(String token, List<Form> listForm, List<FormControl> listFormControl)
             throws ParseException {
@@ -69,6 +74,18 @@ public class ReportController extends BaseController {
         }
     }
 
+    private void getListFormByIdGroupRecursive(String token, List<Form> listForm, String id) throws ParseException {
+        List<FormControl> listFormsGroup = formControlService.findByAssign(id);
+        addFormToList(token, listForm, listFormsGroup);
+
+        // Check if idGroup have idParent
+        GroupControl groupControl = groupControlService.findByIdGroup(id);
+        String nextIdParent = groupControl.getIdParent();
+        if (!nextIdParent.equals("")) {
+            getListFormByIdGroupRecursive(token, listForm, nextIdParent);
+        }
+    }
+
     @GetMapping(RequestsPath.REPORTS)
     public String reportsGET(Model model, HttpSession session, RedirectAttributes redirect) throws ParseException {
         try {
@@ -84,8 +101,10 @@ public class ReportController extends BaseController {
 
             List<Form> listForm = new ArrayList<>();
 
-            List<FormControl> listFormsGroup = formControlService.findByAssign(user.getIdGroup());
-            addFormToList(token, listForm, listFormsGroup);
+//            List<FormControl> listFormsGroup = formControlService.findByAssign(idGroup);
+//            addFormToList(token, listForm, listFormsGroup);
+
+            getListFormByIdGroupRecursive(token, listForm, user.getIdGroup());
 
             List<FormControl> listFormsAuth = formControlService.findByAssign(Keys.AUTHENTICATED);
             addFormToList(token, listForm, listFormsAuth);
