@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -67,7 +68,7 @@ public class ReportController extends BaseController {
             JSONArray submissionResJSON = new JSONArray(submissionsRes.getBody());
             boolean isSubmitted = !submissionResJSON.isEmpty();
 
-            boolean isPending = CalculateUtils.isFormPending(start);
+            boolean isPending = CalculateUtils.isFormPendingOrExpired(start);
 
             listForm.add(new Form(title, path, start, expired, tags, durationPercent, typeProgressBar, isSubmitted,
                     isPending));
@@ -83,6 +84,19 @@ public class ReportController extends BaseController {
         String nextIdParent = groupControl.getIdParent();
         if (!nextIdParent.equals("")) {
             getListFormByIdGroupRecursive(token, listForm, nextIdParent);
+        }
+    }
+
+    private boolean isFormAssignToUser(String assignIdGroup, String formIdGroup) {
+        if (assignIdGroup.equals(formIdGroup)) {
+            return true;
+        }
+        GroupControl groupControl = groupControlService.findByIdGroup(formIdGroup);
+        String nextIdParent = groupControl.getIdParent();
+        if (!nextIdParent.equals("")) {
+            return isFormAssignToUser(assignIdGroup, nextIdParent);
+        } else {
+            return false;
         }
     }
 
@@ -134,7 +148,7 @@ public class ReportController extends BaseController {
     }
 
     @GetMapping(RequestsPath.SEND_REPORT_AUTHENTICATED)
-    public String sendReportGET(Model model, HttpSession session, RedirectAttributes redirect,
+    public String sendReportAuthGET(Model model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
         try {
             User user = SessionUtils.getUser(session);
@@ -147,7 +161,18 @@ public class ReportController extends BaseController {
             if (formControl == null) {
                 return Views.ERROR_404;
             }
-            if (formControl.getAssign().equals(Keys.AUTHENTICATED)) {
+            String assign = formControl.getAssign();
+            if (assign.equals(Keys.ANONYMOUS)) {
+                return Views.ERROR_404;
+            }
+
+            boolean isFormPending = CalculateUtils.isFormPendingOrExpired(formControl.getStart());
+            boolean isFormExpired = !CalculateUtils.isFormPendingOrExpired(formControl.getExpired());
+            if (isFormPending || isFormExpired) {
+                return Views.ERROR_403;
+            }
+
+            if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(assign, user.getIdGroup())) {
                 ResponseEntity<String> res1 = formService.findOneForm(token, path);
                 JSONObject resJSON = new JSONObject(res1.getBody());
 
@@ -160,7 +185,9 @@ public class ReportController extends BaseController {
                 return Views.SEND_REPORT;
             }
 
-            return Views.SEND_REPORT;
+            return Views.ERROR_403;
+        } catch (ParseException e) {
+            return Views.ERROR_UNKNOWN;
         } catch (HttpClientErrorException e) {
             switch (e.getStatusCode()) {
             case UNAUTHORIZED:
@@ -178,5 +205,14 @@ public class ReportController extends BaseController {
                 return Views.ERROR_UNKNOWN;
             }
         }
+    }
+
+    @GetMapping(RequestsPath.SEND_REPORT_ANONYMOUS)
+    public String sendReportAnonGET(Model model, HttpSession session, RedirectAttributes redirect,
+            @PathVariable String path, @RequestParam("title") String title) {
+        model.addAttribute("link", APIs.modifiedForm(path));
+        model.addAttribute("title", title);
+
+        return Views.SEND_REPORT;
     }
 }

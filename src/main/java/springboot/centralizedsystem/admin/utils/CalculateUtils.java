@@ -39,10 +39,10 @@ public class CalculateUtils {
         return Keys.DANGER;
     }
 
-    public static boolean isFormPending(String start) throws ParseException {
+    public static boolean isFormPendingOrExpired(String dateCompareStr) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat(Configs.DATETIME_FORMAT);
-        Date dateStart = format.parse(start);
+        Date dateCompare = format.parse(dateCompareStr);
         Date dateNow = new Date();
-        return dateStart.compareTo(dateNow) >= 0;
+        return dateCompare.compareTo(dateNow) >= 0;
     }
 }
