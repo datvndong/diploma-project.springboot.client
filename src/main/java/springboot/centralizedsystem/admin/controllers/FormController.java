@@ -151,8 +151,10 @@ public class FormController extends BaseController {
                 }
                 String[] start = formControl.getStart().split(" ");
                 String[] expired = formControl.getExpired().split(" ");
+                String assign = formControl.getAssign();
                 formJSON.put("oldPath", formControl.getPathForm());
-                formJSON.put("assign", formControl.getAssign());
+                formJSON.put("assign", assign);
+                formJSON.put("isAssignToGroup", !(assign.equals(Keys.ANONYMOUS) || assign.equals(Keys.AUTHENTICATED)));
                 formJSON.put("startDate", start[0]);
                 formJSON.put("startTime", start[1]);
                 formJSON.put("expiredDate", expired[0]);

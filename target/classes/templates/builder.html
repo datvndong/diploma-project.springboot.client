@@ -91,7 +91,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				<div class="col-sm-9">
 					<select class="form-control" id="assign">
 						<option th:each="role : ${listRoles}" th:value="${role._id}" th:text="${role.title}"></option>
-						<option>Group</option>
+						<option selected="selected">Group</option>
 					</select>
 				</div>
 			</div>
@@ -220,7 +220,12 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		expiredDate.val(obj.expiredDate);
 		expiredTime.val(obj.expiredTime);
 		if (typeof obj.assign !== "undefined") {
-			assign.val(obj.assign);
+			if (obj.isAssignToGroup === false) {
+				assign.val(obj.assign);
+			} else {
+				details.removeAttr("disabled");
+				details.val(obj.assign);
+			}
 		}
 		
 		title.keyup(function () {
