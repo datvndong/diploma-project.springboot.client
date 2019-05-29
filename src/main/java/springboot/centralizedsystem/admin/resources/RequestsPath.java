@@ -10,7 +10,7 @@ public class RequestsPath {
     public static final String LOGOUT = "/logout";
     public static final String DASHBOARD = "/dashboard";
     public static final String FORMS = "/forms/{page}";
-    public static final String SUBMISSIONS = "/submissions";
+    public static final String SUBMISSIONS = "/submissions/{path}/{page}";
     public static final String FORM = "/form";
     public static final String CREATE_FORM = "/build/form";
     public static final String EDIT_FORM = "/build/form/{path}";

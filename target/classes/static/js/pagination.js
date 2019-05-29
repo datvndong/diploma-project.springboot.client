@@ -19,7 +19,7 @@ function createPagination(pages, page, path) {
 		// Show the very first page followed by a "..." at the beginning of the
 		// pagination section (after the Previous button)
 		if (page > 2) {
-			str += '<a onclick="createPagination(' + pages + ', 1)" href="' + path + '/forms/1">1</a>';
+			str += '<a onclick="createPagination(' + pages + ', 1)" href="' + path + '1">1</a>';
 			if (page > 3) {
 				str += '<a onclick="createPagination(' + pages + ',' + (page - 2)  + ', ' + path + ')" href="' + path + (page - 2) + '">...</a>';
 			}

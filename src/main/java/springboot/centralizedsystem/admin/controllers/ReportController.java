@@ -30,6 +30,7 @@ import springboot.centralizedsystem.admin.resources.Views;
 import springboot.centralizedsystem.admin.services.FormControlService;
 import springboot.centralizedsystem.admin.services.FormService;
 import springboot.centralizedsystem.admin.services.GroupControlService;
+import springboot.centralizedsystem.admin.services.SubmissionService;
 import springboot.centralizedsystem.admin.utils.CalculateUtils;
 import springboot.centralizedsystem.admin.utils.SessionUtils;
 
@@ -38,6 +39,9 @@ public class ReportController extends BaseController {
 
     @Autowired
     private FormService formService;
+
+    @Autowired
+    private SubmissionService submissionService;
 
     @Autowired
     private FormControlService formControlService;
@@ -63,7 +67,7 @@ public class ReportController extends BaseController {
                 tags.add(object.toString());
             }
 
-            ResponseEntity<String> submissionsRes = formService.findAllSubmissions(token, path);
+            ResponseEntity<String> submissionsRes = submissionService.findAllSubmissions(token, path, 1);
             JSONArray submissionResJSON = new JSONArray(submissionsRes.getBody());
             boolean isSubmitted = !submissionResJSON.isEmpty();
 
@@ -175,7 +179,7 @@ public class ReportController extends BaseController {
                 ResponseEntity<String> res1 = formService.findOneFormWithToken(token, path);
                 JSONObject resJSON = new JSONObject(res1.getBody());
 
-                ResponseEntity<String> res2 = formService.findAllSubmissions(token, path);
+                ResponseEntity<String> res2 = submissionService.findAllSubmissions(token, path, 1);
                 boolean isNotSubmitted = new JSONArray(res2.getBody()).isEmpty();
                 model.addAttribute("link", isNotSubmitted ? APIs.modifiedForm(path) : "");
                 model.addAttribute("title",

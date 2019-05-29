@@ -5,6 +5,7 @@
   flex-direction: column;
   margin: 0 auto;
   width: 50%;
+  padding-top: 30px;
 }
 
 .pagination a {

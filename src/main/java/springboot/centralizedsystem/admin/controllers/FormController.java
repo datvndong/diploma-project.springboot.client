@@ -83,17 +83,8 @@ public class FormController extends BaseController {
         }
     }
 
-    @GetMapping(RequestsPath.SUBMISSIONS)
-    public ResponseEntity<String> submissionsGET(@RequestParam("path") String path, HttpSession session)
-    {
-        User user = SessionUtils.getUser(session);
-
-        return formService.findAllSubmissions(user.getToken(), path);
-    }
-
     @GetMapping(RequestsPath.FORM)
-    public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session)
-    {
+    public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session) {
         User user = SessionUtils.getUser(session);
 
         return formService.findOneFormWithToken(user.getToken(), path);

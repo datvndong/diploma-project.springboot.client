@@ -30,6 +30,9 @@ import springboot.centralizedsystem.admin.utils.HttpUtils;
 public class FormServiceImpl implements FormService {
 
     @Autowired
+    private SubmissionService submissionService;
+
+    @Autowired
     private FormControlService formControlService;
 
     @Override
@@ -52,7 +55,7 @@ public class FormServiceImpl implements FormService {
             String name = jsonObject.getString("name");
             String title = jsonObject.getString("title");
             String path = jsonObject.getString("path");
-            int amount = new JSONArray(findAllSubmissions(token, path).getBody()).length();
+            int amount = submissionService.countSubmissions(token, path);
 
             // handle: exeption when formControl == null
             FormControl formControl = formControlService.findByPathForm(path);
@@ -71,18 +74,6 @@ public class FormServiceImpl implements FormService {
         }
 
         return list;
-    }
-
-    @Override
-    public ResponseEntity<String> findAllSubmissions(String token, String path)
-            throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
-            UnknownHttpStatusCodeException {
-        HttpHeaders header = HttpUtils.getHeader();
-        header.set(APIs.TOKEN_KEY, token);
-
-        HttpEntity<String> entity = new HttpEntity<>(header);
-
-        return new RestTemplate().exchange(APIs.getListSubmissionsURL(path), HttpMethod.GET, entity, String.class);
     }
 
     @Override

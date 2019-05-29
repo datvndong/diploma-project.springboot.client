@@ -11,8 +11,6 @@ public interface FormService {
 
     List<Form> findAllForms(String token, String email, int page) throws ParseException;
 
-    ResponseEntity<String> findAllSubmissions(String token, String path);
-
     ResponseEntity<String> findOneFormWithToken(String token, String path);
 
     String findOneFormWithNoToken(String path);
