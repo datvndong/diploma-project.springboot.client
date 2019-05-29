@@ -148,12 +148,6 @@
   	    alert('Link copied to clipboard');
 	}
   	
-  	// Prevent send ajax when click edit or delete button in row (if don't prvent will cause exception 404 /
-  	// after delete form)
-  	function stopEvent(ev) {
-		ev.stopPropagation();
-	}
-  	
   	function buildResultSelectBoxes(boxes) {
   		let resultStr = '';
   		for (item in boxes) {
@@ -168,76 +162,77 @@
 		const list = [[${list}]];
 		list.forEach((obj, i) => {
   			$('#bar-' + (i + 1)).css('width', obj.durationPercent + '%');
-  			
-  			// Execute prevent send ajax
-  			const editBtn = document.getElementById('edit-' + (i + 1));
-  			if (editBtn != null) {
-  	  			editBtn.addEventListener("click", stopEvent, false);
-  			}
   		});
 		
-  		$('#forms-table').delegate('tr', 'click', function() {
-  			const index = parseInt($(this).find('.nr').text()) - 1;
-  			const path = list[index].path;
-  			$.ajax({
-  				url: serverURL + '/submissions',
-  				method: 'GET',
-  				dataType: 'json',
-  				data: {
-  					path
-  				},
-  				success: submissions => {
-  					$.ajax({
-  						url: serverURL + '/form',
-  						method: 'GET',
-  						dataType: 'json',
-  						data: {
-  							path
-  						},
-  						success: result => {
-  							$('#form-name').html(result.title);
-  							
-  							let str = '<thead><tr><th>#</th>';
-  							for (comp of result.components) {
-  								if (!(comp.inputType == "password") && comp.key != "submit"){
-  									str += `<th>${comp.label}</th>`;
-  								}
-  							}
-  							str += '</tr></thead><tbody>';
-  							let count = 1;
-  							for (submission of submissions) {
-  								str += `<tr><td>${count++}</td>`;
-  								const data = submission.data;
-  								
-  								for (comp of result.components) {
-  	  								if (!(comp.inputType === "password") && comp.key !== "submit"){
-  	  									let value = data[comp.key];
-  	  									if (typeof value === 'undefined') {
-  	  										value = '';
-  	  									} else if (comp.type === 'selectboxes') {
-  	  										value = buildResultSelectBoxes(value);
-  	  									} else if (typeof value === 'boolean') {
-  	  										value = value ? 'Yes' : 'No';
-  	  									}
-  	  									str += `<td>${value}</td>`;
-  	  								}
-  	  							}
-  								str += '</tr>'
-  							}
-  							str += '</tbody>';
-  							
-  							$('#submissions-table').html(str);
-  						},
-  						error: () => {
-  							console.log('failed get form info');
-  						}
-  					});
-  	  			}, 
-  	  			error: mess => {
-  	  				alert(JSON.stringify(mess));
-  	  			}
-  			});
-  	    });
+		$('#forms-table tr').each(function(i,e) {
+			if (i === 0) {
+				// <tr> in <thead>
+				return;
+			}
+			// Prevent send request when click edit or delete button inside last column in row 
+			// (if don't prvent will cause exception 404 after delete form)
+			$(e).children('td:not(:last)').click(function() {
+				const path = list[i - 1].path;
+	  			$.ajax({
+	  				url: serverURL + '/submissions',
+	  				method: 'GET',
+	  				dataType: 'json',
+	  				data: {
+	  					path
+	  				},
+	  				success: submissions => {
+	  					$.ajax({
+	  						url: serverURL + '/form',
+	  						method: 'GET',
+	  						dataType: 'json',
+	  						data: {
+	  							path
+	  						},
+	  						success: result => {
+	  							$('#form-name').html(result.title);
+	  							
+	  							let str = '<thead><tr><th>#</th>';
+	  							for (comp of result.components) {
+	  								if (!(comp.inputType == "password") && comp.key != "submit"){
+	  									str += `<th>${comp.label}</th>`;
+	  								}
+	  							}
+	  							str += '</tr></thead><tbody>';
+	  							let count = 1;
+	  							for (submission of submissions) {
+	  								str += `<tr><td>${count++}</td>`;
+	  								const data = submission.data;
+	  								
+	  								for (comp of result.components) {
+	  	  								if (!(comp.inputType === "password") && comp.key !== "submit"){
+	  	  									let value = data[comp.key];
+	  	  									if (typeof value === 'undefined') {
+	  	  										value = '';
+	  	  									} else if (comp.type === 'selectboxes') {
+	  	  										value = buildResultSelectBoxes(value);
+	  	  									} else if (typeof value === 'boolean') {
+	  	  										value = value ? 'Yes' : 'No';
+	  	  									}
+	  	  									str += `<td>${value}</td>`;
+	  	  								}
+	  	  							}
+	  								str += '</tr>'
+	  							}
+	  							str += '</tbody>';
+	  							
+	  							$('#submissions-table').html(str);
+	  						},
+	  						error: () => {
+	  							console.log('failed get form info');
+	  						}
+	  					});
+	  	  			}, 
+	  	  			error: mess => {
+	  	  				alert(JSON.stringify(mess));
+	  	  			}
+	  			});
+			});
+		});
 	});
   	/*]]>*/
   </script>
