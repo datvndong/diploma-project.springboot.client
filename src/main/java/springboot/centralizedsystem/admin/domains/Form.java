@@ -15,6 +15,7 @@ public class Form {
     private String typeProgressBar;
     private boolean isSubmitted;
     private boolean isPending;
+    private boolean isAnonymousForm;
 
     public String getName() {
         return name;
@@ -104,8 +105,16 @@ public class Form {
         this.isPending = isPending;
     }
 
+    public boolean getIsAnonymousForm() {
+        return isAnonymousForm;
+    }
+
+    public void setIsAnonymousForm(boolean isAnonymousForm) {
+        this.isAnonymousForm = isAnonymousForm;
+    }
+
     public Form(String name, String title, String path, int amount, String start, String expired,
-            List<String> tags, int durationPercent, String typeProgressBar) {
+            List<String> tags, int durationPercent, String typeProgressBar, boolean isAnonymousForm) {
         super();
         this.name = name;
         this.title = title;
@@ -116,6 +125,7 @@ public class Form {
         this.tags = tags;
         this.durationPercent = durationPercent;
         this.typeProgressBar = typeProgressBar;
+        this.isAnonymousForm = isAnonymousForm;
     }
 
     public Form(String title, String path, String start, String expired, List<String> tags, int durationPercent,

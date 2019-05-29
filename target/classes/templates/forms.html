@@ -91,6 +91,9 @@
 										</div>
 									</div>
 								</div>
+								<button th:if="${obj.isAnonymousForm}" th:onclick="'copyLink(\'' + ${obj.path} + '\')'" th:href="@{/send/anon/report/{path}(path=${obj.path})}" class="btn btn-warning" title="Copy link">
+									<span class="mdi mdi-content-copy"></span>
+								</button >
 							</td>
                       	</tr>
                       </tbody>
@@ -112,7 +115,6 @@
                 </div>
               </div>
             </div>
-			
           </div>
         </div>
         <!-- content-wrapper ends -->
@@ -127,7 +129,18 @@
   <div th:include="fragments/plugins :: plugins"></div>
   <script th:inline="javascript">
   	/*<![CDATA[*/
-  		
+  	
+  	function copyLink(path) {
+  		const dummy = document.createElement('input');
+  		dummy.style = 'position: absolute; left: -1000px; top: -1000px';
+  		dummy.value = 'http://localhost:8080/send/anon/report/' + path;
+  	    document.body.appendChild(dummy);
+  	  	dummy.select();
+  	    document.execCommand('copy');
+  	    document.body.removeChild(dummy);
+  	    alert('Link copied to clipboard');
+	}
+  	
   	// Prevent send ajax when click edit or delete button in row (if don't prvent will cause exception 404 /
   	// after delete form)
   	function stopEvent(ev) {

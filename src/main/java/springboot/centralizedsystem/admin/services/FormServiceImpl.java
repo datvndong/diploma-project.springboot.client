@@ -21,6 +21,7 @@ import org.springframework.web.client.UnknownHttpStatusCodeException;
 import springboot.centralizedsystem.admin.domains.Form;
 import springboot.centralizedsystem.admin.domains.FormControl;
 import springboot.centralizedsystem.admin.resources.APIs;
+import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.utils.CalculateUtils;
 import springboot.centralizedsystem.admin.utils.HttpUtils;
 
@@ -56,6 +57,7 @@ public class FormServiceImpl implements FormService {
             FormControl formControl = formControlService.findByPathForm(path);
             String start = formControl.getStart();
             String expired = formControl.getExpired();
+            String assign = formControl.getAssign();
 
             List<String> tags = new ArrayList<>();
             for (Object object : jsonObject.getJSONArray("tags")) {
@@ -63,7 +65,8 @@ public class FormServiceImpl implements FormService {
             }
             int durationPercent = CalculateUtils.getDurationPercent(start, expired);
             String typeProgressBar = CalculateUtils.getTypeProgressBar(durationPercent);
-            list.add(new Form(name, title, path, amount, start, expired, tags, durationPercent, typeProgressBar));
+            list.add(new Form(name, title, path, amount, start, expired, tags, durationPercent, typeProgressBar,
+                    assign.equals(Keys.ANONYMOUS)));
         }
 
         return list;

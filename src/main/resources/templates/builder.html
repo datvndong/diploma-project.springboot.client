@@ -100,7 +100,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			<div class="form-group row">
 				<label class="col-sm-1 col-form-label">Details</label>
 				<div class="col-sm-11">
-					<select class="form-control" id="details" disabled="disabled">
+					<select class="form-control" id="details">
 						<option value="D2505000">Trường Đại học Ngoại ngữ</option>
 						<option value="D2505010">Ban Giám hiệu Trường ĐHNN</option>
 						<option value="D2505020">Phòng Tổ chức - Hành chính Trường ĐHNN</option>
@@ -221,9 +221,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		expiredTime.val(obj.expiredTime);
 		if (typeof obj.assign !== "undefined") {
 			if (obj.isAssignToGroup === false) {
+				details.attr('disabled', 'disabled');
 				assign.val(obj.assign);
 			} else {
-				details.removeAttr("disabled");
 				details.val(obj.assign);
 			}
 		}
