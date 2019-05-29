@@ -15,6 +15,9 @@ public class FormControl {
     @Field(value = "pathForm")
     private String pathForm;
 
+    @Field(value = "owner")
+    private String owner;
+
     @Field(value = "assign")
     private String assign;
 
@@ -30,6 +33,14 @@ public class FormControl {
 
     public void setPathForm(String pathForm) {
         this.pathForm = pathForm;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public String getAssign() {
@@ -56,9 +67,10 @@ public class FormControl {
         this.expired = expired;
     }
 
-    public FormControl(String pathForm, String assign, String start, String expired) {
+    public FormControl(String pathForm, String owner, String assign, String start, String expired) {
         super();
         this.pathForm = pathForm;
+        this.owner = owner;
         this.assign = assign;
         this.start = start;
         this.expired = expired;

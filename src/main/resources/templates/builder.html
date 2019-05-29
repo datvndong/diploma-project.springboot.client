@@ -144,7 +144,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			path: obj.path,
 			name: obj.name,
 			components: obj.components,
-			assign: assign.val(),
+			assign: details.val(),
 			startDate: obj.startDate,
 			startTime: obj.startTime,
 			expiredDate: obj.expiredDate,
@@ -168,25 +168,25 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		        },
 		        {
 		            roles: [
-		            	assign.val()
+		            	defaultAssignValue
 		            ],
 		            type: 'create_own'
 		        },
 		        {
 		            roles: [
-		            	assign.val()
+		            	defaultAssignValue
 		            ],
 		            type: 'read_own'
 		        },
 		        {
 		            roles: [
-		            	assign.val()
+		            	defaultAssignValue
 		            ],
 		            type: 'update_own'
 		        },
 		        {
 		            roles: [
-		            	assign.val()
+		            	defaultAssignValue
 		            ],
 		            type: 'delete_own'
 		        }

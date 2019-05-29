@@ -12,5 +12,7 @@ public interface FormControlRepository extends MongoRepository<FormControl, Stri
 
     List<FormControl> findByAssign(String assign);
 
+    List<FormControl> findByOwner(String owner);
+
     boolean deleteByPathForm(String pathForm);
 }

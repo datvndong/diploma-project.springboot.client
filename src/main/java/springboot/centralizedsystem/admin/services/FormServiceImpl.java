@@ -21,6 +21,7 @@ import org.springframework.web.client.UnknownHttpStatusCodeException;
 import springboot.centralizedsystem.admin.domains.Form;
 import springboot.centralizedsystem.admin.domains.FormControl;
 import springboot.centralizedsystem.admin.resources.APIs;
+import springboot.centralizedsystem.admin.resources.Configs;
 import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.utils.CalculateUtils;
 import springboot.centralizedsystem.admin.utils.HttpUtils;
@@ -32,16 +33,16 @@ public class FormServiceImpl implements FormService {
     private FormControlService formControlService;
 
     @Override
-    public List<Form> findAllForms(String token, String email) throws ParseException, ResourceAccessException,
+    public List<Form> findAllForms(String token, String email, int page) throws ParseException, ResourceAccessException,
             HttpClientErrorException, HttpServerErrorException, UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        ResponseEntity<String> res = new RestTemplate().exchange(
-                APIs.FORM_URL + "?type=form&sort=created&owner=" + email + "&limit=10&skip=0", HttpMethod.GET, entity,
-                String.class);
+        String apiURL = APIs.FORM_URL + "?type=form&sort=-created&owner=" + email + "&limit=" + Configs.NUMBER_ROWS_PER_PAGE
+                + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE;
+        ResponseEntity<String> res = new RestTemplate().exchange(apiURL, HttpMethod.GET, entity, String.class);
 
         JSONArray jsonArray = new JSONArray(res.getBody());
         JSONObject jsonObject = null;

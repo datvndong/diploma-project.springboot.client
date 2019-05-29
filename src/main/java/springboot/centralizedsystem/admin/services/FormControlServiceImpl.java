@@ -102,4 +102,9 @@ public class FormControlServiceImpl implements FormControlService {
     public List<FormControl> findByAssign(String assign) throws HttpClientErrorException, HttpServerErrorException {
         return this.formControlRepository.findByAssign(assign);
     }
+
+    @Override
+    public List<FormControl> findByOwner(String owner) throws HttpClientErrorException, HttpServerErrorException {
+        return this.formControlRepository.findByOwner(owner);
+    }
 }

@@ -53,16 +53,24 @@ public class FormController extends BaseController {
 //    private JavaMailSender mailSender;
 
     @GetMapping(RequestsPath.FORMS)
-    public String formsGET(ModelMap model, HttpSession session, @ModelAttribute(Keys.DELETE) String deleteMess) {
+    public String formsGET(ModelMap model, HttpSession session, @PathVariable String page,
+            @ModelAttribute(Keys.DELETE) String deleteMess) {
         try {
             User user = SessionUtils.getUser(session);
 
-            model.addAttribute("list", formService.findAllForms(user.getToken(), user.getEmail()));
+            int sizeListForms = formControlService.findByOwner(user.getEmail()).size();
+            int currPage = Integer.parseInt(page);
+            int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
+
+            model.addAttribute("list", formService.findAllForms(user.getToken(), user.getEmail(), currPage));
+
             if (!deleteMess.equals("")) {
                 boolean isDeleteSuccess = Boolean.parseBoolean(deleteMess);
                 model.addAttribute("deleteMess", Messages.DELETE("form", isDeleteSuccess));
                 model.addAttribute("deleteStatus", isDeleteSuccess);
             }
+            model.addAttribute("currPage", currPage);
+            model.addAttribute("totalPages", totalPages);
             model.addAttribute("title", "Forms management");
 
             return Views.FORMS;
@@ -211,12 +219,12 @@ public class FormController extends BaseController {
             ResponseEntity<String> res = formService.buildForm(user.getToken(), formJSON, isCreate ? "" : oldPath);
 
             if (isCreate) {
-                if (!formControlService.insert(new FormControl(pathForm, assign, start, expired))) {
+                if (!formControlService.insert(new FormControl(pathForm, user.getEmail(), assign, start, expired))) {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
             } else {
-                int rowAffected = formControlService.update(new FormControl(pathForm, assign, start, expired),
-                        oldPath);
+                int rowAffected = formControlService
+                        .update(new FormControl(pathForm, user.getEmail(), assign, start, expired), oldPath);
                 if (rowAffected < 1) {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
@@ -232,6 +240,8 @@ public class FormController extends BaseController {
     public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path)
     {
         User user = SessionUtils.getUser(session);
+
+        redirect.addAttribute("page", 1);
 
         boolean isDeleteFormControlSuccess = formControlService.deleteByPathForm(path);
         if (!isDeleteFormControlSuccess) {

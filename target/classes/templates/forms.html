@@ -5,6 +5,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head th:include="fragments/header :: header"></head>
+<link rel="stylesheet" th:href="@{/css/pagination.css}" />
 
 <body>
   <div class="container-scroller">
@@ -116,6 +117,9 @@
               </div>
             </div>
           </div>
+          <div class="row">
+		  	<div class="pagination" id="pagination"></div>
+		  </div>
         </div>
         <!-- content-wrapper ends -->
         <!-- partial:../../partials/_footer.html -->
@@ -127,13 +131,16 @@
     <!-- page-body-wrapper ends -->
   </div>
   <div th:include="fragments/plugins :: plugins"></div>
+  <script src="/js/pagination.js"></script>
   <script th:inline="javascript">
   	/*<![CDATA[*/
+  	const serverURL = 'http://localhost:8080'; 
+  	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), serverURL + '/forms/');
   	
   	function copyLink(path) {
   		const dummy = document.createElement('input');
   		dummy.style = 'position: absolute; left: -1000px; top: -1000px';
-  		dummy.value = 'http://localhost:8080/send/anon/report/' + path;
+  		dummy.value = serverURL + '/send/anon/report/' + path;
   	    document.body.appendChild(dummy);
   	  	dummy.select();
   	    document.execCommand('copy');
@@ -173,7 +180,7 @@
   			const index = parseInt($(this).find('.nr').text()) - 1;
   			const path = list[index].path;
   			$.ajax({
-  				url: 'http://localhost:8080/submissions',
+  				url: serverURL + '/submissions',
   				method: 'GET',
   				dataType: 'json',
   				data: {
@@ -181,7 +188,7 @@
   				},
   				success: submissions => {
   					$.ajax({
-  						url: 'http://localhost:8080/form',
+  						url: serverURL + '/form',
   						method: 'GET',
   						dataType: 'json',
   						data: {
