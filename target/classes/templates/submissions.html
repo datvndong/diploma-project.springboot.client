@@ -25,7 +25,13 @@
                   <h4 class="card-title">Submissions Table</h4>
                   <p class="card-description">
                   	Form: <code style="font-size: 100%" id="form-name"></code>
-                  </p>
+                  </p>        
+                  <a th:if="${session.isAdmin}" th:href="@{/export/json/{path}(path=${path})}" class="btn btn-dark btn-fw" >
+                  	<i class="mdi mdi-download"></i>Export JSON
+                  </a>
+                  <a th:if="${session.isAdmin}" th:href="@{/export/csv/{path}(path=${path})}" class="btn btn-primary btn-fw">
+                  	<i class="mdi mdi-download"></i>Export CSV
+                  </a>
                   <div class="table-responsive">
                     <table id="submissions-table" class="table table-striped"></table>
                   </div>

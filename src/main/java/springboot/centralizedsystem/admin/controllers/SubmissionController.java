@@ -38,7 +38,7 @@ public class SubmissionController extends BaseController {
         model.addAttribute("currPage", currPage);
         model.addAttribute("totalPages", totalPages);
 
-        ResponseEntity<String> submissionRes = submissionService.findAllSubmissions(token, path, currPage);
+        ResponseEntity<String> submissionRes = submissionService.findSubmissionsByPage(token, path, currPage);
         model.addAttribute("submissionData", submissionRes.getBody());
 
         ResponseEntity<String> formRes = formService.findOneFormWithToken(user.getToken(), path);

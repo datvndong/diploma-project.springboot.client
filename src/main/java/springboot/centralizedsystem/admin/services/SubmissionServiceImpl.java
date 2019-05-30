@@ -20,7 +20,7 @@ import springboot.centralizedsystem.admin.utils.HttpUtils;
 public class SubmissionServiceImpl implements SubmissionService {
 
     @Override
-    public ResponseEntity<String> findAllSubmissions(String token, String path, int page)
+    public ResponseEntity<String> findSubmissionsByPage(String token, String path, int page)
             throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
             UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
@@ -47,5 +47,18 @@ public class SubmissionServiceImpl implements SubmissionService {
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
         return new JSONArray(res.getBody()).length();
+    }
+
+    @Override
+    public ResponseEntity<String> findAllSubmissions(String token, String path) throws ResourceAccessException,
+            HttpClientErrorException, HttpServerErrorException, UnknownHttpStatusCodeException {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        String url = APIs.getListSubmissionsURL(path) + "?limit=1000000000";
+
+        return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
     }
 }
