@@ -23,6 +23,7 @@ import springboot.centralizedsystem.admin.domains.FormControl;
 import springboot.centralizedsystem.admin.domains.GroupControl;
 import springboot.centralizedsystem.admin.domains.User;
 import springboot.centralizedsystem.admin.resources.APIs;
+import springboot.centralizedsystem.admin.resources.Configs;
 import springboot.centralizedsystem.admin.resources.Keys;
 import springboot.centralizedsystem.admin.resources.Messages;
 import springboot.centralizedsystem.admin.resources.RequestsPath;
@@ -104,7 +105,8 @@ public class ReportController extends BaseController {
     }
 
     @GetMapping(RequestsPath.REPORTS)
-    public String reportsGET(Model model, HttpSession session, RedirectAttributes redirect) throws ParseException {
+    public String reportsGET(Model model, HttpSession session, RedirectAttributes redirect, @PathVariable String page)
+            throws ParseException {
         try {
             User user = SessionUtils.getUser(session);
             if (SessionUtils.isAdmin(session)) {
@@ -116,20 +118,30 @@ public class ReportController extends BaseController {
 
             String token = user.getToken();
 
-            List<Form> listForm = new ArrayList<>();
+            List<Form> listAllForms = new ArrayList<>();
+            List<Form> listFormsByPage = new ArrayList<>();
 
-//            List<FormControl> listFormsGroup = formControlService.findByAssign(idGroup);
-//            addFormToList(token, listForm, listFormsGroup);
-
-            getListFormByIdGroupRecursive(token, listForm, user.getIdGroup());
+            getListFormByIdGroupRecursive(token, listAllForms, user.getIdGroup());
 
             List<FormControl> listFormsAuth = formControlService.findByAssign(Keys.AUTHENTICATED);
-            addFormToList(token, listForm, listFormsAuth);
+            addFormToList(token, listAllForms, listFormsAuth);
 
-//            List<FormControl> listFormsAnon = formControlService.findByAssign(Keys.ANONYMOUS);
-//            addFormToList(token, listForm, listFormsAnon);
+            int numberRowsPerPage = Configs.NUMBER_ROWS_PER_PAGE;
+            int sizeListForms = listAllForms.size();
+            int currPage = Integer.parseInt(page);
+            int totalPages = (int) Math.ceil((float) sizeListForms / numberRowsPerPage);
+            model.addAttribute("currPage", currPage);
+            model.addAttribute("totalPages", totalPages);
 
-            model.addAttribute("list", listForm);
+            int start = (currPage - 1) * numberRowsPerPage;
+            int end = currPage * numberRowsPerPage;
+            for (int i = start; i < end; i++) {
+                if (i == sizeListForms) {
+                    break;
+                }
+                listFormsByPage.add(listAllForms.get(i));
+            }
+            model.addAttribute("list", listFormsByPage);
             model.addAttribute("title", "Reports");
 
             return Views.REPORTS;

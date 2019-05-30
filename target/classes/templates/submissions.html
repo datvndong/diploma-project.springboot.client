@@ -9,10 +9,12 @@
 
 <body>
   <div class="container-scroller">
-	<div th:include="fragments/navbar-admin :: navbar"></div>
+	<div th:if="${session.isAdmin}" th:include="fragments/navbar-admin :: navbar"></div>
+	<div th:unless="${session.isAdmin}" th:include="fragments/navbar-user :: navbar"></div>
     <!-- partial -->
     <div class="container-fluid page-body-wrapper">
-      <div th:include="fragments/sidebar-admin :: sidebar"></div>
+      <div th:if="${session.isAdmin}" th:include="fragments/sidebar-admin :: sidebar"></div>
+      <div th:unless="${session.isAdmin}" th:include="fragments/sidebar-user :: sidebar"></div>
       <!-- partial -->
       <div class="main-panel">
         <div class="content-wrapper">

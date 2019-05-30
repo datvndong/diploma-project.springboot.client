@@ -78,8 +78,10 @@ public class LoginController {
                 session.setAttribute(Keys.USER, new User(email, dataJSON.getString("name"), token));
                 return "redirect:" + RequestsPath.DASHBOARD;
             }
+
             session.setAttribute(Keys.USER,
                     new User(email, dataJSON.getString("name"), token, dataJSON.getString("idGroup")));
+            redirect.addAttribute("page", 1);
             return "redirect:" + RequestsPath.REPORTS;
         } catch (HttpServerErrorException e) {
             switch (e.getStatusCode()) {
