@@ -184,6 +184,7 @@ public class ReportController extends BaseController {
                 model.addAttribute("link", isNotSubmitted ? APIs.modifiedForm(path) : "");
                 model.addAttribute("title",
                         isNotSubmitted ? resJSON.getString("title") : Messages.HAS_SUBMITTED_MESSAGE);
+                model.addAttribute("isAnonymous", false);
 
                 return Views.SEND_REPORT;
             }
@@ -221,6 +222,7 @@ public class ReportController extends BaseController {
 
         model.addAttribute("title", formJSON.getString("title"));
         model.addAttribute("link", APIs.modifiedForm(path));
+        model.addAttribute("isAnonymous", true);
 
         return Views.SEND_REPORT;
     }
