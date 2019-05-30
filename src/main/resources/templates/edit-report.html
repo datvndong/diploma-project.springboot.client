@@ -23,12 +23,14 @@
 	<script src="/js/jquery.min.js"></script>
 	
     <script th:inline="javascript">
-    	const isAnonymous = [[${isAnonymous}]] === true;
     	window.onload = function() {
-        	if (!isAnonymous) {
-        		Formio.setToken([[${session.user.token}]]);
-        	}
-        	Formio.createForm(document.getElementById('formio'), [[${link}]]);
+        	Formio.setToken([[${session.user.token}]]);
+        	Formio.createForm(document.getElementById('formio'), [[${link}]]).then(function(form) {
+        		form.submission = {
+        			_id: [[${_id}]],
+        			data: JSON.parse([[${data}]])
+        		};
+        	});
       	};
     </script>
 </head>

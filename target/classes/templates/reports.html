@@ -133,7 +133,7 @@
   			const index = parseInt($(this).find('.nr').text()) - 1;
   			const path = list[index].path;
   			$.ajax({
-  				url: 'http://localhost:8080/submissions',
+  				url: `http://localhost:8080/submissions/${path}/1`,
   				method: 'GET',
   				dataType: 'json',
   				data: {

@@ -25,10 +25,10 @@
     <script th:inline="javascript">
     	const isAnonymous = [[${isAnonymous}]] === true;
     	window.onload = function() {
-        	Formio.createForm(document.getElementById('formio'), [[${link}]]);
         	if (!isAnonymous) {
         		Formio.setToken([[${session.user.token}]]);
         	}
+        	Formio.createForm(document.getElementById('formio'), [[${link}]]);
       	};
     </script>
 </head>

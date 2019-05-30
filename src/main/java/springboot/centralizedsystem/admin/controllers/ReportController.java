@@ -165,9 +165,6 @@ public class ReportController extends BaseController {
                 return Views.ERROR_404;
             }
             String assign = formControl.getAssign();
-            if (assign.equals(Keys.ANONYMOUS)) {
-                return Views.ERROR_404;
-            }
 
             boolean isFormPending = CalculateUtils.isFormPendingOrExpired(formControl.getStart());
             boolean isFormExpired = !CalculateUtils.isFormPendingOrExpired(formControl.getExpired());
@@ -189,7 +186,7 @@ public class ReportController extends BaseController {
                 return Views.SEND_REPORT;
             }
 
-            return Views.ERROR_403;
+            return Views.ERROR_404;
         } catch (ParseException e) {
             return Views.ERROR_UNKNOWN;
         } catch (HttpClientErrorException e) {
@@ -225,5 +222,69 @@ public class ReportController extends BaseController {
         model.addAttribute("isAnonymous", true);
 
         return Views.SEND_REPORT;
+    }
+
+    @GetMapping(RequestsPath.EDIT_REPORT)
+    public String editReportGET(Model model, HttpSession session, RedirectAttributes redirect,
+            @PathVariable String path) {
+        try {
+            User user = SessionUtils.getUser(session);
+            if (user == null) {
+                return unauthorized(redirect);
+            }
+            String token = user.getToken();
+
+            FormControl formControl = formControlService.findByPathForm(path);
+            if (formControl == null) {
+                return Views.ERROR_404;
+            }
+            String assign = formControl.getAssign();
+
+            boolean isFormPending = CalculateUtils.isFormPendingOrExpired(formControl.getStart());
+            boolean isFormExpired = !CalculateUtils.isFormPendingOrExpired(formControl.getExpired());
+            if (isFormPending || isFormExpired) {
+                return Views.ERROR_403;
+            }
+
+            if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(assign, user.getIdGroup())) {
+                ResponseEntity<String> res1 = formService.findOneFormWithToken(token, path);
+                JSONObject resJSON = new JSONObject(res1.getBody());
+
+                ResponseEntity<String> res2 = submissionService.findAllSubmissions(token, path, 1);
+                JSONArray jsonArray = new JSONArray(res2.getBody());
+                boolean isNotSubmitted = jsonArray.isEmpty();
+                if (isNotSubmitted) {
+                    model.addAttribute("link", "");
+                    model.addAttribute("title", Messages.HAS_NOT_SUBMITTED_MESSAGE);
+                } else {
+                    model.addAttribute("link", APIs.modifiedForm(path));
+                    model.addAttribute("title", resJSON.getString("title"));
+                    model.addAttribute("_id", jsonArray.getJSONObject(0).getString("_id"));
+                    model.addAttribute("data", jsonArray.getJSONObject(0).getJSONObject("data").toString());
+                }
+
+                return Views.EDIT_REPORT;
+            }
+
+            return Views.ERROR_404;
+        } catch (ParseException e) {
+            return Views.ERROR_UNKNOWN;
+        } catch (HttpClientErrorException e) {
+            switch (e.getStatusCode()) {
+            case UNAUTHORIZED:
+                return Views.ERROR_403;
+            case NOT_FOUND:
+                return Views.ERROR_404;
+            default:
+                return Views.ERROR_UNKNOWN;
+            }
+        } catch (HttpServerErrorException e) {
+            switch (e.getStatusCode()) {
+            case INTERNAL_SERVER_ERROR:
+                return Views.ERROR_500;
+            default:
+                return Views.ERROR_UNKNOWN;
+            }
+        }
     }
 }

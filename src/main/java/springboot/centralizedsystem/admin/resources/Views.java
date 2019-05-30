@@ -15,4 +15,5 @@ public class Views {
     public static final String REPORTS = "reports";
     public static final String SEND_REPORT = "send-report";
     public static final String SUBMISSIONS = "submissions";
+    public static final String EDIT_REPORT = "edit-report";
 }
