@@ -5,7 +5,9 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "formscontrol")
+import springboot.centralizedsystem.admin.resources.Collections;
+
+@Document(collection = Collections.FORMS_CONTROL)
 public class FormControl {
 
     @Id

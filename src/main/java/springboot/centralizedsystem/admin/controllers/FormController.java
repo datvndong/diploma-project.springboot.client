@@ -25,6 +25,7 @@ import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import springboot.centralizedsystem.admin.domains.FormControl;
+import springboot.centralizedsystem.admin.domains.ImportFile;
 import springboot.centralizedsystem.admin.domains.User;
 import springboot.centralizedsystem.admin.resources.Configs;
 import springboot.centralizedsystem.admin.resources.Keys;
@@ -54,7 +55,7 @@ public class FormController extends BaseController {
 
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, @PathVariable String page,
-            @ModelAttribute(Keys.DELETE) String deleteMess) {
+            @ModelAttribute(Keys.DELETE) String deleteMess, @ModelAttribute(Keys.IMPORT) String importMess) {
         try {
             User user = SessionUtils.getUser(session);
 
@@ -69,8 +70,16 @@ public class FormController extends BaseController {
                 model.addAttribute("deleteMess", Messages.DELETE("form", isDeleteSuccess));
                 model.addAttribute("deleteStatus", isDeleteSuccess);
             }
+
+            if (!importMess.equals("")) {
+                boolean isImportSuccess = Boolean.parseBoolean(importMess);
+                model.addAttribute("importMess", Messages.IMPORT(isImportSuccess));
+                model.addAttribute("importStatus", isImportSuccess);
+            }
+
             model.addAttribute("currPage", currPage);
             model.addAttribute("totalPages", totalPages);
+            model.addAttribute("importFile", new ImportFile());
             model.addAttribute("title", "Forms management");
 
             return Views.FORMS;

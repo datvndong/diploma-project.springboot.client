@@ -8,8 +8,9 @@ public class Keys {
     public static final String ANONYMOUS = "5ce8b61ea347f14bc809c815";
     public static final String AUTHENTICATED = "5ce8b61ea347f14bc809c814";
     public static final String GROUP = "Group";
-    public static final String LOGIN = "1";
-    public static final String DELETE = "2";
+    public static final String LOGIN = "login";
+    public static final String DELETE = "delete";
+    public static final String IMPORT = "import";
     public static final String SUCCESS = "success";
     public static final String PRIMARY = "primary";
     public static final String WARNING = "warning";
