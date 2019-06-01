@@ -7,6 +7,12 @@ public class User {
     private String password;
     private String token;
     private String idGroup;
+    private String gender;
+    private String phoneNumber;
+    private String address;
+    private int status;
+    private String nameGroup;
+    private String id;
 
     public String getEmail() {
         return email;
@@ -46,6 +52,66 @@ public class User {
 
     public void setIdGroup(String idGroup) {
         this.idGroup = idGroup;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getNameGroup() {
+        return nameGroup;
+    }
+
+    public void setNameGroup(String nameGroup) {
+        this.nameGroup = nameGroup;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public User(String id, String email, String name, String nameGroup, String gender, String phoneNumber,
+            String address) {
+        super();
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.nameGroup = nameGroup;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
     }
 
     public User(String email, String name, String token, String idGroup) {

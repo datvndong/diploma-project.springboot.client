@@ -224,8 +224,13 @@ public class ReportController extends BaseController {
     public String sendReportAnonGET(Model model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
         JSONObject formJSON = new JSONObject(formService.findOneFormWithNoToken(path));
+        if (formJSON.isEmpty()) {
+            return Views.ERROR_403;
+        }
+
         JSONArray submissionAccessJSON = formJSON.getJSONArray("submissionAccess");
-        if (!submissionAccessJSON.getJSONObject(4).getJSONArray("roles").get(0).equals(Keys.ANONYMOUS)) {
+        JSONArray roles = submissionAccessJSON.getJSONObject(4).getJSONArray("roles");
+        if (roles.length() == 0 || !roles.get(0).equals(Keys.ANONYMOUS)) {
             return Views.ERROR_404;
         }
 

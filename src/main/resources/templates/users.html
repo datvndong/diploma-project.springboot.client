@@ -24,64 +24,37 @@
               		<div th:if="${deleteStatus}" th:text="${deleteMess}" class="alert-success" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
               		<div th:unless="${deleteStatus}" th:text="${deleteMess}" class="alert-danger" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
               	  </th:block>
-              	  <th:block th:if="${importMess}">
-              		<div th:if="${importStatus}" th:text="${importMess}" class="alert-success" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
-              		<div th:unless="${importStatus}" th:text="${importMess}" class="alert-danger" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
-              	  </th:block>
-                  <h4 class="card-title">Forms Table</h4>
-                  <p class="card-description">
-                  	Note: <code style="font-size: 100%">click row to show submissions of form</code>
-                  </p>   
-                  <form action="#" th:action="@{/survey/read}" th:object="${importFile}" enctype="multipart/form-data" method="post">              
-	                  <div class="input-group col-xs-12">
-	                  	<input type="file" class="form-control file-upload-info" th:field="*{fileDatas}" />
-	                   	<span class="input-group-append">
-	                    	<button class="file-upload-browse btn btn-info" type="submit">
-	                    		<i class="mdi mdi-upload"></i>Import
-	                    	</button>
-	                  	</span>
-	                  </div>   
-                  </form>            
+                  <h4 class="card-title">Users Table</h4>   
+                  <div class="col-lg-2">
+                  	<a class="btn btn-info btn-block" th:href="@{/build/user}">New User
+					  	<i class="mdi mdi-plus"></i>
+					  </a>
+                  </div>          
                   <div class="table-responsive">
                     <table id="forms-table" class="table table-hover">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Title</th>
+                          <th>Email</th>
                           <th>Name</th>
-                          <th>Progress</th>
-                          <th>Submissions</th>
-                          <th>Tags</th>
-                          <th>Schedule</th>
+                          <th>Group</th>
+                          <th>Gender</th>
+                          <th>Phone</th>
+                          <th>Address</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
                       	<tr th:each="obj : ${list}">
                       		<td th:text="${objStat.count}"></td>
-                      		<td th:text="${obj.title}"></td>
+                      		<td th:text="${obj.email}"></td>
                       		<td th:text="${obj.name}"></td>
-                      		<td>
-                              <div class="progress">
-                                <div th:id="'bar-' + ${objStat.count}" th:class="'progress-bar bg-' + ${obj.typeProgressBar}" role="progressbar" style="width: 0%"></div>
-                              </div>
-                            </td>
-                            <td th:text="${obj.amount}"></td>
+                      		<td th:text="${obj.nameGroup}"></td>
+                            <td th:text="${obj.gender}"></td>
+                            <td th:text="${obj.phoneNumber}"></td>
+                            <td th:text="${obj.address}"></td>
                             <td>
-                            	<th:block th:each="tag : ${obj.tags}">
-                            		<label th:if="${tagStat.last}" th:text="${tag}"></label>
-                            		<label th:unless="${tagStat.last}" th:text="${tag} + ', '"></label>
-                            	</th:block>
-                            </td>
-                            <td th:inline="text">
-                            	From:&ensp;[[${obj.start}]] 
-                            	<br />
-                            	--------------------------
-                            	<br />
-                            	To:&ensp;&ensp;&emsp;[[${obj.expired}]]
-                            </td>
-                            <td>
-								<a th:if="${obj.amount == 0 AND obj.durationPercent != 100}" th:id="'edit-' + ${objStat.count}" th:href="@{/build/form/{path}(path=${obj.path})}" class="btn btn-primary" title="Edit">
+								<a th:id="'edit-' + ${objStat.count}" th:href="@{/build/user/{id}(id=${obj.id})}" class="btn btn-primary" title="Edit">
 									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
 								<a href="#" data-toggle="modal" data-target="#modal-warning" th:attr="data-target='#modal-warning' + ${objStat.count}" class="btn btn-danger" title="Delete"> 
@@ -101,14 +74,11 @@
 											</div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-												<a style="color: white" type="button" class="btn btn-info" th:href="@{/delete/form/{path}(path=${obj.path})}">Yes</a>
+												<a style="color: white" type="button" class="btn btn-info" th:href="@{/delete/user/{id}(id=${obj.id})}">Yes</a>
 											</div>
 										</div>
 									</div>
 								</div>
-								<button th:if="${obj.isAnonymousForm}" th:onclick="'copyLink(\'' + ${obj.path} + '\')'" th:href="@{/send/anon/report/{path}(path=${obj.path})}" class="btn btn-warning" title="Copy link">
-									<span class="mdi mdi-content-copy"></span>
-								</button >
 							</td>
                       	</tr>
                       </tbody>
@@ -133,21 +103,11 @@
   <script th:inline="javascript">
   	/*<![CDATA[*/
   	const serverURL = 'http://localhost:8080';
-  	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/forms/`);
-  	
-  	function copyLink(path) {
-  		const dummy = document.createElement('input');
-  		dummy.style = 'position: absolute; left: -1000px; top: -1000px';
-  		dummy.value = `${serverURL}/send/anon/report/${path}`;
-  	    document.body.appendChild(dummy);
-  	  	dummy.select();
-  	    document.execCommand('copy');
-  	    document.body.removeChild(dummy);
-  	    alert('Link copied to clipboard');
-	}
-  	
+  	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/users/`);
+  	  	
   	$(document).ready(() => {
 		const list = [[${list}]];
+		/*
 		list.forEach((obj, i) => {
   			$('#bar-' + (i + 1)).css('width', obj.durationPercent + '%');
   		});
@@ -164,6 +124,7 @@
 				window.location.href = `${serverURL}/submissions/${path}/1`;
 			});
 		});
+		*/
 	});
   	/*]]>*/
   </script>

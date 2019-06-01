@@ -30,16 +30,16 @@
 			<li class="nav-item">
 				<a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
 					<i class="menu-icon mdi mdi-account"></i>
-					<span class="menu-title">Users management</span>
+					<span class="menu-title">HR Management</span>
 					<i class="menu-arrow"></i>
 				</a>
 				<div class="collapse" id="ui-basic">
 					<ul class="nav flex-column sub-menu">
 						<li class="nav-item">
-							<a class="nav-link" href="pages/ui-features/buttons.html">Employees</a>
+							<a class="nav-link" th:href="@{/users/1}">Users</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="pages/ui-features/typography.html">Groups</a>
+							<a class="nav-link" th:href="@{/groups/1}">Groups</a>
 						</li>
 					</ul>
 				</div>
