@@ -114,7 +114,7 @@ public class UserController extends BaseController {
         User user = SessionUtils.getUser(session);
 
         if (!SessionUtils.isAdmin(session)) {
-            return Views.ERROR_403;
+            return roleForbidden(redirect);
         }
 
         model.addAttribute("link", APIs.modifiedForm(PATH));
@@ -130,7 +130,7 @@ public class UserController extends BaseController {
         User user = SessionUtils.getUser(session);
 
         if (!SessionUtils.isAdmin(session)) {
-            return Views.ERROR_403;
+            return roleForbidden(redirect);
         }
 
         model.addAttribute("link", APIs.modifiedForm(PATH));
@@ -143,5 +143,30 @@ public class UserController extends BaseController {
         model.addAttribute("title", "Edit User");
 
         return Views.EDIT_REPORT;
+    }
+
+    @GetMapping(RequestsPath.PROFILE)
+    public String profileGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
+        User user = SessionUtils.getUser(session);
+        if (user == null) {
+            return unauthorized(redirect);
+        }
+
+        if (SessionUtils.isAdmin(session)) {
+            return roleForbidden(redirect);
+        }
+
+        GroupControl groupControl = groupControlService.findByIdGroup(user.getIdGroup());
+        user.setNameGroup(groupControl.getName());
+
+        int reportsNumber = user.getReportsNumber();
+        int submittedNumber = user.getSubmittedNumber();
+        model.addAttribute("reportsNumber", reportsNumber);
+        model.addAttribute("submittedNumber", submittedNumber);
+        model.addAttribute("notSubmittedNumber", reportsNumber - submittedNumber);
+
+        model.addAttribute("user", user);
+
+        return Views.PROFILE;
     }
 }

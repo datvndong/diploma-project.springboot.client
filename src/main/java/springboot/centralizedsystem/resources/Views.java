@@ -20,4 +20,5 @@ public class Views {
     public static final String EMAIL = "email";
     public static final String USERS = "users";
     public static final String GROUPS = "groups";
+    public static final String PROFILE = "profile";
 }

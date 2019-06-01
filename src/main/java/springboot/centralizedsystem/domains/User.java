@@ -13,6 +13,8 @@ public class User {
     private int status;
     private String nameGroup;
     private String id;
+    private int reportsNumber;
+    private int submittedNumber;
 
     public String getEmail() {
         return email;
@@ -99,6 +101,35 @@ public class User {
     }
 
     public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getReportsNumber() {
+        return reportsNumber;
+    }
+
+    public void setReportsNumber(int reportsNumber) {
+        this.reportsNumber = reportsNumber;
+    }
+    
+    public int getSubmittedNumber() {
+        return submittedNumber;
+    }
+    
+    public void setSubmittedNumber(int submittedNumber) {
+        this.submittedNumber = submittedNumber;
+    }
+
+    public User(String email, String name, String token, String idGroup, String gender, String phoneNumber,
+            String address, String id) {
+        super();
+        this.email = email;
+        this.name = name;
+        this.token = token;
+        this.idGroup = idGroup;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
         this.id = id;
     }
 

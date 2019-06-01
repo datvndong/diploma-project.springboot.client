@@ -32,7 +32,7 @@ public class LoginController {
     @GetMapping(value = { RequestsPath.NONE, RequestsPath.SLASH, RequestsPath.LOGIN })
     public String loginGET(Model model, @ModelAttribute(Keys.LOGIN) String error) {
         model.addAttribute("title", "Login");
-        model.addAttribute(Keys.UNKNOWN_TYPE_USER, new User("xtreme@admin.io"));
+        model.addAttribute(Keys.UNKNOWN_TYPE_USER, new User("vandatnguyen1896@gmail.com"));
         if (!error.equals("")) {
             model.addAttribute("error", error);
         }
@@ -75,18 +75,27 @@ public class LoginController {
 
             session.setAttribute(Keys.IS_ADMIN, isAdmin);
             if (isAdmin) {
+                // Return dashboard in Administrator Page
                 session.setAttribute(Keys.USER, new User(email, dataJSON.getString("name"), token));
                 return "redirect:" + RequestsPath.DASHBOARD;
             }
 
             if (dataJSON.getInt("status") == Configs.DEACTIVE_STATUS) {
-                // Deleted user
+                // User had been blocked
                 redirect.addFlashAttribute(Keys.LOGIN, Messages.DEACTIVE_USER);
                 return "redirect:" + RequestsPath.LOGIN;
             }
 
+            // Set User Info
+            String id = resJSON.getString("_id");
+            String name = dataJSON.getString("name");
+            String idGroup = dataJSON.getString("idGroup");
+            String gender = dataJSON.getString("gender");
+            String phoneNumber = dataJSON.getString("phoneNumber");
+            String address = dataJSON.getString("address");
             session.setAttribute(Keys.USER,
-                    new User(email, dataJSON.getString("name"), token, dataJSON.getString("idGroup")));
+                    new User(email, name, token, idGroup, gender, phoneNumber, address, id));
+
             redirect.addAttribute("page", 1);
             return "redirect:" + RequestsPath.REPORTS;
         } catch (HttpServerErrorException e) {

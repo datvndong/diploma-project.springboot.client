@@ -128,6 +128,17 @@ public class ReportController extends BaseController {
 
             int numberRowsPerPage = Configs.NUMBER_ROWS_PER_PAGE;
             int sizeListForms = listAllForms.size();
+
+            // Process for Profile page
+            user.setReportsNumber(sizeListForms);
+            int submittedNumber = 0;
+            for (Form form : listAllForms) {
+                if (form.getIsSubmitted()) {
+                    submittedNumber++;
+                }
+            }
+            user.setSubmittedNumber(submittedNumber);
+
             int currPage = Integer.parseInt(page);
             int totalPages = (int) Math.ceil((float) sizeListForms / numberRowsPerPage);
             model.addAttribute("currPage", currPage);
