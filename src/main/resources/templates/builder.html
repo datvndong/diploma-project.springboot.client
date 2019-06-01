@@ -113,7 +113,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	
 	<div id="builder"></div>
 	<button type="button" class="btn btn-info mr-2" id="save" disabled="disabled">Save</button>
-    <button class="btn btn-warning">Cancel</button>
+    <a type="button" class="btn btn-warning" target="_parent" id="cancel" th:href="@{/dashboard}">Cancel</a>
     
 	<script th:inline="javascript">
 		/*<![CDATA[*/
@@ -131,6 +131,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		const assign = $('#assign');
 		const details = $('#details');
 		const saveBtn = $('#save');
+		const cancelBtn = $('#cancel');
 		const resultMess = $('#result-message');
 		
 		const defaultAssignValue = '5ce8b61ea347f14bc809c814'; // Authenticated
@@ -287,7 +288,10 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		
 		saveBtn.click(function () {
 			if (form.checkValidity()){
+				saveBtn.attr('disabled', 'disabled');
+				cancelBtn.attr('disabled', 'disabled');
 				resultMess.removeClass();
+				
 				$.ajax({
 					url: 'http://localhost:8080/build/form',
 					method: 'POST',
