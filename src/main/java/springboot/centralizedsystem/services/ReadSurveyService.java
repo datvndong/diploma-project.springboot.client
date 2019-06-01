@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ReadSurveyService {
 
-    List<String> getListDataFromFile(String pathFile) throws IOException;
+    List<String> getListDataFromFile(String pathFile, String importer) throws IOException;
 
     String getPathFileImport(File uploadRootDir, MultipartFile[] fileDatas) throws IOException;
 }

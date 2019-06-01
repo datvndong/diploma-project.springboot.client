@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import springboot.centralizedsystem.resources.Configs;
 
 @Service
 public class ReadSurveyServiceImpl implements ReadSurveyService {
@@ -182,11 +187,12 @@ public class ReadSurveyServiceImpl implements ReadSurveyService {
     }
 
     @Override
-    public List<String> getListDataFromFile(String pathFile) throws IOException {
-        FileInputStream file = new FileInputStream(new File(pathFile));
+    public List<String> getListDataFromFile(String pathFile, String importer) throws IOException {
+        File file = new File(pathFile);
+        FileInputStream fileInputStream = new FileInputStream(file);
 
         // Create Workbook instance holding reference to .xlsx file
-        XSSFWorkbook workbook = new XSSFWorkbook(file);
+        XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
 
         // Get first/desired sheet from the workbook
         XSSFSheet sheet = workbook.getSheetAt(0);
@@ -210,6 +216,7 @@ public class ReadSurveyServiceImpl implements ReadSurveyService {
         int currColIndex = 0;
         boolean isReadHeader = true;
         String jsonBluePrint = ""; // Use to set value by key when read data after read header
+        DateFormat sdf = new SimpleDateFormat(Configs.DATETIME_FORMAT);
 
         sortMergedRegions(listMergedRegion, true);
         sortMergedRegions(listMergedRegion, false);
@@ -235,6 +242,11 @@ public class ReadSurveyServiceImpl implements ReadSurveyService {
                         currStringCellValue = cell.getStringCellValue();
                         if (currStringCellValue.equals("(1)")) {
                             isReadHeader = false;
+
+                            jsonObject.addProperty("nameSurvey", file.getName());
+                            jsonObject.addProperty("importer", importer);
+                            jsonObject.addProperty("createdAt", sdf.format(new Date()));
+
                             jsonBluePrint = jsonObject.toString();
                             break;
                         }
@@ -265,7 +277,7 @@ public class ReadSurveyServiceImpl implements ReadSurveyService {
                 result.add(jsonObjectTemp.toString());
             }
         }
-        file.close();
+        fileInputStream.close();
 
         return result;
     }

@@ -59,7 +59,7 @@ public class ReadSurveyController extends BaseController {
             String path = readSurveyService.getPathFileImport(uploadRootDir, fileDatas);
 
             // Dump data by blue print JSON & insert to DB
-            List<String> list = readSurveyService.getListDataFromFile(path);
+            List<String> list = readSurveyService.getListDataFromFile(path, user.getEmail());
             DBObject dbObject = null;
             DBCollection collection = mongoTemplate.getCollection(Collections.SURVEYS);
             for (String string : list) {
