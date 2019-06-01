@@ -17,4 +17,5 @@ public class Views {
     public static final String SUBMISSIONS = "submissions";
     public static final String EDIT_REPORT = "edit-report";
     public static final String STATISTICS = "statistics";
+    public static final String EMAIL = "email";
 }

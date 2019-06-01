@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
@@ -35,6 +36,7 @@ import springboot.centralizedsystem.admin.resources.Views;
 import springboot.centralizedsystem.admin.services.FormControlService;
 import springboot.centralizedsystem.admin.services.FormService;
 import springboot.centralizedsystem.admin.services.RoleService;
+import springboot.centralizedsystem.admin.services.SendEmailService;
 import springboot.centralizedsystem.admin.utils.SessionUtils;
 import springboot.centralizedsystem.admin.utils.ValidateUtils;
 
@@ -50,8 +52,8 @@ public class FormController extends BaseController {
     @Autowired
     private FormControlService formControlService;
 
-//    @Autowired
-//    private JavaMailSender mailSender;
+    @Autowired
+    private SendEmailService sendEmailService;
 
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, @PathVariable String page,
@@ -134,7 +136,7 @@ public class FormController extends BaseController {
             model.addAttribute("listRoles", roleService.findAll(token));
 
             JSONObject formJSON = null;
-            boolean isCreate = path.equals(""); // No path parametter
+            boolean isCreate = path.equals(""); // No path parameter
             if (isCreate) {
                 // Create form
                 formJSON = new JSONObject();
@@ -183,7 +185,7 @@ public class FormController extends BaseController {
 
     @PostMapping(RequestsPath.CREATE_FORM)
     public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON,
-            @RequestParam("oldPath") String oldPath, HttpSession session) {
+            @RequestParam("oldPath") String oldPath, HttpSession session) throws MessagingException {
         try {
             User user = SessionUtils.getUser(session);
 
@@ -230,6 +232,9 @@ public class FormController extends BaseController {
                 }
             }
 
+            // Handle this - send email - took a long time
+            sendEmailService.sendEmail("vandatnguyen1896@gmail.com", jsonObject.getString("title"));
+
             return res;
         } catch (ParseException e) {
             return new ResponseEntity<>(Messages.FORMAT_DATE_ERROR, HttpStatus.BAD_REQUEST);
@@ -237,8 +242,7 @@ public class FormController extends BaseController {
     }
 
     @GetMapping(RequestsPath.DELETE_FORM)
-    public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path)
-    {
+    public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path) {
         User user = SessionUtils.getUser(session);
 
         redirect.addAttribute("page", 1);
