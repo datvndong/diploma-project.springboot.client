@@ -245,8 +245,6 @@ public class FormController extends BaseController {
     public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path) {
         User user = SessionUtils.getUser(session);
 
-        redirect.addAttribute("page", 1);
-
         boolean isDeleteFormControlSuccess = formControlService.deleteByPathForm(path);
         if (!isDeleteFormControlSuccess) {
             redirect.addFlashAttribute(Keys.DELETE, false);
@@ -256,6 +254,7 @@ public class FormController extends BaseController {
         boolean isDeleteFormSuccess = formService.deleteForm(user.getToken(), path);
         redirect.addFlashAttribute(Keys.DELETE, Boolean.toString(isDeleteFormSuccess));
 
+        redirect.addAttribute("page", 1);
         return "redirect:" + RequestsPath.FORMS;
     }
 }

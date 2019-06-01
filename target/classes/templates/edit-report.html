@@ -24,7 +24,7 @@
 	
     <script th:inline="javascript">
     	window.onload = function() {
-        	Formio.setToken([[${session.user.token}]]);
+        	Formio.setToken([[${token}]]);
         	Formio.createForm(document.getElementById('formio'), [[${link}]]).then(function(form) {
         		form.submission = {
         			_id: [[${_id}]],
@@ -47,6 +47,8 @@
 		          		<div class="card-body">
 							<div id="formio"></div>
 						</div>
+						<a th:if="${session.isAdmin}" style="display: inline-block" th:href="@{/users/1}" type="button" class="btn btn-dark btn-md">Back home</a>
+						<a th:unless="${session.isAdmin}" style="display: inline-block" th:href="@{/reports/1}" type="button" class="btn btn-dark btn-md">Back home</a>
 					</div>
 				</div>
 			</div>

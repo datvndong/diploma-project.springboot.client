@@ -57,28 +57,6 @@
 								<a th:id="'edit-' + ${objStat.count}" th:href="@{/build/user/{id}(id=${obj.id})}" class="btn btn-primary" title="Edit">
 									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
-								<a href="#" data-toggle="modal" data-target="#modal-warning" th:attr="data-target='#modal-warning' + ${objStat.count}" class="btn btn-danger" title="Delete"> 
-									<span class="mdi mdi-delete"></span>
-								</a>
-								<div class="modal modal-warning fade in" th:id="'modal-warning' + ${objStat.count}" aria-hidden="true">
-									<div class="modal-dialog">
-										<div class="modal-content">
-											<div class="modal-header">
-												<h3 class="modal-title custom_align" id="Heading"><span class="mdi mdi-alert"></span>&nbsp;Delete this entry</h3>
-												<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					                    			<span aria-hidden="true">×</span>
-					                    		</button>
-											</div>
-											<div class="modal-body">
-												<h5 class="alert alert-danger"><span class="mdi mdi-comment-alert-outline"></span>&nbsp;Are you sure you want to delete this record?</h5>
-											</div>
-											<div class="modal-footer">
-												<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-												<a style="color: white" type="button" class="btn btn-info" th:href="@{/delete/user/{id}(id=${obj.id})}">Yes</a>
-											</div>
-										</div>
-									</div>
-								</div>
 							</td>
                       	</tr>
                       </tbody>

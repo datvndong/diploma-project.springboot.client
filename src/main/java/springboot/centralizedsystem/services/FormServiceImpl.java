@@ -106,8 +106,7 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public boolean deleteForm(String token, String path) throws ResourceAccessException, HttpClientErrorException,
-            HttpServerErrorException, UnknownHttpStatusCodeException {
+    public boolean deleteForm(String token, String path) {
         try {
             HttpHeaders header = HttpUtils.getHeader();
             header.set(APIs.TOKEN_KEY, token);
@@ -117,7 +116,8 @@ public class FormServiceImpl implements FormService {
             new RestTemplate().exchange(APIs.modifiedForm(path), HttpMethod.DELETE, entity, String.class);
 
             return true;
-        } catch (HttpClientErrorException | HttpServerErrorException | UnknownHttpStatusCodeException e) {
+        } catch (ResourceAccessException | HttpClientErrorException | HttpServerErrorException
+                | UnknownHttpStatusCodeException e) {
             return false;
         }
     }

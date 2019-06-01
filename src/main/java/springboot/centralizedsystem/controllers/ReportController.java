@@ -273,11 +273,13 @@ public class ReportController extends BaseController {
                 if (isNotSubmitted) {
                     model.addAttribute("link", "");
                     model.addAttribute("title", Messages.HAS_NOT_SUBMITTED_MESSAGE);
+                    model.addAttribute("token", "");
                 } else {
                     model.addAttribute("link", APIs.modifiedForm(path));
                     model.addAttribute("title", resJSON.getString("title"));
                     model.addAttribute("_id", jsonArray.getJSONObject(0).getString("_id"));
                     model.addAttribute("data", jsonArray.getJSONObject(0).getJSONObject("data").toString());
+                    model.addAttribute("token", token);
                 }
 
                 return Views.EDIT_REPORT;

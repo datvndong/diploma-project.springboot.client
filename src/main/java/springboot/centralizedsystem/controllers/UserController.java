@@ -119,9 +119,29 @@ public class UserController extends BaseController {
 
         model.addAttribute("link", APIs.modifiedForm(PATH));
         model.addAttribute("token", user.getToken());
-
         model.addAttribute("title", "Create new User");
 
         return Views.SEND_REPORT;
+    }
+
+    @GetMapping(RequestsPath.EDIT_USER)
+    public String editUserGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
+            @PathVariable String id) {
+        User user = SessionUtils.getUser(session);
+
+        if (!SessionUtils.isAdmin(session)) {
+            return Views.ERROR_403;
+        }
+
+        model.addAttribute("link", APIs.modifiedForm(PATH));
+        model.addAttribute("token", user.getToken());
+        model.addAttribute("_id", id);
+
+        ResponseEntity<String> infoRes = userService.findUserDataById(user.getToken(), PATH, id);
+        model.addAttribute("data", new JSONObject(infoRes.getBody()).getJSONObject("data").toString());
+
+        model.addAttribute("title", "Edit User");
+
+        return Views.EDIT_REPORT;
     }
 }
