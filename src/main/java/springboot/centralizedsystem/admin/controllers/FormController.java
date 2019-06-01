@@ -224,17 +224,15 @@ public class FormController extends BaseController {
                 if (!formControlService.insert(new FormControl(pathForm, user.getEmail(), assign, start, expired))) {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
+
+                // Handle this - send email - took a long time
+                sendEmailService.sendEmail("vandatnguyen1896@gmail.com", jsonObject.getString("title"));
             } else {
                 int rowAffected = formControlService
                         .update(new FormControl(pathForm, user.getEmail(), assign, start, expired), oldPath);
                 if (rowAffected < 1) {
                     return new ResponseEntity<>(Messages.DATABASE_ERROR, HttpStatus.BAD_REQUEST);
                 }
-            }
-
-            // Handle this - send email - took a long time
-            if (isCreate) {
-                sendEmailService.sendEmail("vandatnguyen1896@gmail.com", jsonObject.getString("title"));
             }
 
             return res;
