@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,7 +20,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import springboot.centralizedsystem.domains.GroupControl;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
 import springboot.centralizedsystem.resources.Configs;
@@ -29,7 +27,7 @@ import springboot.centralizedsystem.resources.Keys;
 import springboot.centralizedsystem.resources.Messages;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
-import springboot.centralizedsystem.services.GroupControlService;
+import springboot.centralizedsystem.services.GroupService;
 import springboot.centralizedsystem.services.SubmissionService;
 import springboot.centralizedsystem.services.UserService;
 import springboot.centralizedsystem.utils.SessionUtils;
@@ -38,7 +36,8 @@ import springboot.centralizedsystem.utils.ValidateUtils;
 @Controller
 public class UserController extends BaseController {
 
-    private static final String PATH = "user"; // Default resource create by form.io
+    private static final String PATH_USER = "user"; // Default resource create by form.io
+    private static final String PATH_GROUP = "group";
 
     @Autowired
     private UserService userService;
@@ -47,22 +46,22 @@ public class UserController extends BaseController {
     private SubmissionService submissionService;
 
     @Autowired
-    private GroupControlService groupControlService;
+    private GroupService groupService;
 
     @GetMapping(RequestsPath.USERS)
-    public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect, @PathVariable String page,
-            @ModelAttribute(Keys.DELETE) String deleteMess) {
+    public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
+            @PathVariable String page) {
         try {
             User user = SessionUtils.getUser(session);
             String token = user.getToken();
 
             List<User> list = new ArrayList<>();
 
-            int sizeListForms = submissionService.countSubmissions(token, PATH);
+            int sizeListForms = submissionService.countSubmissions(token, PATH_USER);
             int currPage = Integer.parseInt(page);
             int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
 
-            ResponseEntity<String> userResByPage = submissionService.findSubmissionsByPage(token, PATH, currPage);
+            ResponseEntity<String> userResByPage = submissionService.findSubmissionsByPage(token, PATH_USER, currPage);
             JSONArray jsonArray = new JSONArray(userResByPage.getBody());
             JSONObject jsonObject = null;
             JSONObject dataObject = null;
@@ -85,20 +84,17 @@ public class UserController extends BaseController {
                     address = dataObject.getString("address");
                 }
 
+                String groupName = "";
                 String idGroup = dataObject.getString("idGroup");
-                GroupControl groupControl = groupControlService.findByIdGroup(idGroup);
+                if (!idGroup.equals(Configs.ROOT_GROUP)) {
+                    groupName = groupService.findGroupFiledByIdGroup(token, PATH_GROUP, idGroup, "name");
+                }
 
-                list.add(new User(id, dataObject.getString("email"), dataObject.getString("name"),
-                        groupControl.getName(), dataObject.getString("gender"), phoneNumber, address));
+                list.add(new User(id, dataObject.getString("email"), dataObject.getString("name"), groupName,
+                        dataObject.getString("gender"), phoneNumber, address));
             }
 
             model.addAttribute("list", list);
-
-            if (!deleteMess.equals("")) {
-                boolean isDeleteSuccess = Boolean.parseBoolean(deleteMess);
-                model.addAttribute("deleteMess", Messages.DELETE("form", isDeleteSuccess));
-                model.addAttribute("deleteStatus", isDeleteSuccess);
-            }
 
             model.addAttribute("currPage", currPage);
             model.addAttribute("totalPages", totalPages);
@@ -120,7 +116,7 @@ public class UserController extends BaseController {
             return roleForbidden(redirect);
         }
 
-        model.addAttribute("link", APIs.modifiedForm(PATH));
+        model.addAttribute("link", APIs.modifiedForm(PATH_USER));
         model.addAttribute("token", user.getToken());
         model.addAttribute("title", "Create new User");
 
@@ -136,11 +132,11 @@ public class UserController extends BaseController {
             return roleForbidden(redirect);
         }
 
-        model.addAttribute("link", APIs.modifiedForm(PATH));
+        model.addAttribute("link", APIs.modifiedForm(PATH_USER));
         model.addAttribute("token", user.getToken());
         model.addAttribute("_id", id);
 
-        ResponseEntity<String> infoRes = userService.findUserDataById(user.getToken(), PATH, id);
+        ResponseEntity<String> infoRes = userService.findUserDataById(user.getToken(), PATH_USER, id);
         model.addAttribute("data", new JSONObject(infoRes.getBody()).getJSONObject("data").toString());
 
         model.addAttribute("title", "Edit User");
@@ -159,8 +155,12 @@ public class UserController extends BaseController {
             return roleForbidden(redirect);
         }
 
-        GroupControl groupControl = groupControlService.findByIdGroup(user.getIdGroup());
-        user.setNameGroup(groupControl.getName());
+        String groupName = "";
+        String idGroup = user.getIdGroup();
+        if (!idGroup.equals(Configs.ROOT_GROUP)) {
+            groupName = groupService.findGroupFiledByIdGroup(user.getToken(), PATH_GROUP, idGroup, "name");
+        }
+        user.setNameGroup(groupName);
 
         int reportsNumber = user.getReportsNumber();
         int submittedNumber = user.getSubmittedNumber();
@@ -194,7 +194,7 @@ public class UserController extends BaseController {
 
         User newUser = new User(email, name, token, idGroup, gender, phoneNumber, address, id);
 
-        ResponseEntity<String> res = userService.updateUserInfo(newUser, PATH);
+        ResponseEntity<String> res = userService.updateUserInfo(newUser, PATH_USER);
 
         session.setAttribute(Keys.USER, newUser);
 

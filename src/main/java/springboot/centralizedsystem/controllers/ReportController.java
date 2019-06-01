@@ -20,7 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import springboot.centralizedsystem.domains.Form;
 import springboot.centralizedsystem.domains.FormControl;
-import springboot.centralizedsystem.domains.GroupControl;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
 import springboot.centralizedsystem.resources.Configs;
@@ -30,13 +29,15 @@ import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.services.FormControlService;
 import springboot.centralizedsystem.services.FormService;
-import springboot.centralizedsystem.services.GroupControlService;
+import springboot.centralizedsystem.services.GroupService;
 import springboot.centralizedsystem.services.SubmissionService;
 import springboot.centralizedsystem.utils.CalculateUtils;
 import springboot.centralizedsystem.utils.SessionUtils;
 
 @Controller
 public class ReportController extends BaseController {
+
+    private static final String PATH_GROUP = "group";
 
     @Autowired
     private FormService formService;
@@ -48,7 +49,7 @@ public class ReportController extends BaseController {
     private FormControlService formControlService;
 
     @Autowired
-    private GroupControlService groupControlService;
+    private GroupService groupService;
 
     private void addFormToList(String token, List<Form> listForm, List<FormControl> listFormControl)
             throws ParseException {
@@ -84,21 +85,21 @@ public class ReportController extends BaseController {
         addFormToList(token, listForm, listFormsGroup);
 
         // Check if idGroup have idParent
-        GroupControl groupControl = groupControlService.findByIdGroup(id);
-        String nextIdParent = groupControl.getIdParent();
-        if (!nextIdParent.equals("")) {
+        String nextIdParent = groupService.findGroupFiledByIdGroup(token, PATH_GROUP, id, "idParent");
+
+        if (!nextIdParent.equals(Configs.ROOT_GROUP)) {
             getListFormByIdGroupRecursive(token, listForm, nextIdParent);
         }
     }
 
-    private boolean isFormAssignToUser(String assignIdGroup, String formIdGroup) {
+    private boolean isFormAssignToUser(String token, String assignIdGroup, String formIdGroup) {
         if (assignIdGroup.equals(formIdGroup)) {
             return true;
         }
-        GroupControl groupControl = groupControlService.findByIdGroup(formIdGroup);
-        String nextIdParent = groupControl.getIdParent();
-        if (!nextIdParent.equals("")) {
-            return isFormAssignToUser(assignIdGroup, nextIdParent);
+
+        String nextIdParent = groupService.findGroupFiledByIdGroup(token, PATH_GROUP, formIdGroup, "idParent");
+        if (!nextIdParent.equals(Configs.ROOT_GROUP)) {
+            return isFormAssignToUser(token, assignIdGroup, nextIdParent);
         } else {
             return false;
         }
@@ -195,7 +196,7 @@ public class ReportController extends BaseController {
                 return Views.ERROR_403;
             }
 
-            if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(assign, user.getIdGroup())) {
+            if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(token, assign, user.getIdGroup())) {
                 ResponseEntity<String> res1 = formService.findOneFormWithToken(token, path);
                 JSONObject resJSON = new JSONObject(res1.getBody());
 
@@ -274,7 +275,7 @@ public class ReportController extends BaseController {
                 return Views.ERROR_403;
             }
 
-            if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(assign, user.getIdGroup())) {
+            if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(token, assign, user.getIdGroup())) {
                 ResponseEntity<String> res1 = formService.findOneFormWithToken(token, path);
                 JSONObject resJSON = new JSONObject(res1.getBody());
 

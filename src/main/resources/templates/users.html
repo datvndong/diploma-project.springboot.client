@@ -20,10 +20,6 @@
             <div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
-                  <th:block th:if="${deleteMess}">
-              		<div th:if="${deleteStatus}" th:text="${deleteMess}" class="alert-success" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
-              		<div th:unless="${deleteStatus}" th:text="${deleteMess}" class="alert-danger" style="padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
-              	  </th:block>
                   <h4 class="card-title">Users Table</h4>   
                   <div class="col-lg-2">
                   	<a class="btn btn-info btn-block" th:href="@{/build/user}">New User
@@ -82,28 +78,6 @@
   	/*<![CDATA[*/
   	const serverURL = 'http://localhost:8080';
   	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/users/`);
-  	  	
-  	$(document).ready(() => {
-		const list = [[${list}]];
-		/*
-		list.forEach((obj, i) => {
-  			$('#bar-' + (i + 1)).css('width', obj.durationPercent + '%');
-  		});
-		
-		$('#forms-table tr').each(function(i,e) {
-			if (i === 0) {
-				// <tr> in <thead>
-				return;
-			}
-			// Prevent send request when click edit or delete button inside last column in row 
-			// (if don't prvent will cause exception 404 after delete form)
-			$(e).children('td:not(:last)').click(function() {
-				const path = list[i - 1].path;
-				window.location.href = `${serverURL}/submissions/${path}/1`;
-			});
-		});
-		*/
-	});
   	/*]]>*/
   </script>
 </body>

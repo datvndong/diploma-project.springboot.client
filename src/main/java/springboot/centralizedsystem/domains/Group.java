@@ -1,27 +1,21 @@
 package springboot.centralizedsystem.domains;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+public class Group {
 
-import springboot.centralizedsystem.resources.Collections;
-
-@Document(collection = Collections.GROUPS)
-public class GroupControl {
-
-    @Id
     private String id;
-
-    @Indexed(unique = true)
-    @Field(value = "idGroup")
     private String idGroup;
-
-    @Field(value = "name")
     private String name;
-
-    @Field(value = "idParent")
     private String idParent;
+    private int status;
+    private String nameParent;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getIdGroup() {
         return idGroup;
@@ -47,14 +41,32 @@ public class GroupControl {
         this.idParent = idParent;
     }
 
-    public GroupControl(String idGroup, String name, String idParent) {
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getNameParent() {
+        return nameParent;
+    }
+
+    public void setNameParent(String nameParent) {
+        this.nameParent = nameParent;
+    }
+
+    public Group(String id, String idGroup, String name, String idParent, String nameParent) {
         super();
+        this.id = id;
         this.idGroup = idGroup;
         this.name = name;
         this.idParent = idParent;
+        this.nameParent = nameParent;
     }
 
-    public GroupControl() {
+    public Group() {
         super();
     }
 }
