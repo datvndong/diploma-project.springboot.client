@@ -8,12 +8,15 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -168,5 +171,33 @@ public class UserController extends BaseController {
         model.addAttribute("user", user);
 
         return Views.PROFILE;
+    }
+
+    @PostMapping(RequestsPath.EDIT_PROFILE)
+    public ResponseEntity<String> profilePOST(ModelMap model, HttpSession session, RedirectAttributes redirect,
+            @RequestParam("name") String name, @RequestParam("email") String email,
+            @RequestParam("gender") String gender, @RequestParam("address") String address,
+            @RequestParam("phone") String phoneNumber, @RequestParam("token") String token,
+            @RequestParam("id") String id, @RequestParam("idGroup") String idGroup) {
+        User user = SessionUtils.getUser(session);
+
+        if (!id.equals(user.getId()) || !idGroup.equals(user.getIdGroup()) || !token.equals(user.getToken())) {
+            return new ResponseEntity<>(Messages.UNAUTHORIZED_MESSAGE, HttpStatus.BAD_REQUEST);
+        }
+
+        if (name.isEmpty() || name.equals("")) {
+            return new ResponseEntity<>("Please fill out `name` field", HttpStatus.BAD_REQUEST);
+        }
+        if (email.isEmpty() || email.equals("")) {
+            return new ResponseEntity<>("Please fill out `email` field", HttpStatus.BAD_REQUEST);
+        }
+
+        User newUser = new User(email, name, token, idGroup, gender, phoneNumber, address, id);
+
+        ResponseEntity<String> res = userService.updateUserInfo(newUser, PATH);
+
+        session.setAttribute(Keys.USER, newUser);
+
+        return res;
     }
 }

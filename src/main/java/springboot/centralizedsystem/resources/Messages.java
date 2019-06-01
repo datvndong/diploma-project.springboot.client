@@ -14,11 +14,13 @@ public class Messages {
     public static final String FORMAT_DATE_ERROR = "Format date error.";
     public static final String DATE_PICK_ERROR = "Start date must be before expired date.";
 
-    public static final String HAS_SUBMITTED_MESSAGE = "Thank you, your submission has been received";
-    public static final String HAS_NOT_SUBMITTED_MESSAGE = "Sorry, you have not submitted to this report";
+    public static final String HAS_SUBMITTED_MESSAGE = "Thank you, your submission has been received!";
+    public static final String HAS_NOT_SUBMITTED_MESSAGE = "Sorry, you have not submitted to this report.";
 
     public static String IMPORT(boolean isImportSuccess) {
         return isImportSuccess ? "Successfully imported datas to Database!"
                 : "Error, failed to delete imported datas to Database.";
     }
+
+    public static final String UNAUTHORIZED_MESSAGE = "Sorry, we couldn't confirm it's you.";
 }
