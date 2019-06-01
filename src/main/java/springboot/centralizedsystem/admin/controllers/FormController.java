@@ -233,7 +233,9 @@ public class FormController extends BaseController {
             }
 
             // Handle this - send email - took a long time
-            sendEmailService.sendEmail("vandatnguyen1896@gmail.com", jsonObject.getString("title"));
+            if (isCreate) {
+                sendEmailService.sendEmail("vandatnguyen1896@gmail.com", jsonObject.getString("title"));
+            }
 
             return res;
         } catch (ParseException e) {
