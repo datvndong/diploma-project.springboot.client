@@ -30,9 +30,6 @@ public class SubmissionController extends BaseController {
     @GetMapping(RequestsPath.SUBMISSIONS)
     public String submissionsGET(Model model, HttpSession session, @PathVariable String path,
             RedirectAttributes redirect, @PathVariable String page) {
-        if (!SessionUtils.isAdmin(session)) {
-            return roleForbidden(redirect);
-        }
         User user = SessionUtils.getUser(session);
         String token = user.getToken();
 
