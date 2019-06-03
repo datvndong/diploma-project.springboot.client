@@ -24,8 +24,8 @@
 	
     <script th:inline="javascript">
     	window.onload = function() {
-        	Formio.setToken([[${token}]]);
         	Formio.createForm(document.getElementById('formio'), [[${link}]]);
+        	Formio.setToken([[${token}]]);
       	};
     </script>
 </head>
