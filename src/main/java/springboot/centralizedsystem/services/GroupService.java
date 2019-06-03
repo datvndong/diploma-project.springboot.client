@@ -8,11 +8,11 @@ import springboot.centralizedsystem.domains.Group;
 
 public interface GroupService {
 
-    Group findRootGroup(String token);
+    Group findGroupParent(String token, String condition);
 
-    List<Group> findListChildGroupByIdParent(String token, String idParent, String nameParent);
+    List<Group> findListChildGroupByIdParentWithPage(String token, String idParent, String nameParent, int page);
 
-    int findNumberOfChildGroupByIdParent(String token, String idParent, String nameParent);
+    int findNumberOfChildGroupByIdParent(String token, String idParent);
 
     String findGroupFiledByIdGroup(String token, String idGroup, String field);
 

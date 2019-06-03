@@ -71,11 +71,15 @@
 								<a th:id="'edit-' + ${objStat.count}" th:href="@{/build/group/{id}(id=${obj.id})}" class="btn btn-primary" title="Edit">
 									<span class="mdi mdi-tooltip-edit"></span>
 								</a>
+								<a th:unless="${obj.numberOfChildrenGroup == 0}" th:href="@{/groups/{idParent}/1(idParent=${obj.idGroup})}" class="btn btn-warning" title="Details">
+									<span class="mdi mdi-details"></span>
+								</a>
 							</td>
                       	</tr>
                       </tbody>
                     </table>
-                  </div>                      
+                  </div> 
+                  <div class="pagination" id="pagination"></div>                     
                 </div>
               </div>
             </div>
@@ -90,9 +94,12 @@
     <!-- page-body-wrapper ends -->
   </div>
   <div th:include="fragments/plugins :: plugins"></div>
+  <script src="/js/pagination.js"></script>
   <script th:inline="javascript">
   	/*<![CDATA[*/
-  		
+  	const serverURL = 'http://localhost:8080';
+  	const idParent = [[${root.idGroup}]];
+  	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/groups/${idParent}/`);
   	/*]]>*/
   </script>
 </body>

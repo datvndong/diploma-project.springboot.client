@@ -60,13 +60,13 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group findRootGroup(String token) {
+    public Group findGroupParent(String token, String condition) {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(PATH) + "?select=data&data.idParent=root";
+        String url = APIs.getListSubmissionsURL(PATH) + "?select=data&" + condition;
 
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
@@ -84,14 +84,16 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> findListChildGroupByIdParent(String token, String idParent, String nameParent) {
+    public List<Group> findListChildGroupByIdParentWithPage(String token, String idParent, String nameParent,
+            int page) {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
         String url = APIs.getListSubmissionsURL(PATH)
-                + "?limit=" + Configs.LIMIT_QUERY + "&sort=-create&select=data&data.status=" + Configs.ACTIVE_STATUS
+                + "?limit=" + Configs.NUMBER_ROWS_PER_PAGE + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE
+                + "&sort=-create&select=data&data.status=" + Configs.ACTIVE_STATUS
                 + "&data.idParent=" + idParent;
 
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
@@ -109,14 +111,14 @@ public class GroupServiceImpl implements GroupService {
             String id = jsonObject.getString("_id");
             String idGroup = dataObject.getString("idGroup");
             String name = dataObject.getString("name");
-            int childSize = findNumberOfChildGroupByIdParent(token, idGroup, name);
+            int childSize = findNumberOfChildGroupByIdParent(token, idGroup);
             listGroups.add(new Group(id, idGroup, name, idParent, nameParent, childSize));
         }
         return listGroups;
     }
 
     @Override
-    public int findNumberOfChildGroupByIdParent(String token, String idParent, String nameParent) {
+    public int findNumberOfChildGroupByIdParent(String token, String idParent) {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 

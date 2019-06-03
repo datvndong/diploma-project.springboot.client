@@ -28,7 +28,7 @@ public class RequestsPath {
     public static final String EDIT_USER = "/build/user/{id}";
     public static final String PROFILE = "/profile";
     public static final String EDIT_PROFILE = "/edit/profile";
-    public static final String GROUPS = "/groups/{page}";
+    public static final String GROUPS = "/groups/{idParent}/{page}";
     public static final String CREATE_GROUP = "/build/group";
     public static final String EDIT_GROUP = "/build/group/{id}";
 }

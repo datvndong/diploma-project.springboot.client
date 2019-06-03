@@ -38,21 +38,28 @@ public class GroupController extends BaseController {
 
     @GetMapping(RequestsPath.GROUPS)
     public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
-            @PathVariable String page) {
+            @PathVariable String idParent, @PathVariable String page) {
         try {
             if (!SessionUtils.isAdmin(session)) {
                 return roleForbidden(redirect);
             }
             User user = SessionUtils.getUser(session);
-
             String token = user.getToken();
 
-            Group rootGroup = groupService.findRootGroup(token);
-            List<Group> list = groupService.findListChildGroupByIdParent(token, rootGroup.getIdGroup(),
-                    rootGroup.getName());
-            rootGroup.setNumberOfChildrenGroup(list.size());
+            Group parentGroup = groupService.findGroupParent(token,
+                    idParent.equals(Configs.ROOT_GROUP) ? "data.idParent=root" : "data.idGroup=" + idParent);
 
-            model.addAttribute("root", rootGroup);
+            int currPage = Integer.parseInt(page);
+            int sizeListForms = groupService.findNumberOfChildGroupByIdParent(token, parentGroup.getIdGroup());
+            int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
+
+            List<Group> list = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
+                    parentGroup.getName(), currPage);
+            parentGroup.setNumberOfChildrenGroup(sizeListForms);
+
+            model.addAttribute("currPage", currPage);
+            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("root", parentGroup);
             model.addAttribute("list", list);
 
             model.addAttribute("title", "Groups management");
