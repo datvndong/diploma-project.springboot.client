@@ -17,10 +17,10 @@ public class DashboardController extends BaseController {
 
     @GetMapping(RequestsPath.DASHBOARD)
     public String dashboardGET(Model model, HttpSession session, RedirectAttributes redirect) {
-        User user = SessionUtils.getUser(session);
         if (!SessionUtils.isAdmin(session)) {
             return roleForbidden(redirect);
         }
+        User user = SessionUtils.getUser(session);
         if (user == null) {
             return unauthorized(redirect);
         }

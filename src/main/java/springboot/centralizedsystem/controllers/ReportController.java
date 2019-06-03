@@ -107,10 +107,10 @@ public class ReportController extends BaseController {
     public String reportsGET(Model model, HttpSession session, RedirectAttributes redirect, @PathVariable String page)
             throws ParseException {
         try {
-            User user = SessionUtils.getUser(session);
             if (SessionUtils.isAdmin(session)) {
                 return roleForbidden(redirect);
             }
+            User user = SessionUtils.getUser(session);
             if (user == null) {
                 return unauthorized(redirect);
             }
@@ -176,6 +176,9 @@ public class ReportController extends BaseController {
     public String sendReportAuthGET(Model model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
         try {
+            if (SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
             User user = SessionUtils.getUser(session);
             if (user == null) {
                 return unauthorized(redirect);
@@ -255,6 +258,9 @@ public class ReportController extends BaseController {
     public String editReportGET(Model model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
         try {
+            if (SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
             User user = SessionUtils.getUser(session);
             if (user == null) {
                 return unauthorized(redirect);

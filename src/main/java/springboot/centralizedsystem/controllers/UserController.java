@@ -51,6 +51,9 @@ public class UserController extends BaseController {
     public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String page) {
         try {
+            if (!SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
             User user = SessionUtils.getUser(session);
             String token = user.getToken();
 
@@ -109,11 +112,10 @@ public class UserController extends BaseController {
 
     @GetMapping(RequestsPath.CREATE_USER)
     public String createUserGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        User user = SessionUtils.getUser(session);
-
         if (!SessionUtils.isAdmin(session)) {
             return roleForbidden(redirect);
         }
+        User user = SessionUtils.getUser(session);
 
         model.addAttribute("link", APIs.modifiedForm(PATH_USER));
         model.addAttribute("token", user.getToken());
@@ -125,11 +127,10 @@ public class UserController extends BaseController {
     @GetMapping(RequestsPath.EDIT_USER)
     public String editUserGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String id) {
-        User user = SessionUtils.getUser(session);
-
         if (!SessionUtils.isAdmin(session)) {
             return roleForbidden(redirect);
         }
+        User user = SessionUtils.getUser(session);
 
         model.addAttribute("link", APIs.modifiedForm(PATH_USER));
         model.addAttribute("token", user.getToken());
@@ -145,14 +146,10 @@ public class UserController extends BaseController {
 
     @GetMapping(RequestsPath.PROFILE)
     public String profileGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        User user = SessionUtils.getUser(session);
-        if (user == null) {
-            return unauthorized(redirect);
-        }
-
         if (SessionUtils.isAdmin(session)) {
             return roleForbidden(redirect);
         }
+        User user = SessionUtils.getUser(session);
 
         String groupName = "";
         String idGroup = user.getIdGroup();
@@ -178,6 +175,9 @@ public class UserController extends BaseController {
             @RequestParam("gender") String gender, @RequestParam("address") String address,
             @RequestParam("phone") String phoneNumber, @RequestParam("token") String token,
             @RequestParam("id") String id, @RequestParam("idGroup") String idGroup) {
+        if (SessionUtils.isAdmin(session)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         User user = SessionUtils.getUser(session);
 
         if (!id.equals(user.getId()) || !idGroup.equals(user.getIdGroup()) || !token.equals(user.getToken())) {

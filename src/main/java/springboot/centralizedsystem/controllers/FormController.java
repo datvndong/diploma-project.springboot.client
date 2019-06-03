@@ -56,9 +56,12 @@ public class FormController extends BaseController {
     private SendEmailService sendEmailService;
 
     @GetMapping(RequestsPath.FORMS)
-    public String formsGET(ModelMap model, HttpSession session, @PathVariable String page,
+    public String formsGET(ModelMap model, HttpSession session, @PathVariable String page, RedirectAttributes redirect,
             @ModelAttribute(Keys.DELETE) String deleteMess, @ModelAttribute(Keys.IMPORT) String importMess) {
         try {
+            if (!SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
             User user = SessionUtils.getUser(session);
 
             int sizeListForms = formControlService.findByOwner(user.getEmail()).size();
@@ -96,6 +99,9 @@ public class FormController extends BaseController {
 
     @GetMapping(RequestsPath.FORM)
     public ResponseEntity<String> formGET(@RequestParam("path") String path, HttpSession session) {
+        if (!SessionUtils.isAdmin(session)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         User user = SessionUtils.getUser(session);
 
         return formService.findOneFormWithToken(user.getToken(), path);
@@ -103,6 +109,9 @@ public class FormController extends BaseController {
 
     @GetMapping(RequestsPath.CREATE_FORM)
     public String createFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
+        if (!SessionUtils.isAdmin(session)) {
+            return roleForbidden(redirect);
+        }
         User user = SessionUtils.getUser(session);
         if (user == null) {
             return unauthorized(redirect);
@@ -115,6 +124,9 @@ public class FormController extends BaseController {
     @GetMapping(RequestsPath.EDIT_FORM)
     public String editFormGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
+        if (!SessionUtils.isAdmin(session)) {
+            return roleForbidden(redirect);
+        }
         User user = SessionUtils.getUser(session);
         if (user == null) {
             return unauthorized(redirect);
@@ -130,6 +142,9 @@ public class FormController extends BaseController {
     public String builderGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @RequestParam("path") String path) {
         try {
+            if (!SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
             User user = SessionUtils.getUser(session);
             String token = user.getToken();
 
@@ -187,6 +202,9 @@ public class FormController extends BaseController {
     public ResponseEntity<String> createFormPOST(@RequestParam("formJSON") String formJSON,
             @RequestParam("oldPath") String oldPath, HttpSession session) throws MessagingException {
         try {
+            if (!SessionUtils.isAdmin(session)) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             User user = SessionUtils.getUser(session);
 
             Boolean isCreate = oldPath.equals("");
@@ -243,6 +261,9 @@ public class FormController extends BaseController {
 
     @GetMapping(RequestsPath.DELETE_FORM)
     public String deleteFormDELETE(HttpSession session, RedirectAttributes redirect, @PathVariable String path) {
+        if (!SessionUtils.isAdmin(session)) {
+            return roleForbidden(redirect);
+        }
         User user = SessionUtils.getUser(session);
 
         boolean isDeleteFormControlSuccess = formControlService.deleteByPathForm(path);

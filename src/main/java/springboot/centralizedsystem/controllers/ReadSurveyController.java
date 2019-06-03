@@ -45,6 +45,9 @@ public class ReadSurveyController extends BaseController {
             if (user == null) {
                 return unauthorized(redirect);
             }
+            if (!SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
 
             String uploadRootPath = request.getServletContext().getRealPath("upload");
 

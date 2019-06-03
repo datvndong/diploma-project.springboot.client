@@ -40,11 +40,10 @@ public class GroupController extends BaseController {
     public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String page) {
         try {
-            User user = SessionUtils.getUser(session);
-
             if (!SessionUtils.isAdmin(session)) {
                 return roleForbidden(redirect);
             }
+            User user = SessionUtils.getUser(session);
 
             String token = user.getToken();
 
@@ -68,11 +67,10 @@ public class GroupController extends BaseController {
 
     @GetMapping(RequestsPath.CREATE_GROUP)
     public String createGroupGET(ModelMap model, HttpSession session, RedirectAttributes redirect) {
-        User user = SessionUtils.getUser(session);
-
         if (!SessionUtils.isAdmin(session)) {
             return roleForbidden(redirect);
         }
+        User user = SessionUtils.getUser(session);
 
         model.addAttribute("link", APIs.modifiedForm(PATH));
         model.addAttribute("token", user.getToken());
@@ -84,11 +82,10 @@ public class GroupController extends BaseController {
     @GetMapping(RequestsPath.EDIT_GROUP)
     public String editGroupGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String id) {
-        User user = SessionUtils.getUser(session);
-
         if (!SessionUtils.isAdmin(session)) {
             return roleForbidden(redirect);
         }
+        User user = SessionUtils.getUser(session);
 
         model.addAttribute("link", APIs.modifiedForm(PATH));
         model.addAttribute("token", user.getToken());

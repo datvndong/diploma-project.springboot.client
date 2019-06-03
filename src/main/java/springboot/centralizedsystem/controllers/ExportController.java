@@ -42,6 +42,9 @@ public class ExportController extends BaseController {
             @PathVariable String path, @RequestParam(defaultValue = Configs.DEFAULT_FILE_NAME) String fileName)
             throws IOException {
         User user = SessionUtils.getUser(session);
+        if (!SessionUtils.isAdmin(session)) {
+            return ResponseEntity.badRequest().body(null);
+        }
         String token = user.getToken();
 
         MediaType mediaType = MediaTypeUtils.getMediaTypeForFileName(this.servletContext, fileName);
