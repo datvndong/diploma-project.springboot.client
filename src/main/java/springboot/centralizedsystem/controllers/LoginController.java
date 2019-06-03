@@ -32,7 +32,7 @@ public class LoginController {
     @GetMapping(value = { RequestsPath.NONE, RequestsPath.SLASH, RequestsPath.LOGIN })
     public String loginGET(Model model, @ModelAttribute(Keys.LOGIN) String error) {
         model.addAttribute("title", "Login");
-        model.addAttribute(Keys.UNKNOWN_TYPE_USER, new User("vandatnguyen1896@gmail.com"));
+        model.addAttribute(Keys.UNKNOWN_TYPE_USER, new User("xtreme@admin.io"));
         if (!error.equals("")) {
             model.addAttribute("error", error);
         }

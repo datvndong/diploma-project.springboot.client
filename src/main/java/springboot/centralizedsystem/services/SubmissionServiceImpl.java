@@ -42,7 +42,7 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(path) + "?limit=1000000000&select=_id";
+        String url = APIs.getListSubmissionsURL(path) + "?limit=" + Configs.LIMIT_QUERY + "&select=_id";
 
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
@@ -57,7 +57,7 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(path) + "?limit=1000000000";
+        String url = APIs.getListSubmissionsURL(path) + "?limit=" + Configs.LIMIT_QUERY;
 
         return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
     }

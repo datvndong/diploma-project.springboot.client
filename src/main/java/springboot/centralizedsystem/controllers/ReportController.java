@@ -37,8 +37,6 @@ import springboot.centralizedsystem.utils.SessionUtils;
 @Controller
 public class ReportController extends BaseController {
 
-    private static final String PATH_GROUP = "group";
-
     @Autowired
     private FormService formService;
 
@@ -85,7 +83,7 @@ public class ReportController extends BaseController {
         addFormToList(token, listForm, listFormsGroup);
 
         // Check if idGroup have idParent
-        String nextIdParent = groupService.findGroupFiledByIdGroup(token, PATH_GROUP, id, "idParent");
+        String nextIdParent = groupService.findGroupFiledByIdGroup(token, id, "idParent");
 
         if (!nextIdParent.equals(Configs.ROOT_GROUP)) {
             getListFormByIdGroupRecursive(token, listForm, nextIdParent);
@@ -97,7 +95,7 @@ public class ReportController extends BaseController {
             return true;
         }
 
-        String nextIdParent = groupService.findGroupFiledByIdGroup(token, PATH_GROUP, formIdGroup, "idParent");
+        String nextIdParent = groupService.findGroupFiledByIdGroup(token, formIdGroup, "idParent");
         if (!nextIdParent.equals(Configs.ROOT_GROUP)) {
             return isFormAssignToUser(token, assignIdGroup, nextIdParent);
         } else {

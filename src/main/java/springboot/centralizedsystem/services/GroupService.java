@@ -1,10 +1,20 @@
 package springboot.centralizedsystem.services;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+
+import springboot.centralizedsystem.domains.Group;
 
 public interface GroupService {
 
-    String findGroupFiledByIdGroup(String token, String path, String idGroup, String field);
+    Group findRootGroup(String token);
 
-    ResponseEntity<String> findGroupDataById(String token, String path, String id);
+    List<Group> findListChildGroupByIdParent(String token, String idParent, String nameParent);
+
+    int findNumberOfChildGroupByIdParent(String token, String idParent, String nameParent);
+
+    String findGroupFiledByIdGroup(String token, String idGroup, String field);
+
+    ResponseEntity<String> findGroupDataById(String token, String id);
 }

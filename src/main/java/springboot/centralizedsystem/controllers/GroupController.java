@@ -1,11 +1,9 @@
 package springboot.centralizedsystem.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,43 +41,21 @@ public class GroupController extends BaseController {
             @PathVariable String page) {
         try {
             User user = SessionUtils.getUser(session);
-            String token = user.getToken();
 
-            List<Group> list = new ArrayList<>();
-
-            int sizeListForms = submissionService.countSubmissions(token, PATH);
-            int currPage = Integer.parseInt(page);
-            int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
-
-            ResponseEntity<String> userResByPage = submissionService.findSubmissionsByPage(token, PATH, currPage);
-            JSONArray jsonArray = new JSONArray(userResByPage.getBody());
-            JSONObject jsonObject = null;
-            JSONObject dataObject = null;
-            int size = jsonArray.length();
-            for (int i = 0; i < size; i++) {
-                jsonObject = jsonArray.getJSONObject(i);
-                dataObject = jsonObject.getJSONObject("data");
-
-                if (dataObject.getInt("status") == Configs.DEACTIVE_STATUS) {
-                    continue;
-                }
-
-                String id = jsonObject.getString("_id");
-                String idGroup = dataObject.getString("idGroup");
-                String name = dataObject.getString("name");
-                String idParent = dataObject.getString("idParent");
-                String nameParent = "";
-                if (!idParent.equals(Configs.ROOT_GROUP)) {
-                    nameParent = groupService.findGroupFiledByIdGroup(token, PATH, idParent, "name");
-                }
-
-                list.add(new Group(id, idGroup, name, idParent, nameParent));
+            if (!SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
             }
 
+            String token = user.getToken();
+
+            Group rootGroup = groupService.findRootGroup(token);
+            List<Group> list = groupService.findListChildGroupByIdParent(token, rootGroup.getIdGroup(),
+                    rootGroup.getName());
+            rootGroup.setNumberOfChildrenGroup(list.size());
+
+            model.addAttribute("root", rootGroup);
             model.addAttribute("list", list);
 
-            model.addAttribute("currPage", currPage);
-            model.addAttribute("totalPages", totalPages);
             model.addAttribute("title", "Groups management");
 
             return Views.GROUPS;
@@ -118,9 +94,14 @@ public class GroupController extends BaseController {
         model.addAttribute("token", user.getToken());
         model.addAttribute("_id", id);
 
-        ResponseEntity<String> infoRes = groupService.findGroupDataById(user.getToken(), PATH, id);
-        model.addAttribute("data", new JSONObject(infoRes.getBody()).getJSONObject("data").toString());
+        ResponseEntity<String> infoRes = groupService.findGroupDataById(user.getToken(), id);
 
+        JSONObject jsonObject = new JSONObject(infoRes.getBody()).getJSONObject("data");
+        if (jsonObject.getString("idParent").equals(Configs.ROOT_GROUP)) {
+            return roleForbidden(redirect);
+        }
+
+        model.addAttribute("data", jsonObject.toString());
         model.addAttribute("title", "Edit Group");
 
         return Views.EDIT_REPORT;

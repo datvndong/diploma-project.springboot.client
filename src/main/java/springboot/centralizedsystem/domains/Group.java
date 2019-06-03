@@ -8,6 +8,7 @@ public class Group {
     private String idParent;
     private int status;
     private String nameParent;
+    private int numberOfChildrenGroup;
 
     public String getId() {
         return id;
@@ -57,6 +58,25 @@ public class Group {
         this.nameParent = nameParent;
     }
 
+    public int getNumberOfChildrenGroup() {
+        return numberOfChildrenGroup;
+    }
+
+    public void setNumberOfChildrenGroup(int numberOfChildrenGroup) {
+        this.numberOfChildrenGroup = numberOfChildrenGroup;
+    }
+
+    public Group(String id, String idGroup, String name, String idParent, String nameParent,
+            int numberOfChildrenGroup) {
+        super();
+        this.id = id;
+        this.idGroup = idGroup;
+        this.name = name;
+        this.idParent = idParent;
+        this.nameParent = nameParent;
+        this.numberOfChildrenGroup = numberOfChildrenGroup;
+    }
+    
     public Group(String id, String idGroup, String name, String idParent, String nameParent) {
         super();
         this.id = id;

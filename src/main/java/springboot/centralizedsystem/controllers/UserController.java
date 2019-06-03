@@ -37,7 +37,6 @@ import springboot.centralizedsystem.utils.ValidateUtils;
 public class UserController extends BaseController {
 
     private static final String PATH_USER = "user"; // Default resource create by form.io
-    private static final String PATH_GROUP = "group";
 
     @Autowired
     private UserService userService;
@@ -87,7 +86,7 @@ public class UserController extends BaseController {
                 String groupName = "";
                 String idGroup = dataObject.getString("idGroup");
                 if (!idGroup.equals(Configs.ROOT_GROUP)) {
-                    groupName = groupService.findGroupFiledByIdGroup(token, PATH_GROUP, idGroup, "name");
+                    groupName = groupService.findGroupFiledByIdGroup(token, idGroup, "name");
                 }
 
                 list.add(new User(id, dataObject.getString("email"), dataObject.getString("name"), groupName,
@@ -158,7 +157,7 @@ public class UserController extends BaseController {
         String groupName = "";
         String idGroup = user.getIdGroup();
         if (!idGroup.equals(Configs.ROOT_GROUP)) {
-            groupName = groupService.findGroupFiledByIdGroup(user.getToken(), PATH_GROUP, idGroup, "name");
+            groupName = groupService.findGroupFiledByIdGroup(user.getToken(), idGroup, "name");
         }
         user.setNameGroup(groupName);
 

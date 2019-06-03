@@ -7,5 +7,7 @@ public class Configs {
     public static final int NUMBER_ROWS_PER_PAGE = 2;
     public static final String DEFAULT_FILE_NAME = "export.json";
     public static final int DEACTIVE_STATUS = 0;
+    public static final int ACTIVE_STATUS = 1;
     public static final String ROOT_GROUP = "root";
+    public static final String LIMIT_QUERY = "1000000000";
 }
