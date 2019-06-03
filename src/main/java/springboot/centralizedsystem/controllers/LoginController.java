@@ -5,6 +5,7 @@ import javax.validation.Valid;
 
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -91,8 +92,14 @@ public class LoginController {
             String name = dataJSON.getString("name");
             String idGroup = dataJSON.getString("idGroup");
             String gender = dataJSON.getString("gender");
-            String phoneNumber = dataJSON.getString("phoneNumber");
-            String address = dataJSON.getString("address");
+            String phoneNumber = "";
+            if (!ValidateUtils.isEmptyString(dataJSON, "phoneNumber")) {
+                phoneNumber = dataJSON.getString("phoneNumber");
+            }
+            String address = "";
+            if (!ValidateUtils.isEmptyString(dataJSON, "address")) {
+                address = dataJSON.getString("address");
+            }
             session.setAttribute(Keys.USER,
                     new User(email, name, token, idGroup, gender, phoneNumber, address, id));
 
@@ -112,6 +119,9 @@ public class LoginController {
 
     @GetMapping(RequestsPath.LOGOUT)
     public String logoutGET(HttpSession session) {
+        HttpEntity<String> entity = new HttpEntity<>(HttpUtils.getHeader());
+        new RestTemplate().exchange(APIs.LOGOUT_URL, HttpMethod.GET, entity, String.class);
+
         session.invalidate();
 
         return "redirect:" + RequestsPath.LOGIN;
