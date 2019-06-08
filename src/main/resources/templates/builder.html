@@ -101,9 +101,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				<label class="col-sm-1 col-form-label">Details</label>
 				<div class="col-sm-11">
 					<select class="form-control" id="details">
-						<option value="D2505000">Trường Đại học Ngoại ngữ</option>
-						<option value="D2505010">Ban Giám hiệu Trường ĐHNN</option>
-						<option value="D2505020">Phòng Tổ chức - Hành chính Trường ĐHNN</option>
+						<option th:each="group : ${listGroups}" th:value="${group.idGroup}" th:text="${group.name}"></option>
 					</select>
 				</div>
 			</div>

@@ -91,10 +91,14 @@ public class GroupServiceImpl implements GroupService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(PATH)
-                + "?limit=" + Configs.NUMBER_ROWS_PER_PAGE + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE
-                + "&sort=-create&select=data&data.status=" + Configs.ACTIVE_STATUS
-                + "&data.idParent=" + idParent;
+        String url = APIs.getListSubmissionsURL(PATH);
+        if (page > 0) {
+            url += "?limit=" + Configs.NUMBER_ROWS_PER_PAGE + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE;
+        } else {
+            // If page = 0 => get full data
+            url += "?limit=" + Configs.LIMIT_QUERY;
+        }
+        url += "&sort=-create&select=data&data.status=" + Configs.ACTIVE_STATUS + "&data.idParent=" + idParent;
 
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 

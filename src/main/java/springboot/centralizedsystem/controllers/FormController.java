@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpSession;
@@ -26,6 +27,7 @@ import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import springboot.centralizedsystem.domains.FormControl;
+import springboot.centralizedsystem.domains.Group;
 import springboot.centralizedsystem.domains.ImportFile;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.Configs;
@@ -35,6 +37,7 @@ import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.services.FormControlService;
 import springboot.centralizedsystem.services.FormService;
+import springboot.centralizedsystem.services.GroupService;
 import springboot.centralizedsystem.services.RoleService;
 import springboot.centralizedsystem.services.SendEmailService;
 import springboot.centralizedsystem.utils.SessionUtils;
@@ -54,6 +57,9 @@ public class FormController extends BaseController {
 
     @Autowired
     private SendEmailService sendEmailService;
+
+    @Autowired
+    private GroupService groupService;
 
     @GetMapping(RequestsPath.FORMS)
     public String formsGET(ModelMap model, HttpSession session, @PathVariable String page, RedirectAttributes redirect,
@@ -185,8 +191,15 @@ public class FormController extends BaseController {
                 formJSON.put("expiredDate", expired[0]);
                 formJSON.put("expiredTime", expired[1]);
             }
+
+            Group parentGroup = groupService.findGroupParent(token, "data.idParent=root");
+            List<Group> listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
+                    parentGroup.getName(), 0);
+            listGroups.add(0, parentGroup);
+
             model.addAttribute("isCreate", isCreate);
             model.addAttribute("obj", formJSON.toString());
+            model.addAttribute("listGroups", listGroups);
 
             return Views.BUILDER;
         } catch (HttpClientErrorException e) {
