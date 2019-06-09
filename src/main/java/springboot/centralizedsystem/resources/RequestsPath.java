@@ -31,4 +31,5 @@ public class RequestsPath {
     public static final String GROUPS = "/groups/{idParent}/{page}";
     public static final String CREATE_GROUP = "/build/group";
     public static final String EDIT_GROUP = "/build/group/{id}";
+    public static final String AJAX_GROUPS = "/ajax/groups";
 }

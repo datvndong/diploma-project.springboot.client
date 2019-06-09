@@ -6,11 +6,13 @@ import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -22,7 +24,6 @@ import springboot.centralizedsystem.resources.Configs;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.services.GroupService;
-import springboot.centralizedsystem.services.SubmissionService;
 import springboot.centralizedsystem.utils.SessionUtils;
 
 @Controller
@@ -33,11 +34,8 @@ public class GroupController extends BaseController {
     @Autowired
     private GroupService groupService;
 
-    @Autowired
-    private SubmissionService submissionService;
-
     @GetMapping(RequestsPath.GROUPS)
-    public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
+    public String groupsGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String idParent, @PathVariable String page) {
         try {
             if (!SessionUtils.isAdmin(session)) {
@@ -109,5 +107,28 @@ public class GroupController extends BaseController {
         model.addAttribute("title", "Edit Group");
 
         return Views.EDIT_REPORT;
+    }
+
+    @GetMapping(RequestsPath.AJAX_GROUPS)
+    public ResponseEntity<String> ajaxGroupsGET(HttpSession session, RedirectAttributes redirect,
+            @RequestParam String idGroup, @RequestParam("isNext") String isNextStr) {
+        if (!SessionUtils.isAdmin(session)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        User user = SessionUtils.getUser(session);
+        String token = user.getToken();
+
+        boolean isNext = Boolean.parseBoolean(isNextStr);
+
+        if (isNext) {
+            return groupService.findGroupsByIdParentWhenCallAjax(token, idGroup);
+        } else {
+            Group currentGroup = groupService.findGroupParent(token, "data.idGroup=" + idGroup);
+            Group parentGroup = groupService.findGroupParent(token, "data.idGroup=" + currentGroup.getIdParent());
+            if (parentGroup == null) {
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            return groupService.findGroupsByIdParentWhenCallAjax(token, parentGroup.getIdParent());
+        }
     }
 }

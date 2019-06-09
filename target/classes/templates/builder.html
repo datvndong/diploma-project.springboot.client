@@ -99,11 +99,13 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		<div class="col-md-10">
 			<div class="form-group row">
 				<label class="col-sm-1 col-form-label">Details</label>
-				<div class="col-sm-11">
+				<div class="col-sm-10">
 					<select class="form-control" id="details">
 						<option th:each="group : ${listGroups}" th:value="${group.idGroup}" th:text="${group.name}"></option>
 					</select>
 				</div>
+				<button class="btn btn-dark" id="previousBtn" type="button"><span class="fa fa-caret-square-o-left"></span></button>
+				<button class="btn btn-dark" id="nextBtn" type="button"><span class="fa fa-caret-square-o-right"></span></button>
 			</div>
 		</div>
 	</div>
@@ -115,6 +117,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     
 	<script th:inline="javascript">
 		/*<![CDATA[*/
+		const serverURL = 'http://localhost:8080';
 		const obj = JSON.parse([[${obj}]]);
 		const isCreate = [[${isCreate}]] === true;
 			
@@ -131,6 +134,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		const saveBtn = $('#save');
 		const cancelBtn = $('#cancel');
 		const resultMess = $('#result-message');
+		const nextBtn = $('#nextBtn');
+		const previousBtn = $('#previousBtn');
 		
 		const defaultAssignValue = '5ce8b61ea347f14bc809c814'; // Authenticated
 		
@@ -196,9 +201,9 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			saveBtn.removeAttr('disabled');
 		}
 		
-		const setDisplay = function(display) {
-			builder.setDisplay(display).then(function(instance) {     
-				instance.on('change', function(form) {
+		const setDisplay = function (display) {
+			builder.setDisplay(display).then(function (instance) {     
+				instance.on('change', function (form) {
 					if (form.components) {
 						form.components.length !== 0 ? saveBtn.removeAttr('disabled') : saveBtn.attr('disabled', 'disabled');		
 					}
@@ -221,6 +226,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		if (typeof obj.assign !== "undefined") {
 			if (obj.isAssignToGroup === false) {
 				details.attr('disabled', 'disabled');
+				nextBtn.attr('disabled', 'disabled');
+				previousBtn.attr('disabled', 'disabled');
 				assign.val(obj.assign);
 			} else {
 				details.val(obj.assign);
@@ -267,12 +274,16 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 			const value = assign.val();
 			if (value == 'Group') {
 				details.removeAttr('disabled');
+				nextBtn.removeAttr('disabled');
+				previousBtn.removeAttr('disabled');
 				for (i = 4; i < 8; i++) {
 					builder.form.submissionAccess[i].roles[0] = defaultAssignValue;
 				}
 				builder.form.assign = details.val();
 			} else {
 				details.attr('disabled', 'disabled');
+				nextBtn.attr('disabled', 'disabled');
+				previousBtn.attr('disabled', 'disabled');
 				builder.form.assign = value;			
 				for (i = 4; i < 8; i++) {
 					builder.form.submissionAccess[i].roles[0] = value;
@@ -291,7 +302,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				resultMess.removeClass();
 				
 				$.ajax({
-					url: 'http://localhost:8080/build/form',
+					url: `${serverURL}/build/form`,
 					method: 'POST',
 	  				dataType: 'json',
 	  				data: {
@@ -312,6 +323,40 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 				form.reportValidity();
 			}
 		});
+		
+		nextBtn.click(function () {
+			callAjaxGroups(true);
+		});
+		
+		previousBtn.click(function () {
+			callAjaxGroups(false);
+		});
+		
+		function callAjaxGroups(isNext) {
+			$.ajax({
+				url: `${serverURL}/ajax/groups`,
+				method: 'GET',
+  				dataType: 'json',
+  				data: {
+  					idGroup: details.val(),
+  					isNext
+  				},
+  				success: (resArr) => {
+  					if (resArr.length != 0) {
+  						details.children().remove();
+  						let data = null;
+	  					resArr.forEach(function (item) {
+	  						data = item.data;
+	  						details.append(new Option(data.name, data.idGroup));
+	  					});
+  					}
+  				},
+  				error: mess => {
+  					resultMess.addClass('alert-danger');
+  					resultMess.html('Could not connect to API server(' + mess.responseText + ')');
+				}
+			});
+		}
 		/*]]>*/
 	</script>
 </body>

@@ -71,6 +71,9 @@ public class GroupServiceImpl implements GroupService {
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
         JSONArray dataArray = new JSONArray(res.getBody());
+        if (dataArray.length() == 0) {
+            return null;
+        }
         JSONObject jsonObject = dataArray.getJSONObject(0);
         JSONObject dataObject = jsonObject.getJSONObject("data");
 
@@ -134,5 +137,18 @@ public class GroupServiceImpl implements GroupService {
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
         return new JSONArray(res.getBody()).length();
+    }
+
+    @Override
+    public ResponseEntity<String> findGroupsByIdParentWhenCallAjax(String token, String idParent) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        String url = APIs.getListSubmissionsURL(PATH) + "?limit=" + Configs.LIMIT_QUERY
+                + "&sort=-create&select=data&data.status=" + Configs.ACTIVE_STATUS + "&data.idParent=" + idParent;
+
+        return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
     }
 }

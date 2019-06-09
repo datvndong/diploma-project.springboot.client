@@ -156,6 +156,8 @@ public class FormController extends BaseController {
 
             model.addAttribute("listRoles", roleService.findAll(token));
 
+            List<Group> listGroups = new ArrayList<>();
+
             JSONObject formJSON = null;
             boolean isCreate = path.equals(""); // No path parameter
             if (isCreate) {
@@ -171,6 +173,8 @@ public class FormController extends BaseController {
                 formJSON.put("startTime", "");
                 formJSON.put("expiredDate", "");
                 formJSON.put("expiredTime", "");
+
+                listGroups.add(groupService.findGroupParent(token, "data.idParent=root"));
             } else {
                 // Edit form
                 ResponseEntity<String> formRes = formService.findOneFormWithToken(token, path);
@@ -185,17 +189,23 @@ public class FormController extends BaseController {
                 String assign = formControl.getAssign();
                 formJSON.put("oldPath", formControl.getPathForm());
                 formJSON.put("assign", assign);
-                formJSON.put("isAssignToGroup", !(assign.equals(Keys.ANONYMOUS) || assign.equals(Keys.AUTHENTICATED)));
+                boolean isAssignToGroup = !(assign.equals(Keys.ANONYMOUS) || assign.equals(Keys.AUTHENTICATED));
+                formJSON.put("isAssignToGroup", isAssignToGroup);
                 formJSON.put("startDate", start[0]);
                 formJSON.put("startTime", start[1]);
                 formJSON.put("expiredDate", expired[0]);
                 formJSON.put("expiredTime", expired[1]);
-            }
 
-            Group parentGroup = groupService.findGroupParent(token, "data.idParent=root");
-            List<Group> listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
-                    parentGroup.getName(), 0);
-            listGroups.add(0, parentGroup);
+                if (isAssignToGroup) {
+                    Group currentGroup = groupService.findGroupParent(token, "data.idGroup=" + assign);
+                    Group parentGroup = groupService.findGroupParent(token,
+                            "data.idGroup=" + currentGroup.getIdParent());
+                    listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
+                            parentGroup.getName(), 0);
+                } else {
+                    listGroups.add(groupService.findGroupParent(token, "data.idParent=root"));
+                }
+            }
 
             model.addAttribute("isCreate", isCreate);
             model.addAttribute("obj", formJSON.toString());

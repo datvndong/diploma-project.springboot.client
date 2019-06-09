@@ -17,4 +17,6 @@ public interface GroupService {
     String findGroupFiledByIdGroup(String token, String idGroup, String field);
 
     ResponseEntity<String> findGroupDataById(String token, String id);
+
+    ResponseEntity<String> findGroupsByIdParentWhenCallAjax(String token, String idParent);
 }
