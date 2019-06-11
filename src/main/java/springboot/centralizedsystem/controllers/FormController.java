@@ -200,8 +200,12 @@ public class FormController extends BaseController {
                     Group currentGroup = groupService.findGroupParent(token, "data.idGroup=" + assign);
                     Group parentGroup = groupService.findGroupParent(token,
                             "data.idGroup=" + currentGroup.getIdParent());
-                    listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
-                            parentGroup.getName(), 0);
+                    if (parentGroup == null) {
+                        listGroups.add(currentGroup);
+                    } else {
+                        listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
+                                parentGroup.getName(), 0);
+                    }
                 } else {
                     listGroups.add(groupService.findGroupParent(token, "data.idParent=root"));
                 }

@@ -350,6 +350,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	  						details.append(new Option(data.name, data.idGroup));
 	  					});
   					}
+  					builder.form.assign = details.val();
   				},
   				error: mess => {
   					resultMess.addClass('alert-danger');
