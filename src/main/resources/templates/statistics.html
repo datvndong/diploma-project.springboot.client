@@ -16,6 +16,19 @@
       <div class="main-panel">
         <div class="content-wrapper">
           <div class="row">
+          	<div class="col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <div class="form-group">
+                  	<label for="chooseForm">Choose Form</label>
+                    <select class="form-control" id="chooseForm">
+                    	<option value="">-----Pick One Form-----</option>
+                    	<option th:each="form : ${list}" th:value="${form.path}" th:text="${form.title}"></option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="col-lg-6 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
@@ -80,6 +93,17 @@
   </div>
   <div th:include="fragments/plugins :: plugins"></div>
   <script src="/js/chart.js"></script>
+  <script th:inline="javascript">
+  	/*<![CDATA[*/
+  		const chooseFormSelectBox = $('#chooseForm');
+  		
+  		chooseFormSelectBox.change(function () {
+  			if (chooseFormSelectBox.val() !== "") {
+  				
+  			}
+  		});
+  	/*]]>*/
+  </script>
 </body>
 
 </html>

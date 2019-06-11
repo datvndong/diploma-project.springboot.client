@@ -36,7 +36,7 @@ public class FormServiceImpl implements FormService {
     private FormControlService formControlService;
 
     @Override
-    public List<Form> findAllForms(String token, String email, int page) throws ParseException, ResourceAccessException,
+    public List<Form> findForms(String token, String email, int page) throws ParseException, ResourceAccessException,
             HttpClientErrorException, HttpServerErrorException, UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
@@ -48,10 +48,11 @@ public class FormServiceImpl implements FormService {
         ResponseEntity<String> res = new RestTemplate().exchange(apiURL, HttpMethod.GET, entity, String.class);
 
         JSONArray jsonArray = new JSONArray(res.getBody());
+        int size = jsonArray.length();
         JSONObject jsonObject = null;
         List<Form> list = new ArrayList<>();
-        for (int i = 0; i < jsonArray.length(); i++) {
-            jsonObject = (JSONObject) jsonArray.get(i);
+        for (int i = 0; i < size; i++) {
+            jsonObject = jsonArray.getJSONObject(i);
             String name = jsonObject.getString("name");
             String title = jsonObject.getString("title");
             String path = jsonObject.getString("path");
@@ -77,7 +78,7 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public ResponseEntity<String> findOneFormWithToken(String token, String path)
+    public ResponseEntity<String> findFormWithToken(String token, String path)
             throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
             UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
@@ -123,8 +124,43 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
-    public String findOneFormWithNoToken(String path) {
+    public String findFormWithNoToken(String path) {
         // User to get form with Anonymous assign
         return new RestTemplate().getForObject(APIs.getFormByAlias(path), String.class);
+    }
+
+    @Override
+    public List<Form> findFormsCanStatistics(String token, String email) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        String apiURL = APIs.FORM_URL + "?type=form&sort=-created&owner=" + email + "&limit=" + Configs.LIMIT_QUERY
+                + "&select=title,path,components";
+        ResponseEntity<String> res = new RestTemplate().exchange(apiURL, HttpMethod.GET, entity, String.class);
+
+        JSONArray jsonArray = new JSONArray(res.getBody());
+        int size = jsonArray.length();
+        JSONObject jsonObject = null;
+        List<Form> list = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            jsonObject = jsonArray.getJSONObject(i);
+            JSONArray components = jsonObject.getJSONArray("components");
+            int compSize = components.length();
+            for (int j = 0; j < compSize; j++) {
+                JSONObject compObj = components.getJSONObject(j);
+                String type = compObj.getString("type");
+                if (type.equals("checkbox") || type.equals("selectboxes") || type.equals("select")
+                        || type.equals("radio")) {
+                    String title = jsonObject.getString("title");
+                    String path = jsonObject.getString("path");
+                    list.add(new Form(title, path));
+                    break;
+                }
+            }
+        }
+
+        return list;
     }
 }

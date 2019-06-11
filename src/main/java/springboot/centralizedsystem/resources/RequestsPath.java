@@ -22,6 +22,7 @@ public class RequestsPath {
     public static final String EDIT_REPORT = "/edit/report/{path}";
     public static final String EXPORT_JSON = "/export/json/{path}";
     public static final String STATISTICS = "/statistics";
+    public static final String STATISTICAL_ANALYSIS = "/analysis/{path}";
     public static final String READ_SURVEY = "/survey/read";
     public static final String USERS = "/users/{page}";
     public static final String CREATE_USER = "/build/user";

@@ -141,6 +141,12 @@ public class Form {
         this.isSubmitted = isSubmitted;
         this.isPending = isPending;
     }
+    
+    public Form(String title, String path) {
+        super();
+        this.title = title;
+        this.path = path;
+    }
 
     public Form() {
         super();

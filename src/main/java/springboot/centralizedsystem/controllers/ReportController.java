@@ -59,7 +59,7 @@ public class ReportController extends BaseController {
             int durationPercent = CalculateUtils.getDurationPercent(start, expired);
             String typeProgressBar = CalculateUtils.getTypeProgressBar(durationPercent);
 
-            ResponseEntity<String> formRes = formService.findOneFormWithToken(token, path);
+            ResponseEntity<String> formRes = formService.findFormWithToken(token, path);
             JSONObject formResJSON = new JSONObject(formRes.getBody());
             String title = formResJSON.getString("title");
             List<String> tags = new ArrayList<>();
@@ -198,7 +198,7 @@ public class ReportController extends BaseController {
             }
 
             if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(token, assign, user.getIdGroup())) {
-                ResponseEntity<String> res1 = formService.findOneFormWithToken(token, path);
+                ResponseEntity<String> res1 = formService.findFormWithToken(token, path);
                 JSONObject resJSON = new JSONObject(res1.getBody());
 
                 ResponseEntity<String> res2 = submissionService.findSubmissionsByPage(token, path, 1);
@@ -236,7 +236,7 @@ public class ReportController extends BaseController {
     @GetMapping(RequestsPath.SEND_REPORT_ANONYMOUS)
     public String sendReportAnonGET(Model model, HttpSession session, RedirectAttributes redirect,
             @PathVariable String path) {
-        JSONObject formJSON = new JSONObject(formService.findOneFormWithNoToken(path));
+        JSONObject formJSON = new JSONObject(formService.findFormWithNoToken(path));
         if (formJSON.isEmpty()) {
             return Views.ERROR_403;
         }
@@ -280,7 +280,7 @@ public class ReportController extends BaseController {
             }
 
             if (assign.equals(Keys.AUTHENTICATED) || isFormAssignToUser(token, assign, user.getIdGroup())) {
-                ResponseEntity<String> res1 = formService.findOneFormWithToken(token, path);
+                ResponseEntity<String> res1 = formService.findFormWithToken(token, path);
                 JSONObject resJSON = new JSONObject(res1.getBody());
 
                 ResponseEntity<String> res2 = submissionService.findSubmissionsByPage(token, path, 1);

@@ -74,7 +74,7 @@ public class FormController extends BaseController {
             int currPage = Integer.parseInt(page);
             int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
 
-            model.addAttribute("list", formService.findAllForms(user.getToken(), user.getEmail(), currPage));
+            model.addAttribute("list", formService.findForms(user.getToken(), user.getEmail(), currPage));
 
             if (!deleteMess.equals("")) {
                 boolean isDeleteSuccess = Boolean.parseBoolean(deleteMess);
@@ -110,7 +110,7 @@ public class FormController extends BaseController {
         }
         User user = SessionUtils.getUser(session);
 
-        return formService.findOneFormWithToken(user.getToken(), path);
+        return formService.findFormWithToken(user.getToken(), path);
     }
 
     @GetMapping(RequestsPath.CREATE_FORM)
@@ -177,7 +177,7 @@ public class FormController extends BaseController {
                 listGroups.add(groupService.findGroupParent(token, "data.idParent=root"));
             } else {
                 // Edit form
-                ResponseEntity<String> formRes = formService.findOneFormWithToken(token, path);
+                ResponseEntity<String> formRes = formService.findFormWithToken(token, path);
                 formJSON = new JSONObject(formRes.getBody());
 
                 FormControl formControl = formControlService.findByPathForm(path);

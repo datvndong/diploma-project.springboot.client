@@ -42,7 +42,7 @@ public class SubmissionController extends BaseController {
         ResponseEntity<String> submissionRes = submissionService.findSubmissionsByPage(token, path, currPage);
         model.addAttribute("submissionData", submissionRes.getBody());
 
-        ResponseEntity<String> formRes = formService.findOneFormWithToken(user.getToken(), path);
+        ResponseEntity<String> formRes = formService.findFormWithToken(user.getToken(), path);
         model.addAttribute("formData", formRes.getBody());
 
         model.addAttribute("path", path);
