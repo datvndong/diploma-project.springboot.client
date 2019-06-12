@@ -103,6 +103,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 jsonObject.addProperty("count", 0);
             } else {
                 // select || selectboxes || radio
+                jsonObject.addProperty("label", compObj.get("label").getAsString());
                 jsonObject.addProperty("key", compObj.get("key").getAsString());
                 jsonObject.add("data", new JsonArray());
 

@@ -30,59 +30,8 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Line chart</h4>
-                  <canvas id="lineChart" style="height:250px"></canvas>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Bar chart</h4>
-                  <canvas id="barChart" style="height:230px"></canvas>
-                </div>
-              </div>
-            </div>
           </div>
-          <div class="row">
-            <div class="col-lg-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Area chart</h4>
-                  <canvas id="areaChart" style="height:250px"></canvas>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Doughnut chart</h4>
-                  <canvas id="doughnutChart" style="height:250px"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Pie chart</h4>
-                  <canvas id="pieChart" style="height:250px"></canvas>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Scatter chart</h4>
-                  <canvas id="scatterChart" style="height:250px"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="row" id="chart-container"></div>
         </div>
         <!-- content-wrapper ends -->
         <div th:include="fragments/footer :: footer"></div>
@@ -99,8 +48,10 @@
   		const serverURL = 'http://localhost:8080';
   		const chooseFormSelectBox = $('#chooseForm');
   		const resultMess = $('#result-message');
+		const container = $('#chart-container');
   		
   		chooseFormSelectBox.change(function () {
+  			container.empty();
   			const path = chooseFormSelectBox.val();
   			if (path !== "") {
   				resultMess.removeClass();
@@ -108,9 +59,35 @@
   					url: `${serverURL}/analysis/${path}`,
   					method: 'GET',
   	  				dataType: 'json',
-  	  				success: resData => {
+  	  				success: data => {
 	  	  				resultMess.addClass('alert-success');
 	  					resultMess.html("Successfuly statistics!");
+	  					
+	  					// Process chart	  					
+	  					const checkbox = data.checkbox; 
+	  					const selectboxes = data.selectboxes; 
+	  					const select = data.select; 
+	  					const radio = data.radio; 
+	  					const amount = data.amount; 
+	  					
+	  					if (typeof checkbox !== 'undefined') {
+							createChart(container, checkbox, true);
+	  					}
+						if (typeof selectboxes !== 'undefined') {
+							selectboxes.forEach(element => {
+								createChart(container, element, true);
+							});	
+	  					}
+						if (typeof select !== 'undefined') {
+							select.forEach(element => {
+								createChart(container, element, false);
+							});	  						
+						}
+						if (typeof radio !== 'undefined') {
+							radio.forEach(element => {
+								createChart(container, element, false);
+							});	
+						}
   	  				},
   	  				error: mess => {
   	  					resultMess.addClass('alert-danger');
@@ -118,6 +95,8 @@
   					}
   				});
   				resultMess.show();
+  			} else {
+  				resultMess.hide();
   			}
   		});
   	/*]]>*/
