@@ -22,4 +22,8 @@ public class APIs {
     public static String modifiedForm(String path) {
         return SERVER_URL + "/" + path;
     }
+
+    public static String getWeather(String owmAPIKey, String idCity) {
+        return "https://api.openweathermap.org/data/2.5/weather?id=" + idCity + "&appid=" + owmAPIKey;
+    }
 }
