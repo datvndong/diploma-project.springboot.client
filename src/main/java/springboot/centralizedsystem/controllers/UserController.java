@@ -59,7 +59,7 @@ public class UserController extends BaseController {
 
             List<User> list = new ArrayList<>();
 
-            int sizeListForms = submissionService.countSubmissions(token, PATH_USER);
+            long sizeListForms = submissionService.countSubmissions(token, PATH_USER);
             int currPage = Integer.parseInt(page);
             int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
 

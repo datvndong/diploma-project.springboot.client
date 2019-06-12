@@ -26,10 +26,11 @@ public class DashboardController extends BaseController {
             return roleForbidden(redirect);
         }
         User user = SessionUtils.getUser(session);
-        if (user == null) {
-            return unauthorized(redirect);
-        }
+        String token = user.getToken();
 
+        model.addAttribute("groups", dashboardService.findNumberGroups(token));
+        model.addAttribute("forms", dashboardService.findNumberForms(user.getEmail(), token));
+        model.addAttribute("users", dashboardService.findNumberUsers(token));
         model.addAttribute("city", dashboardService.getCityInfo());
         model.addAttribute("title", "Dashboard");
 

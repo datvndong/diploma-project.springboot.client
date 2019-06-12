@@ -56,7 +56,7 @@ public class FormServiceImpl implements FormService {
             String name = jsonObject.getString("name");
             String title = jsonObject.getString("title");
             String path = jsonObject.getString("path");
-            int amount = submissionService.countSubmissions(token, path);
+            long amount = submissionService.countSubmissions(token, path);
 
             // handle: exception when formControl == null
             FormControl formControl = formControlService.findByPathForm(path);

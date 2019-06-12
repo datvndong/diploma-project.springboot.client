@@ -35,7 +35,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public int countSubmissions(String token, String path) throws ResourceAccessException, HttpClientErrorException,
+    public long countSubmissions(String token, String path) throws ResourceAccessException, HttpClientErrorException,
             HttpServerErrorException, UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);

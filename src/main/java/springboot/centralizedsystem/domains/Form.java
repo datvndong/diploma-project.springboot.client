@@ -7,7 +7,7 @@ public class Form {
     private String name;
     private String title;
     private String path;
-    private int amount;
+    private long amount;
     private String start;
     private String expired;
     private List<String> tags;
@@ -33,11 +33,11 @@ public class Form {
         this.title = title;
     }
 
-    public int getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 
@@ -113,7 +113,7 @@ public class Form {
         this.isAnonymousForm = isAnonymousForm;
     }
 
-    public Form(String name, String title, String path, int amount, String start, String expired,
+    public Form(String name, String title, String path, long amount, String start, String expired,
             List<String> tags, int durationPercent, String typeProgressBar, boolean isAnonymousForm) {
         super();
         this.name = name;
@@ -141,7 +141,7 @@ public class Form {
         this.isSubmitted = isSubmitted;
         this.isPending = isPending;
     }
-    
+
     public Form(String title, String path) {
         super();
         this.title = title;

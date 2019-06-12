@@ -18,6 +18,12 @@ public class DashboardServiceImpl implements DashboardService {
     @Autowired
     private WeatherService weatherService;
 
+    @Autowired
+    private SubmissionService submissionService;
+
+    @Autowired
+    private FormControlService formControlService;
+
     @Override
     public City getCityInfo() {
         String owmAPIKey = "cf76b373a6c28e3253b49e1a8f04beb7";
@@ -38,5 +44,20 @@ public class DashboardServiceImpl implements DashboardService {
         String descriptionFormat = description.substring(0, 1).toUpperCase() + description.substring(1);
 
         return new City(weekday, date, name, country, temperatureFormat, descriptionFormat);
+    }
+
+    @Override
+    public long findNumberGroups(String token) {
+        return submissionService.countSubmissions(token, "group");
+    }
+
+    @Override
+    public long findNumberForms(String email, String token) {
+        return formControlService.findByOwner(email).size();
+    }
+
+    @Override
+    public long findNumberUsers(String token) {
+        return submissionService.countSubmissions(token, "user");
     }
 }
