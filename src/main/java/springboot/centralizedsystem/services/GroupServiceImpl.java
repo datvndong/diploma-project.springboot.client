@@ -77,12 +77,13 @@ public class GroupServiceImpl implements GroupService {
         JSONObject jsonObject = dataArray.getJSONObject(0);
         JSONObject dataObject = jsonObject.getJSONObject("data");
 
+        String id = jsonObject.getString("_id");
         String idGroup = dataObject.getString("idGroup");
         String name = dataObject.getString("name");
         String idParent = dataObject.getString("idParent");
         String nameParent = "";
 
-        return new Group(idGroup, name, idParent, nameParent);
+        return new Group(id, idGroup, name, idParent, nameParent);
     }
 
     @Override
@@ -114,10 +115,11 @@ public class GroupServiceImpl implements GroupService {
             jsonObject = jsonArray.getJSONObject(i);
             dataObject = jsonObject.getJSONObject("data");
 
+            String id = jsonObject.getString("_id");
             String idGroup = dataObject.getString("idGroup");
             String name = dataObject.getString("name");
             int childSize = findNumberOfChildGroupByIdParent(token, idGroup);
-            listGroups.add(new Group(idGroup, name, idParent, nameParent, childSize));
+            listGroups.add(new Group(id, idGroup, name, idParent, nameParent, childSize));
         }
         return listGroups;
     }

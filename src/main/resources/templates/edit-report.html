@@ -24,13 +24,13 @@
 	
     <script th:inline="javascript">
     	window.onload = function() {
-        	Formio.setToken([[${token}]]);
         	Formio.createForm(document.getElementById('formio'), [[${link}]]).then(function(form) {
         		form.submission = {
         			_id: [[${_id}]],
         			data: JSON.parse([[${data}]])
         		};
         	});
+        	Formio.setToken([[${token}]]);
       	};
     </script>
 </head>

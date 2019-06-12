@@ -2,12 +2,21 @@ package springboot.centralizedsystem.domains;
 
 public class Group {
 
+    private String id;
     private String idGroup;
     private String name;
     private String idParent;
     private int status;
     private String nameParent;
     private int numberOfChildrenGroup;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getIdGroup() {
         return idGroup;
@@ -57,9 +66,10 @@ public class Group {
         this.numberOfChildrenGroup = numberOfChildrenGroup;
     }
 
-    public Group(String idGroup, String name, String idParent, String nameParent,
+    public Group(String id, String idGroup, String name, String idParent, String nameParent,
             int numberOfChildrenGroup) {
         super();
+        this.id = id;
         this.idGroup = idGroup;
         this.name = name;
         this.idParent = idParent;
@@ -67,8 +77,9 @@ public class Group {
         this.numberOfChildrenGroup = numberOfChildrenGroup;
     }
 
-    public Group(String idGroup, String name, String idParent, String nameParent) {
+    public Group(String id, String idGroup, String name, String idParent, String nameParent) {
         super();
+        this.id = id;
         this.idGroup = idGroup;
         this.name = name;
         this.idParent = idParent;
