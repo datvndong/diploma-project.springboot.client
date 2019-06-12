@@ -205,6 +205,7 @@ public class ReadSurveyServiceImpl implements ReadSurveyService {
         DataFormatter formatter = new DataFormatter();
         JsonObject jsonObject = new JsonObject();
         JsonObject jsonObjectTemp = null;
+        JsonObject finalObj = null;
         JsonParser parser = new JsonParser();
         List<CellRangeAddress> listMergedRegion = new ArrayList<>();
         int maxMergedRegionRowLength = getMaxMergedRegionRowLength(sheet, listMergedRegion);
@@ -243,11 +244,13 @@ public class ReadSurveyServiceImpl implements ReadSurveyService {
                         if (currStringCellValue.equals("(1)")) {
                             isReadHeader = false;
 
-                            jsonObject.addProperty("nameSurvey", file.getName());
-                            jsonObject.addProperty("importer", importer);
-                            jsonObject.addProperty("createdAt", sdf.format(new Date()));
+                            finalObj = new JsonObject();
+                            finalObj.addProperty("nameSurvey", file.getName());
+                            finalObj.addProperty("importer", importer);
+                            finalObj.addProperty("createdAt", sdf.format(new Date()));
+                            finalObj.add("data", jsonObject);
 
-                            jsonBluePrint = jsonObject.toString();
+                            jsonBluePrint = finalObj.toString();
                             break;
                         }
 
