@@ -50,7 +50,7 @@ public class ExportController extends BaseController {
         MediaType mediaType = MediaTypeUtils.getMediaTypeForFileName(this.servletContext, fileName);
 
         // Write JSON file
-        ResponseEntity<String> submissionRes = submissionService.findAllSubmissions(token, path);
+        ResponseEntity<String> submissionRes = submissionService.findAllSubmissions(token, path, false);
         JSONArray jsonArray = new JSONArray(submissionRes.getBody());
         StringBuilder str = new StringBuilder();
         for (Object object : jsonArray) {

@@ -341,7 +341,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   					idGroup: details.val(),
   					isNext
   				},
-  				success: (resArr) => {
+  				success: resArr => {
   					if (resArr.length != 0) {
   						details.children().remove();
   						let data = null;

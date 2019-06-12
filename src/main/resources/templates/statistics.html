@@ -19,6 +19,7 @@
           	<div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
+                  <div id="result-message" style="display: none; padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
                   <div class="form-group">
                   	<label for="chooseForm">Choose Form</label>
                     <select class="form-control" id="chooseForm">
@@ -95,11 +96,28 @@
   <script src="/js/chart.js"></script>
   <script th:inline="javascript">
   	/*<![CDATA[*/
+  		const serverURL = 'http://localhost:8080';
   		const chooseFormSelectBox = $('#chooseForm');
+  		const resultMess = $('#result-message');
   		
   		chooseFormSelectBox.change(function () {
-  			if (chooseFormSelectBox.val() !== "") {
-  				
+  			const path = chooseFormSelectBox.val();
+  			if (path !== "") {
+  				resultMess.removeClass();
+  				$.ajax({
+  					url: `${serverURL}/analysis/${path}`,
+  					method: 'GET',
+  	  				dataType: 'json',
+  	  				success: resData => {
+	  	  				resultMess.addClass('alert-success');
+	  					resultMess.html("Successfuly statistics!");
+  	  				},
+  	  				error: mess => {
+  	  					resultMess.addClass('alert-danger');
+  	  					resultMess.html('Could not connect to API server(' + mess.responseText + ')');
+  					}
+  				});
+  				resultMess.show();
   			}
   		});
   	/*]]>*/

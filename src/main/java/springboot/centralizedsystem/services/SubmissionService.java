@@ -8,5 +8,5 @@ public interface SubmissionService {
 
     int countSubmissions(String token, String path);
 
-    ResponseEntity<String> findAllSubmissions(String token, String path);
+    ResponseEntity<String> findAllSubmissions(String token, String path, boolean isGetOnlyData);
 }

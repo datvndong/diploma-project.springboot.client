@@ -50,14 +50,18 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public ResponseEntity<String> findAllSubmissions(String token, String path) throws ResourceAccessException,
-            HttpClientErrorException, HttpServerErrorException, UnknownHttpStatusCodeException {
+    public ResponseEntity<String> findAllSubmissions(String token, String path, boolean isGetOnlyData)
+            throws ResourceAccessException, HttpClientErrorException, HttpServerErrorException,
+            UnknownHttpStatusCodeException {
         HttpHeaders header = HttpUtils.getHeader();
         header.set(APIs.TOKEN_KEY, token);
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
         String url = APIs.getListSubmissionsURL(path) + "?limit=" + Configs.LIMIT_QUERY;
+        if (isGetOnlyData) {
+            url += "&select=data";
+        }
 
         return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
     }
