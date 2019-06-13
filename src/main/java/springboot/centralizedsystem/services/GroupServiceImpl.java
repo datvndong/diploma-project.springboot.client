@@ -1,8 +1,16 @@
 package springboot.centralizedsystem.services;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
@@ -15,6 +23,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
+
+import com.google.gson.JsonObject;
 
 import springboot.centralizedsystem.domains.Group;
 import springboot.centralizedsystem.resources.APIs;
@@ -150,5 +160,70 @@ public class GroupServiceImpl implements GroupService {
                 + "&sort=-create&select=data&data.status=" + Configs.ACTIVE_STATUS + "&data.idParent=" + idParent;
 
         return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
+    }
+
+    @Override
+    public List<String> getListGroupsFromFile(String pathFile) throws IOException {
+        File file = new File(pathFile);
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        // Create Workbook instance holding reference to .xlsx file
+        XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
+
+        // Get first/desired sheet from the workbook
+        XSSFSheet sheet = workbook.getSheetAt(0);
+
+        // Iterate through each rows one by one
+        Iterator<Row> rowIterator = sheet.iterator();
+
+        // Prepare variable
+        List<String> result = new ArrayList<>();
+
+        Cell cell = null;
+        String[] labels = { "idGroup", "name", "idParent", "status" };
+
+        JsonObject userObj = new JsonObject();
+        userObj.add("data", new JsonObject());
+        JsonObject dataObj = userObj.get("data").getAsJsonObject();
+
+        // Start reading
+        boolean isFirstRow = true;
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            if (isFirstRow) {
+                isFirstRow = false;
+                continue;
+            }
+
+            int colIndex = 0;
+
+            // For each row, iterate through all the columns
+            Iterator<Cell> cellIterator = row.cellIterator();
+
+            while (cellIterator.hasNext()) {
+                cell = cellIterator.next();
+                switch (cell.getCellType()) {
+                case Cell.CELL_TYPE_STRING:
+                    dataObj.addProperty(labels[colIndex++], cell.getStringCellValue());
+                    break;
+                case Cell.CELL_TYPE_NUMERIC:
+                    dataObj.addProperty(labels[colIndex++], String.valueOf((int) cell.getNumericCellValue()));
+                    break;
+                }
+            }
+            result.add(userObj.toString());
+        }
+
+        return result;
+    }
+
+    @Override
+    public ResponseEntity<String> insertGroup(String token, String data) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(data, header);
+
+        return new RestTemplate().exchange(APIs.getFormByAlias(PATH), HttpMethod.POST, entity, String.class);
     }
 }

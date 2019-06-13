@@ -1,5 +1,6 @@
 package springboot.centralizedsystem.services;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -19,4 +20,8 @@ public interface GroupService {
     ResponseEntity<String> findGroupDataById(String token, String id);
 
     ResponseEntity<String> findGroupsByIdParentWhenCallAjax(String token, String idParent);
+
+    List<String> getListGroupsFromFile(String pathFile) throws IOException;
+    
+    ResponseEntity<String> insertGroup(String token, String data);
 }

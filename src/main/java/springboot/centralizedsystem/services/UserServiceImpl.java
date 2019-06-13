@@ -33,7 +33,7 @@ import springboot.centralizedsystem.utils.HttpUtils;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private static final String PATH_USER = "user";
+    private static final String PATH = "user";
 
     @Override
     public ResponseEntity<String> findUserDataById(String token, String path, String id) throws ResourceAccessException,
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(PATH_USER) + "?limit=" + Configs.LIMIT_QUERY + "&data.idGroup="
+        String url = APIs.getListSubmissionsURL(PATH) + "?limit=" + Configs.LIMIT_QUERY + "&data.idGroup="
                 + idGroup + "&select=_id";
 
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(PATH_USER) + "?select=data&limit=" + Configs.NUMBER_ROWS_PER_PAGE
+        String url = APIs.getListSubmissionsURL(PATH) + "?select=data&limit=" + Configs.NUMBER_ROWS_PER_PAGE
                 + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE + "&data.idGroup=" + idGroup;
 
         return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(PATH_USER) + "?limit=" + Configs.LIMIT_QUERY + "&data.name__regex=/"
+        String url = APIs.getListSubmissionsURL(PATH) + "?limit=" + Configs.LIMIT_QUERY + "&data.name__regex=/"
                 + keyword + "/&select=_id";
 
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
 
         HttpEntity<String> entity = new HttpEntity<>(header);
 
-        String url = APIs.getListSubmissionsURL(PATH_USER) + "?select=data&limit=" + Configs.NUMBER_ROWS_PER_PAGE
+        String url = APIs.getListSubmissionsURL(PATH) + "?select=data&limit=" + Configs.NUMBER_ROWS_PER_PAGE
                 + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE + "&data.name__regex=/" + keyword + "/";
 
         return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
@@ -178,7 +178,7 @@ public class UserServiceImpl implements UserService {
                     dataObj.addProperty(labels[colIndex++], cell.getStringCellValue());
                     break;
                 case Cell.CELL_TYPE_NUMERIC:
-                    dataObj.addProperty(labels[colIndex++], (int) cell.getNumericCellValue());
+                    dataObj.addProperty(labels[colIndex++], String.valueOf((int) cell.getNumericCellValue()));
                     break;
                 }
             }
@@ -196,6 +196,6 @@ public class UserServiceImpl implements UserService {
 
         HttpEntity<String> entity = new HttpEntity<>(data, header);
 
-        return new RestTemplate().exchange(APIs.getFormByAlias(PATH_USER), HttpMethod.POST, entity, String.class);
+        return new RestTemplate().exchange(APIs.getFormByAlias(PATH), HttpMethod.POST, entity, String.class);
     }
 }
