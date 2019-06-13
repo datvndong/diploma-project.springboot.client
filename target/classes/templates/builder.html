@@ -333,6 +333,8 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 		});
 		
 		function callAjaxGroups(isNext) {
+			resultMess.hide();
+			resultMess.removeClass();
 			$.ajax({
 				url: `${serverURL}/ajax/groups`,
 				method: 'GET',
@@ -355,6 +357,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   				error: mess => {
   					resultMess.addClass('alert-danger');
   					resultMess.html('Could not connect to API server(' + mess.responseText + ')');
+  					resultMess.show();
 				}
 			});
 		}

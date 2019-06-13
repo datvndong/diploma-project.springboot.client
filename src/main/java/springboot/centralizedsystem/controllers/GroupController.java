@@ -126,7 +126,7 @@ public class GroupController extends BaseController {
             Group currentGroup = groupService.findGroupParent(token, "data.idGroup=" + idGroup);
             Group parentGroup = groupService.findGroupParent(token, "data.idGroup=" + currentGroup.getIdParent());
             if (parentGroup == null) {
-                return new ResponseEntity<>(HttpStatus.OK);
+                return new ResponseEntity<>("[]", HttpStatus.OK);
             }
             return groupService.findGroupsByIdParentWhenCallAjax(token, parentGroup.getIdParent());
         }

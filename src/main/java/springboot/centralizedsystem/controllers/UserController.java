@@ -20,6 +20,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import springboot.centralizedsystem.domains.Group;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
 import springboot.centralizedsystem.resources.Configs;
@@ -49,21 +50,38 @@ public class UserController extends BaseController {
 
     @GetMapping(RequestsPath.USERS)
     public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
-            @PathVariable String page) {
+            @PathVariable String idGroup, @PathVariable String page) {
         try {
+            System.err.println(idGroup);
             if (!SessionUtils.isAdmin(session)) {
                 return roleForbidden(redirect);
             }
             User user = SessionUtils.getUser(session);
             String token = user.getToken();
 
-            List<User> list = new ArrayList<>();
+            boolean isRootGroup = idGroup.equals(Configs.ROOT_GROUP);
 
-            long sizeListForms = submissionService.countSubmissions(token, PATH_USER);
+            long sizeListForms = isRootGroup ? submissionService.countSubmissions(token, PATH_USER)
+                    : userService.countUsers(token, idGroup);
             int currPage = Integer.parseInt(page);
             int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
 
-            ResponseEntity<String> userResByPage = submissionService.findSubmissionsByPage(token, PATH_USER, currPage);
+            List<Group> listGroups = new ArrayList<>();
+            Group currentGroup = groupService.findGroupParent(token,
+                    isRootGroup ? "data.idParent=root" : "data.idGroup=" + idGroup);
+            Group parentGroup = groupService.findGroupParent(token, "data.idGroup=" + currentGroup.getIdParent());
+            if (parentGroup == null) {
+                listGroups.add(currentGroup);
+            } else {
+                listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
+                        parentGroup.getName(), 0);
+            }
+
+            List<User> listUsers = new ArrayList<>();
+
+            ResponseEntity<String> userResByPage = isRootGroup
+                    ? submissionService.findSubmissionsByPage(token, PATH_USER, currPage)
+                    : userService.findUsersByPageAndIdGroup(token, idGroup, currPage);
             JSONArray jsonArray = new JSONArray(userResByPage.getBody());
             JSONObject jsonObject = null;
             JSONObject dataObject = null;
@@ -87,16 +105,18 @@ public class UserController extends BaseController {
                 }
 
                 String groupName = "";
-                String idGroup = dataObject.getString("idGroup");
+                idGroup = dataObject.getString("idGroup");
                 if (!idGroup.equals(Configs.ROOT_GROUP)) {
                     groupName = groupService.findGroupFiledByIdGroup(token, idGroup, "name");
                 }
 
-                list.add(new User(id, dataObject.getString("email"), dataObject.getString("name"), groupName,
+                listUsers.add(new User(id, dataObject.getString("email"), dataObject.getString("name"), groupName,
                         dataObject.getString("gender"), phoneNumber, address));
             }
 
-            model.addAttribute("list", list);
+            model.addAttribute("list", listUsers);
+            model.addAttribute("listGroups", listGroups);
+            model.addAttribute("idGroup", isRootGroup ? Configs.ROOT_GROUP : idGroup);
 
             model.addAttribute("currPage", currPage);
             model.addAttribute("totalPages", totalPages);

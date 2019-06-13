@@ -1,5 +1,6 @@
 package springboot.centralizedsystem.services;
 
+import org.json.JSONArray;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,10 +16,13 @@ import com.google.gson.JsonObject;
 
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
+import springboot.centralizedsystem.resources.Configs;
 import springboot.centralizedsystem.utils.HttpUtils;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final String PATH_USER = "user";
 
     @Override
     public ResponseEntity<String> findUserDataById(String token, String path, String id) throws ResourceAccessException,
@@ -60,5 +64,33 @@ public class UserServiceImpl implements UserService {
         ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.PUT, entity, String.class);
 
         return res;
+    }
+
+    @Override
+    public long countUsers(String token, String idGroup) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        String url = APIs.getListSubmissionsURL(PATH_USER) + "?limit=" + Configs.LIMIT_QUERY + "&data.idGroup="
+                + idGroup + "&select=_id";
+
+        ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
+
+        return new JSONArray(res.getBody()).length();
+    }
+
+    @Override
+    public ResponseEntity<String> findUsersByPageAndIdGroup(String token, String idGroup, int page) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        String url = APIs.getListSubmissionsURL(PATH_USER) + "?select=data&limit=" + Configs.NUMBER_ROWS_PER_PAGE
+                + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE + "&data.idGroup=" + idGroup;
+
+        return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
     }
 }

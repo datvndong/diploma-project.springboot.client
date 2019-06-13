@@ -20,12 +20,29 @@
             <div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Users Table</h4>   
-                  <div class="col-lg-2">
-                  	<a class="btn btn-info btn-block" th:href="@{/build/user}">New User
-					  	<i class="mdi mdi-plus"></i>
-					  </a>
-                  </div>          
+                  <div id="result-message" style="display: none; padding: 10px; font-size: 15px; border-radius: 4px; margin-bottom: 10px"></div>
+                  <h4 class="card-title">Users Table</h4>
+                  <div class="row">   
+	                  <div class="col-md-2">
+	                  	<a class="btn btn-info btn-block" th:href="@{/build/user}">New User
+						  	<i class="mdi mdi-plus"></i>
+						  </a>
+	                  </div>
+	                  <div class="col-md-6">
+						<div class="form-group row">
+							<div class="col-sm-8">
+								<select class="form-control" id="details">
+									<option th:each="group : ${listGroups}" th:value="${group.idGroup}" th:text="${group.name}"></option>
+								</select>
+							</div>
+							<button class="btn btn-dark" id="previousBtn" type="button"><span class="mdi mdi-arrow-left-bold" title="Previous"></span></button>
+							<button style="margin-left: 12.5px" class="btn btn-dark" id="nextBtn" type="button" title="Next"><span class="mdi mdi-arrow-right-bold"></span></button>
+							<button style="margin-left: 12.5px" class="btn btn-warning" id="searchByGroup" type="button" title="Search"><span class="mdi mdi-account-search"></span></button>
+						</div>
+					</div>  
+					<div class="col-md-4">
+					</div>
+				</div>        
                   <div class="table-responsive">
                     <table id="forms-table" class="table table-striped">
                       <thead>
@@ -77,7 +94,59 @@
   <script th:inline="javascript">
   	/*<![CDATA[*/
   	const serverURL = 'http://localhost:8080';
-  	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/users/`);
+  	const idGroup = [[${idGroup}]];
+  	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/users/${idGroup}/`);
+
+  	const nextBtn = $('#nextBtn');
+	const previousBtn = $('#previousBtn');
+	const details = $('#details');
+	const resultMess = $('#result-message');
+	const searchByGroupBtn = $('#searchByGroup');
+		
+	nextBtn.click(function () {
+		callAjaxGroups(true);
+	});
+	
+	previousBtn.click(function () {
+		callAjaxGroups(false);
+	});
+	
+	searchByGroupBtn.click(function () {
+		let idGroupInSelect = details.val();
+		if (idGroupInSelect === 'D2500000') {
+			idGroupInSelect = 'root';
+		}
+		window.location.href = `${serverURL}/users/${idGroupInSelect}/1`;
+	});
+  	
+	function callAjaxGroups(isNext) {
+		resultMess.hide();
+		resultMess.removeClass();
+		$.ajax({
+			url: `${serverURL}/ajax/groups`,
+			method: 'GET',
+				dataType: 'json',
+				data: {
+					idGroup: details.val(),
+					isNext
+				},
+				success: resArr => {
+					if (resArr.length != 0) {
+  						details.children().remove();
+  						let data = null;
+	  					resArr.forEach(function (item) {
+	  						data = item.data;
+	  						details.append(new Option(data.name, data.idGroup));
+	  					});
+  					}
+				},
+				error: mess => {
+					resultMess.addClass('alert-danger');
+					resultMess.html('Could not connect to API server(' + mess.responseText + ')');
+					resultMess.show();
+				}
+		});
+	}
   	/*]]>*/
   </script>
 </body>

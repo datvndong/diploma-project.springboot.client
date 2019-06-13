@@ -78,7 +78,7 @@ public class LoginController {
             if (isAdmin) {
                 // Return dashboard in Administrator Page
                 session.setAttribute(Keys.USER, new User(email, dataJSON.getString("name"), token));
-                return "redirect:" + RequestsPath.DASHBOARD;
+                return "redirect:" + RequestsPath.STATISTICS;
             }
 
             if (dataJSON.getInt("status") == Configs.DEACTIVE_STATUS) {
