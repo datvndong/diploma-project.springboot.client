@@ -7,7 +7,6 @@ import java.io.InputStream;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.Configs;
 import springboot.centralizedsystem.resources.RequestsPath;
-import springboot.centralizedsystem.services.SubmissionService;
+import springboot.centralizedsystem.services.ExportService;
 import springboot.centralizedsystem.utils.MediaTypeUtils;
 import springboot.centralizedsystem.utils.SessionUtils;
 
@@ -33,13 +32,14 @@ public class ExportController extends BaseController {
     private ServletContext servletContext;
 
     @Autowired
-    private SubmissionService submissionService;
+    private ExportService exportService;
 
     // http://localhost:8080/export/json/{path}?fileName=abc.json
     // Using ResponseEntity<InputStreamResource>
-    @GetMapping(RequestsPath.EXPORT_JSON)
+    @GetMapping(RequestsPath.EXPORT_SUBMISSIONS)
     public ResponseEntity<InputStreamResource> exportJSONGET(Model model, HttpSession session,
-            @PathVariable String path, @RequestParam(defaultValue = Configs.DEFAULT_FILE_NAME) String fileName)
+            @PathVariable String path, @PathVariable String type,
+            @RequestParam(defaultValue = Configs.DEFAULT_FILE_NAME) String fileName)
             throws IOException {
         User user = SessionUtils.getUser(session);
         if (!SessionUtils.isAdmin(session)) {
@@ -47,19 +47,13 @@ public class ExportController extends BaseController {
         }
         String token = user.getToken();
 
+        fileName += type;
         MediaType mediaType = MediaTypeUtils.getMediaTypeForFileName(this.servletContext, fileName);
 
-        // Write JSON file
-        ResponseEntity<String> submissionRes = submissionService.findAllSubmissions(token, path, false);
-        JSONArray jsonArray = new JSONArray(submissionRes.getBody());
-        StringBuilder str = new StringBuilder();
-        for (Object object : jsonArray) {
-            str.append(object.toString());
-            str.append(System.getProperty("line.separator"));
-        }
+        String data = exportService.exportSubmissionDatasToString(token, path, type);
 
         // Add to InputStreamResource
-        InputStream is = new ByteArrayInputStream(str.toString().getBytes("UTF-8"));
+        InputStream is = new ByteArrayInputStream(data.getBytes(Configs.CHARSET));
         InputStreamResource resource = new InputStreamResource(is);
 
         return ResponseEntity.ok()

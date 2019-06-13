@@ -11,6 +11,7 @@ public class RequestsPath {
     public static final String DASHBOARD = "/dashboard";
     public static final String FORMS = "/forms/{page}";
     public static final String SUBMISSIONS = "/submissions/{path}/{page}";
+    public static final String EXPORT_SUBMISSIONS = "/export/{type}/{path}";
     public static final String FORM = "/form";
     public static final String CREATE_FORM = "/build/form";
     public static final String EDIT_FORM = "/build/form/{path}";
@@ -20,7 +21,6 @@ public class RequestsPath {
     public static final String SEND_REPORT_AUTHENTICATED = "/send/auth/report/{path}";
     public static final String SEND_REPORT_ANONYMOUS = "/send/anon/report/{path}";
     public static final String EDIT_REPORT = "/edit/report/{path}";
-    public static final String EXPORT_JSON = "/export/json/{path}";
     public static final String STATISTICS = "/statistics";
     public static final String STATISTICAL_ANALYSIS = "/analysis/{path}";
     public static final String READ_SURVEY = "/survey/read";
