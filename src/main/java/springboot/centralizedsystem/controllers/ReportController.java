@@ -126,10 +126,10 @@ public class ReportController extends BaseController {
             addFormToList(token, listAllForms, listFormsAuth);
 
             int numberRowsPerPage = Configs.NUMBER_ROWS_PER_PAGE;
-            int sizeListForms = listAllForms.size();
+            int sizeListReports = listAllForms.size();
 
             // Process for Profile page
-            user.setReportsNumber(sizeListForms);
+            user.setReportsNumber(sizeListReports);
             int submittedNumber = 0;
             for (Form form : listAllForms) {
                 if (form.getIsSubmitted()) {
@@ -139,14 +139,14 @@ public class ReportController extends BaseController {
             user.setSubmittedNumber(submittedNumber);
 
             int currPage = Integer.parseInt(page);
-            int totalPages = (int) Math.ceil((float) sizeListForms / numberRowsPerPage);
+            int totalPages = (int) Math.ceil((float) sizeListReports / numberRowsPerPage);
             model.addAttribute("currPage", currPage);
             model.addAttribute("totalPages", totalPages);
 
             int start = (currPage - 1) * numberRowsPerPage;
             int end = currPage * numberRowsPerPage;
             for (int i = start; i < end; i++) {
-                if (i == sizeListForms) {
+                if (i == sizeListReports) {
                     break;
                 }
                 listFormsByPage.add(listAllForms.get(i));

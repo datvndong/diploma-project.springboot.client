@@ -48,12 +48,12 @@ public class GroupController extends BaseController {
                     idParent.equals(Configs.ROOT_GROUP) ? "data.idParent=root" : "data.idGroup=" + idParent);
 
             int currPage = Integer.parseInt(page);
-            int sizeListForms = groupService.findNumberOfChildGroupByIdParent(token, parentGroup.getIdGroup());
-            int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
+            int sizeListGroups = groupService.findNumberOfChildGroupByIdParent(token, parentGroup.getIdGroup());
+            int totalPages = (int) Math.ceil((float) sizeListGroups / Configs.NUMBER_ROWS_PER_PAGE);
 
             List<Group> list = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
                     parentGroup.getName(), currPage);
-            parentGroup.setNumberOfChildrenGroup(sizeListForms);
+            parentGroup.setNumberOfChildrenGroup(sizeListGroups);
 
             model.addAttribute("currPage", currPage);
             model.addAttribute("totalPages", totalPages);

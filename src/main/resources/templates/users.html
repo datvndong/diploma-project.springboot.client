@@ -37,10 +37,18 @@
 							</div>
 							<button class="btn btn-dark" id="previousBtn" type="button"><span class="mdi mdi-arrow-left-bold" title="Previous"></span></button>
 							<button style="margin-left: 12.5px" class="btn btn-dark" id="nextBtn" type="button" title="Next"><span class="mdi mdi-arrow-right-bold"></span></button>
-							<button style="margin-left: 12.5px" class="btn btn-warning" id="searchByGroup" type="button" title="Search"><span class="mdi mdi-account-search"></span></button>
+							<button style="margin-left: 12.5px" class="btn btn-info" id="searchByGroup" type="button" title="Search"><span class="mdi mdi-account-search"></span></button>
 						</div>
 					</div>  
 					<div class="col-md-4">
+		            	<div class="input-group col-xs-12">
+		                  	<input id="searchText" type="text" class="form-control file-upload-info" placeholder="input your name keyword..." />
+		                   	<span class="input-group-append">
+		                    	<button class="file-upload-browse btn btn-info" type="button" id="searchByName">
+		                    		<i class="mdi mdi-account-search"></i>
+		                    	</button>
+		                  	</span>
+		                </div>
 					</div>
 				</div>        
                   <div class="table-responsive">
@@ -95,13 +103,26 @@
   	/*<![CDATA[*/
   	const serverURL = 'http://localhost:8080';
   	const idGroup = [[${idGroup}]];
-  	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/users/${idGroup}/`);
+	createPagination(parseInt([[${totalPages}]]), parseInt([[${currPage}]]), `${serverURL}/users/${idGroup}/`);
+	
+  	if (idGroup === null) {
+  		// Modified pagination when show users after search by name
+  		const ul = $('#pagination > ul');
+  		const keyword = [[${keyword}]];
+  		ul.each(function () {
+  			const aTag = $(this).find('a');
+  			let href = aTag.attr('href').replace("null", "root");
+  			aTag.attr('href', `${href}?keyword=${keyword}`);
+  		});
+  	}
 
   	const nextBtn = $('#nextBtn');
 	const previousBtn = $('#previousBtn');
 	const details = $('#details');
 	const resultMess = $('#result-message');
 	const searchByGroupBtn = $('#searchByGroup');
+	const searchText = $('#searchText');
+	const searchByNameBtn = $('#searchByName');
 		
 	nextBtn.click(function () {
 		callAjaxGroups(true);
@@ -117,6 +138,11 @@
 			idGroupInSelect = 'root';
 		}
 		window.location.href = `${serverURL}/users/${idGroupInSelect}/1`;
+	});
+	
+	searchByNameBtn.click(function () {
+		const keyword = searchText.val();
+		window.location.href = `${serverURL}/users/root/1?keyword=${keyword}`;
 	});
   	
 	function callAjaxGroups(isNext) {

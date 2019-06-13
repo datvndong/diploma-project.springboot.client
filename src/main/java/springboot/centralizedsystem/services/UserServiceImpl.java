@@ -93,4 +93,32 @@ public class UserServiceImpl implements UserService {
 
         return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
     }
+
+    @Override
+    public long countUsersByName(String token, String keyword) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        String url = APIs.getListSubmissionsURL(PATH_USER) + "?limit=" + Configs.LIMIT_QUERY + "&data.name__regex=/"
+                + keyword + "/&select=_id";
+
+        ResponseEntity<String> res = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
+
+        return new JSONArray(res.getBody()).length();
+    }
+
+    @Override
+    public ResponseEntity<String> findUsersByPageAndName(String token, String keyword, int page) {
+        HttpHeaders header = HttpUtils.getHeader();
+        header.set(APIs.TOKEN_KEY, token);
+
+        HttpEntity<String> entity = new HttpEntity<>(header);
+
+        String url = APIs.getListSubmissionsURL(PATH_USER) + "?select=data&limit=" + Configs.NUMBER_ROWS_PER_PAGE
+                + "&skip=" + (page - 1) * Configs.NUMBER_ROWS_PER_PAGE + "&data.name__regex=/" + keyword + "/";
+
+        return new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
+    }
 }

@@ -50,7 +50,7 @@ public class UserController extends BaseController {
 
     @GetMapping(RequestsPath.USERS)
     public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
-            @PathVariable String idGroup, @PathVariable String page) {
+            @PathVariable String idGroup, @PathVariable String page, @RequestParam(required = false) String keyword) {
         try {
             System.err.println(idGroup);
             if (!SessionUtils.isAdmin(session)) {
@@ -59,29 +59,48 @@ public class UserController extends BaseController {
             User user = SessionUtils.getUser(session);
             String token = user.getToken();
 
-            boolean isRootGroup = idGroup.equals(Configs.ROOT_GROUP);
-
-            long sizeListForms = isRootGroup ? submissionService.countSubmissions(token, PATH_USER)
-                    : userService.countUsers(token, idGroup);
             int currPage = Integer.parseInt(page);
-            int totalPages = (int) Math.ceil((float) sizeListForms / Configs.NUMBER_ROWS_PER_PAGE);
-
+            boolean isRootGroup = idGroup.equals(Configs.ROOT_GROUP);
             List<Group> listGroups = new ArrayList<>();
-            Group currentGroup = groupService.findGroupParent(token,
-                    isRootGroup ? "data.idParent=root" : "data.idGroup=" + idGroup);
-            Group parentGroup = groupService.findGroupParent(token, "data.idGroup=" + currentGroup.getIdParent());
-            if (parentGroup == null) {
-                listGroups.add(currentGroup);
-            } else {
-                listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
-                        parentGroup.getName(), 0);
-            }
-
             List<User> listUsers = new ArrayList<>();
 
-            ResponseEntity<String> userResByPage = isRootGroup
-                    ? submissionService.findSubmissionsByPage(token, PATH_USER, currPage)
-                    : userService.findUsersByPageAndIdGroup(token, idGroup, currPage);
+            long sizeListUsers = 0;
+            int totalPages = 0;
+            ResponseEntity<String> userResByPage = null;
+
+            if (keyword == null) {
+                // Normal case
+                sizeListUsers = isRootGroup ? submissionService.countSubmissions(token, PATH_USER)
+                        : userService.countUsers(token, idGroup);
+                totalPages = (int) Math.ceil((float) sizeListUsers / Configs.NUMBER_ROWS_PER_PAGE);
+
+                Group currentGroup = groupService.findGroupParent(token,
+                        isRootGroup ? "data.idParent=root" : "data.idGroup=" + idGroup);
+                Group parentGroup = groupService.findGroupParent(token, "data.idGroup=" + currentGroup.getIdParent());
+                if (parentGroup == null) {
+                    listGroups.add(currentGroup);
+                } else {
+                    listGroups = groupService.findListChildGroupByIdParentWithPage(token, parentGroup.getIdGroup(),
+                            parentGroup.getName(), 0);
+                }
+
+                userResByPage = isRootGroup ? submissionService.findSubmissionsByPage(token, PATH_USER, currPage)
+                        : userService.findUsersByPageAndIdGroup(token, idGroup, currPage);
+
+                model.addAttribute("idGroup", isRootGroup ? Configs.ROOT_GROUP : idGroup);
+            } else {
+                // Search by name
+                sizeListUsers = userService.countUsersByName(token, keyword);
+                totalPages = (int) Math.ceil((float) sizeListUsers / Configs.NUMBER_ROWS_PER_PAGE);
+                userResByPage = userService.findUsersByPageAndName(token, keyword, currPage);
+
+                Group rootGroup = groupService.findGroupParent(token, "data.idParent=root");
+                listGroups.add(rootGroup);
+
+                model.addAttribute("idGroup", null);
+                model.addAttribute("keyword", keyword);
+            }
+
             JSONArray jsonArray = new JSONArray(userResByPage.getBody());
             JSONObject jsonObject = null;
             JSONObject dataObject = null;
@@ -116,7 +135,6 @@ public class UserController extends BaseController {
 
             model.addAttribute("list", listUsers);
             model.addAttribute("listGroups", listGroups);
-            model.addAttribute("idGroup", isRootGroup ? Configs.ROOT_GROUP : idGroup);
 
             model.addAttribute("currPage", currPage);
             model.addAttribute("totalPages", totalPages);

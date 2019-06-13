@@ -13,4 +13,8 @@ public interface UserService {
     long countUsers(String token, String idGroup);
 
     ResponseEntity<String> findUsersByPageAndIdGroup(String token, String idGroup, int page);
+
+    long countUsersByName(String token, String keyword);
+
+    ResponseEntity<String> findUsersByPageAndName(String token, String keyword, int page);
 }
