@@ -27,10 +27,12 @@ public class RequestsPath {
     public static final String USERS = "/users/{idGroup}/{page}";
     public static final String CREATE_USER = "/build/user";
     public static final String EDIT_USER = "/build/user/{id}";
+    public static final String READ_USERS = "/users/read";
     public static final String PROFILE = "/profile";
     public static final String EDIT_PROFILE = "/edit/profile";
     public static final String GROUPS = "/groups/{idParent}/{page}";
     public static final String CREATE_GROUP = "/build/group";
     public static final String EDIT_GROUP = "/build/group/{id}";
     public static final String AJAX_GROUPS = "/ajax/groups";
+    public static final String READ_GROUPS = "/groups/read";
 }

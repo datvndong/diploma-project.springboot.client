@@ -1,9 +1,13 @@
 package springboot.centralizedsystem.controllers;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,14 +17,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import springboot.centralizedsystem.domains.Group;
+import springboot.centralizedsystem.domains.ImportFile;
 import springboot.centralizedsystem.domains.User;
 import springboot.centralizedsystem.resources.APIs;
 import springboot.centralizedsystem.resources.Configs;
@@ -29,6 +36,7 @@ import springboot.centralizedsystem.resources.Messages;
 import springboot.centralizedsystem.resources.RequestsPath;
 import springboot.centralizedsystem.resources.Views;
 import springboot.centralizedsystem.services.GroupService;
+import springboot.centralizedsystem.services.ReadSurveyService;
 import springboot.centralizedsystem.services.SubmissionService;
 import springboot.centralizedsystem.services.UserService;
 import springboot.centralizedsystem.utils.SessionUtils;
@@ -48,11 +56,14 @@ public class UserController extends BaseController {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private ReadSurveyService readSurveyService;
+
     @GetMapping(RequestsPath.USERS)
     public String usersGET(ModelMap model, HttpSession session, RedirectAttributes redirect,
-            @PathVariable String idGroup, @PathVariable String page, @RequestParam(required = false) String keyword) {
+            @PathVariable String idGroup, @PathVariable String page, @RequestParam(required = false) String keyword,
+            @ModelAttribute(Keys.IMPORT) String importMess) {
         try {
-            System.err.println(idGroup);
             if (!SessionUtils.isAdmin(session)) {
                 return roleForbidden(redirect);
             }
@@ -133,8 +144,15 @@ public class UserController extends BaseController {
                         dataObject.getString("gender"), phoneNumber, address));
             }
 
+            if (!importMess.equals("")) {
+                boolean isImportSuccess = Boolean.parseBoolean(importMess);
+                model.addAttribute("importMess", Messages.IMPORT(isImportSuccess));
+                model.addAttribute("importStatus", isImportSuccess);
+            }
+
             model.addAttribute("list", listUsers);
             model.addAttribute("listGroups", listGroups);
+            model.addAttribute("importFile", new ImportFile());
 
             model.addAttribute("currPage", currPage);
             model.addAttribute("totalPages", totalPages);
@@ -236,5 +254,48 @@ public class UserController extends BaseController {
         session.setAttribute(Keys.USER, newUser);
 
         return res;
+    }
+
+    @PostMapping(RequestsPath.READ_USERS)
+    public String readSurveyPOST(@Valid ImportFile importFile, HttpServletRequest request, HttpSession session,
+            RedirectAttributes redirect) {
+        redirect.addAttribute("idGroup", "root");
+        redirect.addAttribute("page", 1);
+        try {
+            if (!SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
+            User user = SessionUtils.getUser(session);
+            String token = user.getToken();
+
+            String uploadRootPath = request.getServletContext().getRealPath("upload");
+
+            File uploadRootDir = new File(uploadRootPath);
+            // Create root upload folder if not existed.
+            if (!uploadRootDir.exists()) {
+                uploadRootDir.mkdirs();
+            }
+            MultipartFile[] fileDatas = importFile.getFileDatas();
+
+            // Upload file to server & return path
+            String path = readSurveyService.getPathFileImport(uploadRootDir, fileDatas);
+
+            // Dump data by blue print JSON & call API insert to DB
+            List<String> list = userService.getListUsersFromFile(path);
+            ResponseEntity<String> res = null;
+            for (String data : list) {
+                res = userService.insertUser(token, data);
+                if (res.getStatusCode() != HttpStatus.CREATED) {
+                    redirect.addFlashAttribute(Keys.IMPORT, false);
+                    return "redirect:" + RequestsPath.USERS;
+                }
+            }
+
+            redirect.addFlashAttribute(Keys.IMPORT, true);
+            return "redirect:" + RequestsPath.USERS;
+        } catch (IOException e) {
+            redirect.addFlashAttribute(Keys.IMPORT, false);
+            return "redirect:" + RequestsPath.USERS;
+        }
     }
 }

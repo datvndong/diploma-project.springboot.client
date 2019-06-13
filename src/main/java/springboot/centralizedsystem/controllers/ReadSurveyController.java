@@ -41,12 +41,12 @@ public class ReadSurveyController extends BaseController {
             RedirectAttributes redirect) {
         redirect.addAttribute("page", 1);
         try {
+            if (!SessionUtils.isAdmin(session)) {
+                return roleForbidden(redirect);
+            }
             User user = SessionUtils.getUser(session);
             if (user == null) {
                 return unauthorized(redirect);
-            }
-            if (!SessionUtils.isAdmin(session)) {
-                return roleForbidden(redirect);
             }
 
             String uploadRootPath = request.getServletContext().getRealPath("upload");
